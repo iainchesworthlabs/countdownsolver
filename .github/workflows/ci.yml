@@ -1,22 +1,81 @@
 name: CI
 
+# The pull request gate. A pull request (a draft too) runs the static checks. A ready pull
+# request, a merge-queue entry and a push also build, unless the plan finds that nothing a
+# build reads has changed.
+#
+# Two status checks are required: "CI Status", which aggregates the jobs below, and
+# "Scan dependency diff" (dependency-review.yml). A check from a called workflow carries the
+# caller's job name as a prefix, so it cannot be required by its plain name.
+
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+  # Runs every leg on the chosen branch (`gh workflow run ci.yml --ref <branch>`).
+  workflow_dispatch:
 
-# Cancel superseded runs on the same ref.
+# Cancel a superseded pull request run; a push or a queue entry runs to the end.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
 jobs:
+  policy:
+    name: Policy
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/policy.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    with:
+      # Until changelog.d exists (the release tooling change), a change that users see carries
+      # the no-changelog label instead of a fragment.
+      skip-changelog: "true"
+
+  plan:
+    name: Plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      build: ${{ steps.plan.outputs.build }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out the shared scripts
+        uses: iainchesworthlabs/icl-common-infra/actions/checkout-infra@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
+      - name: Check the vendored CMake modules
+        run: python3 tools/ci/sync_cmake.py --check --infra .icl-infra
+
+      - name: Decide scope
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "pull_request" ] || [ "$EVENT" = "merge_group" ]; then
+            git diff --name-only "$BASE_SHA"...HEAD | python3 .icl-infra/scripts/plan_gate.py --config .github/ci/plan.json >> "$GITHUB_OUTPUT"
+          else
+            python3 .icl-infra/scripts/plan_gate.py --config .github/ci/plan.json --force-all >> "$GITHUB_OUTPUT"
+          fi
+
   build-and-test:
     name: ${{ matrix.name }}
+    needs: plan
+    if: needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
     runs-on: ${{ matrix.os }}
     # Jobs flagged experimental (macOS/libc++) may fail without failing the run.
     continue-on-error: ${{ matrix.experimental || false }}
@@ -180,6 +239,8 @@ jobs:
 
   android-build:
     name: Android (arm64-v8a, build-only)
+    needs: plan
+    if: needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
     runs-on: ubuntu-24.04
 
     steps:
@@ -252,6 +313,8 @@ jobs:
 
   ios-build:
     name: iOS (device, build-only, unsigned)
+    needs: plan
+    if: needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
     runs-on: macos-26
 
     steps:
@@ -282,6 +345,8 @@ jobs:
 
   coverage:
     name: Coverage (Linux, GCC)
+    needs: plan
+    if: needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
     runs-on: ubuntu-26.04
 
     steps:
@@ -358,3 +423,24 @@ jobs:
         if: always()
         continue-on-error: true
         uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
+  ci-status:
+    name: CI Status
+    if: always()
+    needs: [policy, plan, build-and-test, translations, toolchain-pins, android-build, ios-build, coverage]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Aggregate
+        uses: iainchesworthlabs/icl-common-infra/actions/ci-status@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          needs: ${{ toJSON(needs) }}
+          expected: >-
+            {
+              "build-and-test": ${{ needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }},
+              "android-build": ${{ needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }},
+              "ios-build": ${{ needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }},
+              "coverage": ${{ needs.plan.outputs.build == 'true' && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+            }

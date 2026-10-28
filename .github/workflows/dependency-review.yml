@@ -9,6 +9,9 @@ name: Dependency Review
 on:
   pull_request:
     branches: [main, develop]
+  # A required check has to report on a queue entry as well. The pull request was
+  # scanned; the entry has no pull request to diff, so the job passes without a scan.
+  merge_group:
 
 permissions:
   contents: read
@@ -28,6 +31,7 @@ jobs:
           persist-credentials: false
 
       - name: Dependency Review
+        if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: moderate
