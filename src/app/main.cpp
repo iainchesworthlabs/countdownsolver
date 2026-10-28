@@ -135,20 +135,20 @@ int main(int argc, char* argv[]) {
     // switch reloads immediately via this same connection.
     solver.setLanguageCode(language_manager.currentLanguage());
     QObject::connect(&language_manager, &countdown::app::LanguageManager::currentLanguageChanged,
-                      &solver, [&language_manager, &solver]() {
-                          solver.setLanguageCode(language_manager.currentLanguage());
-                      });
+                     &solver, [&language_manager, &solver]() {
+                         solver.setLanguageCode(language_manager.currentLanguage());
+                     });
 
     engine->rootContext()->setContextProperty(QStringLiteral("solver"), &solver);
     engine->rootContext()->setContextProperty(QStringLiteral("languageManager"), &language_manager);
     engine->rootContext()->setContextProperty(QStringLiteral("preferences"), &preferences);
 
     QObject::connect(&*engine, &QQmlApplicationEngine::warnings, &app,
-                      [](const QList<QQmlError>& warnings) {
-                          for (const QQmlError& warning : warnings) {
-                              qCWarning(lcQml) << warning.toString();
-                          }
-                      });
+                     [](const QList<QQmlError>& warnings) {
+                         for (const QQmlError& warning : warnings) {
+                             qCWarning(lcQml) << warning.toString();
+                         }
+                     });
 
     QObject::connect(
         &*engine, &QQmlApplicationEngine::objectCreationFailed, &app,

@@ -37,17 +37,22 @@ QMutex* g_log_mutex = new QMutex();
 
 [[nodiscard]] char level_letter(QtMsgType type) {
     switch (type) {
-        case QtDebugMsg:    return 'D';
-        case QtInfoMsg:     return 'I';
-        case QtWarningMsg:  return 'W';
-        case QtCriticalMsg: return 'C';
-        case QtFatalMsg:    return 'F';
+        case QtDebugMsg:
+            return 'D';
+        case QtInfoMsg:
+            return 'I';
+        case QtWarningMsg:
+            return 'W';
+        case QtCriticalMsg:
+            return 'C';
+        case QtFatalMsg:
+            return 'F';
     }
     return '?';
 }
 
 [[nodiscard]] QString format_line(QtMsgType type, const QMessageLogContext& context,
-                                   const QString& message) {
+                                  const QString& message) {
     QString line;
     QTextStream stream(&line);
     stream << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << " [" << level_letter(type)

@@ -12,9 +12,9 @@ namespace {
 // it per input would dominate runtime with no coverage benefit.
 const countdown::letters::Dictionary& fuzz_dictionary() {
     static const countdown::letters::Dictionary dictionary =
-        countdown::letters::Dictionary::from_words(
-            {"a", "an", "and", "cat", "car", "care", "scare", "scarce", "trace",
-             "actor", "tractor", "notice", "auction", "creation", "reaction"});
+        countdown::letters::Dictionary::from_words({"a", "an", "and", "cat", "car", "care", "scare",
+                                                    "scarce", "trace", "actor", "tractor", "notice",
+                                                    "auction", "creation", "reaction"});
     return dictionary;
 }
 

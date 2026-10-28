@@ -5,9 +5,9 @@
 // One category per subsystem so output can be filtered per area at runtime
 // via QT_LOGGING_RULES / qtlogging.ini (e.g. "countdown.dictionary.debug=true")
 // without a rebuild.
-Q_DECLARE_LOGGING_CATEGORY(lcApp)         // application lifecycle (main.cpp)
-Q_DECLARE_LOGGING_CATEGORY(lcQml)         // QML engine warnings/errors
-Q_DECLARE_LOGGING_CATEGORY(lcSolver)      // Solver facade (solveNumbers/solveLetters/solveConundrum)
+Q_DECLARE_LOGGING_CATEGORY(lcApp)     // application lifecycle (main.cpp)
+Q_DECLARE_LOGGING_CATEGORY(lcQml)     // QML engine warnings/errors
+Q_DECLARE_LOGGING_CATEGORY(lcSolver)  // Solver facade (solveNumbers/solveLetters/solveConundrum)
 Q_DECLARE_LOGGING_CATEGORY(lcDictionary)  // dictionary loading
 
 namespace countdown::app::logging {

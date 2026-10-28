@@ -27,10 +27,7 @@ TEST_CASE("validation rejects malformed rounds", "[numbers][validation]") {
 
 TEST_CASE("an exact solution is found", "[numbers][solve]") {
     constexpr std::array numbers{100, 4};
-    const auto outcome = NumbersGame{}
-                             .with_target(104)
-                             .with_numbers(numbers)
-                             .solve();
+    const auto outcome = NumbersGame{}.with_target(104).with_numbers(numbers).solve();
 
     REQUIRE(outcome.has_value());
     REQUIRE(outcome->exact);

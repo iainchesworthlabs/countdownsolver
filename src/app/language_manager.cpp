@@ -136,14 +136,14 @@ void LanguageManager::installTranslators(const QString& code) {
     // Qt 6 consolidated its own translation catalogs (formerly qtbase_xx,
     // qtdeclarative_xx, ...) into a single qt_xx.qm per language.
     if (qt_translator_.load(QLocale(code), QStringLiteral("qt"), QStringLiteral("_"),
-                             QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
+                            QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
         app_.installTranslator(&qt_translator_);
     } else {
         qCDebug(lcApp) << "installTranslators: no bundled Qt translation for" << code;
     }
 
     if (app_translator_.load(QLocale(code), QStringLiteral("countdown"), QStringLiteral("_"),
-                              QStringLiteral(":/i18n"))) {
+                             QStringLiteral(":/i18n"))) {
         app_.installTranslator(&app_translator_);
     } else {
         qCWarning(lcApp) << "installTranslators: no countdown_" << code << ".qm resource found";

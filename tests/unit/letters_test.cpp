@@ -37,8 +37,8 @@ TEST_CASE("from_words normalises and de-duplicates", "[letters][dictionary]") {
 }
 
 TEST_CASE("best_words returns the longest formable words", "[letters][solve]") {
-    const auto dictionary = Dictionary::from_words(
-        {"cat", "react", "creation", "reaction", "cratering", "zebra"});
+    const auto dictionary =
+        Dictionary::from_words({"cat", "react", "creation", "reaction", "cratering", "zebra"});
 
     const auto result = dictionary.best_words("rateciong");
     REQUIRE(result.has_value());
@@ -47,8 +47,8 @@ TEST_CASE("best_words returns the longest formable words", "[letters][solve]") {
 }
 
 TEST_CASE("find_matches returns words by descending length", "[letters][solve]") {
-    const auto dictionary = Dictionary::from_words(
-        {"cat", "react", "creation", "reaction", "cratering", "zebra"});
+    const auto dictionary =
+        Dictionary::from_words({"cat", "react", "creation", "reaction", "cratering", "zebra"});
 
     const auto all = dictionary.find_matches("rateciong", 1);
     REQUIRE(all.has_value());
@@ -113,8 +113,8 @@ TEST_CASE("words_of_length filters to an exact length, alphabetically", "[letter
 }
 
 TEST_CASE("sample strides through the word list", "[letters][dictionary]") {
-    const auto dictionary = Dictionary::from_words(
-        {"aa", "bb", "cc", "dd", "ee", "ff"});  // stored sorted
+    const auto dictionary =
+        Dictionary::from_words({"aa", "bb", "cc", "dd", "ee", "ff"});  // stored sorted
 
     const auto picked = dictionary.sample(2, 2);
     REQUIRE(picked == std::vector<std::string>{"aa", "cc"});

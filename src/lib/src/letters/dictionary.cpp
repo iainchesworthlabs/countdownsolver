@@ -78,17 +78,17 @@ Dictionary Dictionary::from_words(const std::vector<std::string>& words, const A
     dictionary.words_.erase(duplicates.begin(), duplicates.end());
 
     // Pre-compute a frequency table per word via a ranges pipeline.
-    dictionary.frequencies_ =
-        dictionary.words_
-        | std::views::transform(
-              [&alphabet](const std::string& word) { return frequencies_of(word, alphabet); })
-        | std::ranges::to<std::vector<Frequencies>>();
+    dictionary.frequencies_ = dictionary.words_ |
+                              std::views::transform([&alphabet](const std::string& word) {
+                                  return frequencies_of(word, alphabet);
+                              }) |
+                              std::ranges::to<std::vector<Frequencies>>();
 
     return dictionary;
 }
 
 Result<Dictionary> Dictionary::load_from_file(const std::filesystem::path& path,
-                                               const Alphabet& alphabet) {
+                                              const Alphabet& alphabet) {
     std::ifstream input(path);
     if (!input) {
         return std::unexpected(SolveError::dictionary_not_found);
@@ -173,9 +173,8 @@ Result<std::vector<std::string>> Dictionary::find_matches(std::string_view lette
         return lhs.second != rhs.second ? lhs.second > rhs.second : lhs.first < rhs.first;
     });
 
-    return matches
-        | std::views::transform([](auto& entry) { return std::move(entry.first); })
-        | std::ranges::to<std::vector<std::string>>();
+    return matches | std::views::transform([](auto& entry) { return std::move(entry.first); }) |
+           std::ranges::to<std::vector<std::string>>();
 }
 
 std::vector<std::string> Dictionary::words_of_length(std::size_t length) const {
@@ -195,8 +194,8 @@ std::vector<std::string> Dictionary::sample(std::size_t step, std::size_t count)
         step = 1;
     }
     // stride selects every step-th word; take caps the result.
-    auto view = countdown::detail::stride(words_, static_cast<std::ptrdiff_t>(step))
-              | std::views::take(count);
+    auto view = countdown::detail::stride(words_, static_cast<std::ptrdiff_t>(step)) |
+                std::views::take(count);
     return std::ranges::to<std::vector<std::string>>(view);
 }
 

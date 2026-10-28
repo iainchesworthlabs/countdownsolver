@@ -34,12 +34,12 @@ std::string build_target() {
 
 #if defined(__clang__)
     return std::format("{} {} (Clang {}.{}.{})", os, arch, __clang_major__, __clang_minor__,
-                        __clang_patchlevel__);
+                       __clang_patchlevel__);
 #elif defined(_MSC_VER)
     return std::format("{} {} (MSVC {})", os, arch, _MSC_VER);
 #elif defined(__GNUC__)
     return std::format("{} {} (GCC {}.{}.{})", os, arch, __GNUC__, __GNUC_MINOR__,
-                        __GNUC_PATCHLEVEL__);
+                       __GNUC_PATCHLEVEL__);
 #else
     return std::format("{} {} (unknown compiler)", os, arch);
 #endif
@@ -54,11 +54,7 @@ std::string version_details() {
         "  commit:  {}\n"
         "  branch:  {}\n"
         "  target:  {}{}",
-        version_string,
-        git_describe,
-        git_commit_full,
-        git_branch,
-        build_target(),
+        version_string, git_describe, git_commit_full, git_branch, build_target(),
         git_dirty ? "\n  state:   dirty (uncommitted changes)" : "");
 }
 

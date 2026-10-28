@@ -51,9 +51,10 @@ template <std::ranges::viewable_range R>
 template <std::ranges::viewable_range R>
 [[nodiscard]] constexpr auto stride(R&& range, std::ranges::range_difference_t<R> step) {
     using diff = std::ranges::range_difference_t<R>;
-    return std::views::zip(std::views::iota(diff{0}), std::forward<R>(range))
-         | std::views::filter([step](const auto& indexed) { return std::get<0>(indexed) % step == 0; })
-         | std::views::transform([](auto&& indexed) -> decltype(auto) {
+    return std::views::zip(std::views::iota(diff{0}), std::forward<R>(range)) |
+           std::views::filter(
+               [step](const auto& indexed) { return std::get<0>(indexed) % step == 0; }) |
+           std::views::transform([](auto&& indexed) -> decltype(auto) {
                return std::get<1>(std::forward<decltype(indexed)>(indexed));
            });
 }

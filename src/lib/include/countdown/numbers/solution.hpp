@@ -23,8 +23,7 @@ class Solution {
 public:
     Solution() = default;
 
-    Solution(std::vector<Step> steps, Value value)
-        : steps_(std::move(steps)), value_(value) {}
+    Solution(std::vector<Step> steps, Value value) : steps_(std::move(steps)), value_(value) {}
 
     [[nodiscard]] const std::vector<Step>& steps() const noexcept { return steps_; }
     [[nodiscard]] Value value() const noexcept { return value_; }

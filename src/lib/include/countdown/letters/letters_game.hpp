@@ -20,8 +20,7 @@ public:
     // Stores a pointer to `dictionary` rather than a copy, so the caller must
     // ensure `dictionary` outlives this LettersGame; constructing from a
     // temporary or shorter-lived Dictionary leaves a dangling reference.
-    explicit LettersGame(const Dictionary& dictionary) noexcept
-        : dictionary_(&dictionary) {}
+    explicit LettersGame(const Dictionary& dictionary) noexcept : dictionary_(&dictionary) {}
 
     template <typename Self>
     [[nodiscard]] auto&& with_letters(this Self&& self, std::string_view letters) {

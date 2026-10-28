@@ -1,5 +1,6 @@
 #include "tst_qml_setup.hpp"
 
+#include <QtQuickTest/quicktest.h>
 #include <QAccessible>
 #include <QCoreApplication>
 #include <QDebug>
@@ -13,7 +14,6 @@
 #include <QString>
 #include <QTest>
 #include <QWindow>
-#include <QtQuickTest/quicktest.h>
 
 #include <memory>
 #include <optional>
@@ -89,7 +89,8 @@ void AccessibilityProbe::keyClick(QObject* window, int key, int modifiers) const
         qWarning() << "AccessibilityProbe::keyClick: not a window:" << window;
         return;
     }
-    QTest::keyClick(target, static_cast<Qt::Key>(key), static_cast<Qt::KeyboardModifiers>(modifiers));
+    QTest::keyClick(target, static_cast<Qt::Key>(key),
+                    static_cast<Qt::KeyboardModifiers>(modifiers));
 }
 
 Setup::Setup() {
@@ -127,7 +128,7 @@ void Setup::qmlEngineAvailable(QQmlEngine* engine) {
     language_manager_.emplace(*qGuiApp, *engine);
     language_manager_->applyInitialLanguage();
     engine->rootContext()->setContextProperty(QStringLiteral("languageManager"),
-                                               &*language_manager_);
+                                              &*language_manager_);
 
     preferences_.emplace();
     engine->rootContext()->setContextProperty(QStringLiteral("preferences"), &*preferences_);
@@ -137,7 +138,8 @@ void Setup::qmlEngineAvailable(QQmlEngine* engine) {
     // (see tst_LanguageSwitching.qml, which switches language repeatedly).
     solver_.setLanguageCode(language_manager_->currentLanguage());
     QObject::connect(&*language_manager_, &countdown::app::LanguageManager::currentLanguageChanged,
-                      &solver_, [this]() { solver_.setLanguageCode(language_manager_->currentLanguage()); });
+                     &solver_,
+                     [this]() { solver_.setLanguageCode(language_manager_->currentLanguage()); });
 }
 
 QUICK_TEST_MAIN_WITH_SETUP(countdown_qml, Setup)

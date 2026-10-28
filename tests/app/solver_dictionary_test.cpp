@@ -99,7 +99,8 @@ void DictionaryTest::fullDictionary_foundButEmpty() {
     {
         Solver solver;
         QVERIFY(!solver.fullDictionaryAvailable());
-        QVERIFY(solver.fullDictionaryStatus().contains(QStringLiteral("contained no usable words")));
+        QVERIFY(
+            solver.fullDictionaryStatus().contains(QStringLiteral("contained no usable words")));
     }
 
     if (previous.isNull()) {

@@ -21,27 +21,27 @@ namespace {
 // real per-language dictionaries are a later phase (see the session's plan).
 [[nodiscard]] std::vector<std::string> french_words() {
     return {
-        "chat",                             // cat - plain ASCII
-        utf8({'c', 'a', 'f', 0xE9}),         // café - has e-acute
-        utf8({'s', 0x153, 'u', 'r'}),        // sœur (sister) - has the oe ligature
+        "chat",                                 // cat - plain ASCII
+        utf8({'c', 'a', 'f', 0xE9}),            // café - has e-acute
+        utf8({'s', 0x153, 'u', 'r'}),           // sœur (sister) - has the oe ligature
         utf8({'g', 'a', 'r', 0xE7, 'o', 'n'}),  // garçon (boy) - has c-cedilla
     };
 }
 
 [[nodiscard]] std::vector<std::string> german_words() {
     return {
-        "haus",                                        // house - plain ASCII
-        utf8({'m', 0xE4, 'd', 'c', 'h', 'e', 'n'}),     // mädchen (girl) - has a-umlaut
-        utf8({'g', 'r', 0xFC, 'n'}),                    // grün (green) - has u-umlaut
-        utf8({'s', 't', 'r', 'a', 0xDF, 'e'}),          // straße (street) - has Eszett
+        "haus",                                      // house - plain ASCII
+        utf8({'m', 0xE4, 'd', 'c', 'h', 'e', 'n'}),  // mädchen (girl) - has a-umlaut
+        utf8({'g', 'r', 0xFC, 'n'}),                 // grün (green) - has u-umlaut
+        utf8({'s', 't', 'r', 'a', 0xDF, 'e'}),       // straße (street) - has Eszett
     };
 }
 
 [[nodiscard]] std::vector<std::string> spanish_words() {
     return {
-        "casa",                                  // house - plain ASCII
-        utf8({'n', 'i', 0xF1, 'o'}),              // niño (child) - has n-tilde
-        utf8({'a', 0xF1, 'o'}),                   // año (year) - has n-tilde
+        "casa",                                      // house - plain ASCII
+        utf8({'n', 'i', 0xF1, 'o'}),                 // niño (child) - has n-tilde
+        utf8({'a', 0xF1, 'o'}),                      // año (year) - has n-tilde
         utf8({'c', 'a', 'n', 'c', 'i', 0xF3, 'n'}),  // canción (song) - has o-acute
     };
 }
@@ -59,7 +59,8 @@ TEST_CASE("a French dictionary matches an unaccented rack against an accented wo
     REQUIRE(*result == std::vector<std::string>{utf8({'c', 'a', 'f', 0xE9})});
 }
 
-TEST_CASE("word length reflects folded letters, not UTF-8 byte count", "[i18n][french][dictionary]") {
+TEST_CASE("word length reflects folded letters, not UTF-8 byte count",
+          "[i18n][french][dictionary]") {
     const auto dictionary = Dictionary::from_words(french_words(), french_alphabet());
     const std::string cafe = utf8({'c', 'a', 'f', 0xE9});
 
@@ -83,7 +84,8 @@ TEST_CASE("the oe ligature expands to two letters for length/matching purposes",
     REQUIRE(*found == std::vector<std::string>{soeur});
 }
 
-TEST_CASE("a German dictionary keeps a-umlaut distinct from plain a", "[i18n][german][dictionary]") {
+TEST_CASE("a German dictionary keeps a-umlaut distinct from plain a",
+          "[i18n][german][dictionary]") {
     const auto dictionary = Dictionary::from_words(german_words(), german_alphabet());
     const std::string maedchen = utf8({'m', 0xE4, 'd', 'c', 'h', 'e', 'n'});
 
@@ -100,7 +102,8 @@ TEST_CASE("a German dictionary keeps a-umlaut distinct from plain a", "[i18n][ge
     REQUIRE(with_plain_a.error() == SolveError::no_solution);
 }
 
-TEST_CASE("Eszett expands to two 's' letters for a German dictionary", "[i18n][german][dictionary]") {
+TEST_CASE("Eszett expands to two 's' letters for a German dictionary",
+          "[i18n][german][dictionary]") {
     const auto dictionary = Dictionary::from_words(german_words(), german_alphabet());
     const std::string maedchen = utf8({'m', 0xE4, 'd', 'c', 'h', 'e', 'n'});
     const std::string strasse_eszett = utf8({'s', 't', 'r', 'a', 0xDF, 'e'});
@@ -165,8 +168,7 @@ TEST_CASE("ConundrumGame finds a full anagram of an accented rack", "[i18n][germ
 
     // "grün" scrambled - same four folded letters (g, r, u-umlaut, n) in a
     // different order.
-    const auto result =
-        ConundrumGame{dictionary}.with_letters(utf8({0xFC, 'g', 'n', 'r'})).solve();
+    const auto result = ConundrumGame{dictionary}.with_letters(utf8({0xFC, 'g', 'n', 'r'})).solve();
     REQUIRE(result.has_value());
     REQUIRE(*result == std::vector<std::string>{utf8({'g', 'r', 0xFC, 'n'})});
 }
