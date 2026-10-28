@@ -5,6 +5,11 @@
   (org.qtproject.qt.android.bindings.QtActivity/QtApplication) is correct
   as-is for this Qt version.
 
+  There is no <uses-sdk> tag: Qt 6.12's Gradle (Android Gradle Plugin 9)
+  rejects one. The minimum (28, the lowest androiddeployqt accepts) and target
+  levels are the QT_ANDROID_MIN_SDK_VERSION and QT_ANDROID_TARGET_SDK_VERSION
+  properties of the app target in src/app/CMakeLists.txt.
+
   No screenOrientation lock and no supports-screens size exclusion (both
   removed - see git history for the original tablet/landscape-only values):
   the QML side now has real phone-portrait/phone-landscape/tablet-portrait
@@ -36,9 +41,4 @@
             <meta-data android:name="android.app.lib_name" android:value="countdownsolver" />
         </activity>
     </application>
-
-    <!-- androiddeployqt for this Qt version refuses to package anything below
-         API 28 ("Invalid minSdkVersion version, minSdkVersion must be >= 28"),
-         confirmed against a real Qt 6.8.3 Android kit on CI - see docs/ci.md. -->
-    <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="34" />
 </manifest>
