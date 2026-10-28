@@ -1,11 +1,11 @@
 # CountdownSolver
 
-[![CI](https://github.com/iainchesworth/CountdownSolver/actions/workflows/ci.yml/badge.svg)](https://github.com/iainchesworth/CountdownSolver/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/iainchesworth/CountdownSolver/actions/workflows/codeql.yml/badge.svg)](https://github.com/iainchesworth/CountdownSolver/actions/workflows/codeql.yml)
-[![OSV-Scanner](https://github.com/iainchesworth/CountdownSolver/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/iainchesworth/CountdownSolver/actions/workflows/osv-scanner.yml)
-[![Zizmor](https://github.com/iainchesworth/CountdownSolver/actions/workflows/zizmor.yml/badge.svg)](https://github.com/iainchesworth/CountdownSolver/actions/workflows/zizmor.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/iainchesworth/CountdownSolver/badge)](https://scorecard.dev/viewer/?uri=github.com/iainchesworth/CountdownSolver)
-[![Docs](https://img.shields.io/badge/docs-published-2f7d7b)](https://iainchesworth.github.io/CountdownSolver/)
+[![CI](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/ci.yml/badge.svg)](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/codeql.yml/badge.svg)](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/codeql.yml)
+[![OSV-Scanner](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/osv-scanner.yml/badge.svg)](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/osv-scanner.yml)
+[![Zizmor](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/zizmor.yml/badge.svg)](https://github.com/iainchesworthlabs/countdownsolver/actions/workflows/zizmor.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/iainchesworthlabs/countdownsolver/badge)](https://scorecard.dev/viewer/?uri=github.com/iainchesworthlabs/countdownsolver)
+[![Docs](https://img.shields.io/badge/docs-published-2f7d7b)](https://iainchesworthlabs.github.io/countdownsolver/)
 [![C++23](https://img.shields.io/badge/C%2B%2B-23-blue)](docs/architecture.md)
 [![License: GPL v3+](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSE)
 
@@ -25,14 +25,14 @@ It'll also generate and solve the show's third game, the **Conundrum**
 ![Numbers page, solved](docs/assets/screenshots/numbers.png)
 
 More screenshots and the full docs live at
-**[iainchesworth.github.io/CountdownSolver](https://iainchesworth.github.io/CountdownSolver/)**.
+**[iainchesworthlabs.github.io/countdownsolver](https://iainchesworthlabs.github.io/countdownsolver/)**.
 
 ## Under the hood
 
 All game logic lives in a GUI-free library (`countdown::solver`); a thin
 **Qt 6 Quick (QML)** application provides the GUI, wired to the library
 through a small `Solver` backend (`src/app/solver.hpp`). See
-[Architecture](https://iainchesworth.github.io/CountdownSolver/architecture/)
+[Architecture](https://iainchesworthlabs.github.io/countdownsolver/architecture/)
 for the modern C++23 features it leans on
 (`std::expected`, ranges, deducing `this`, and more) and how the source
 tree is laid out.
@@ -49,7 +49,7 @@ cmake --build --preset windows-msvc-debug
 ```
 
 That needs a C++23 compiler, CMake 4+, Ninja, and Qt 6.12 — see
-[Getting started](https://iainchesworth.github.io/CountdownSolver/getting-started/)
+[Getting started](https://iainchesworthlabs.github.io/countdownsolver/getting-started/)
 for the full requirements and every platform's preset. vcpkg comes from the
 organisation's fork and is checked out into `ICL_VCPKG_STORE` on the first
 configure.
@@ -66,22 +66,22 @@ ctest --preset linux-gcc-debug
 
 | | |
 | --- | --- |
-| [How to play](https://iainchesworth.github.io/CountdownSolver/how-to-play/) | Each round explained, and what the results mean |
-| [Getting started](https://iainchesworth.github.io/CountdownSolver/getting-started/) | Requirements, cloning, first build |
-| [Building & packaging](https://iainchesworth.github.io/CountdownSolver/building/) | Every preset, sanitizers, `cpack` |
-| [Testing & coverage](https://iainchesworth.github.io/CountdownSolver/testing/) | TDD, test layers, the 80% coverage gate |
-| [Architecture](https://iainchesworth.github.io/CountdownSolver/architecture/) | C++23 highlights, source layout |
-| [Contributing](https://iainchesworth.github.io/CountdownSolver/CONTRIBUTING/) | Branching model, code style, PR process |
+| [How to play](https://iainchesworthlabs.github.io/countdownsolver/how-to-play/) | Each round explained, and what the results mean |
+| [Getting started](https://iainchesworthlabs.github.io/countdownsolver/getting-started/) | Requirements, cloning, first build |
+| [Building & packaging](https://iainchesworthlabs.github.io/countdownsolver/building/) | Every preset, sanitizers, `cpack` |
+| [Testing & coverage](https://iainchesworthlabs.github.io/countdownsolver/testing/) | TDD, test layers, the 80% coverage gate |
+| [Architecture](https://iainchesworthlabs.github.io/countdownsolver/architecture/) | C++23 highlights, source layout |
+| [Contributing](https://iainchesworthlabs.github.io/countdownsolver/CONTRIBUTING/) | Branching model, code style, PR process |
 
 ## Contributing
 
 Contributions are welcome — see
-[CONTRIBUTING.md](https://iainchesworth.github.io/CountdownSolver/CONTRIBUTING/)
+[CONTRIBUTING.md](https://iainchesworthlabs.github.io/countdownsolver/CONTRIBUTING/)
 for the branching model (this project follows
 [gitflow](https://nvie.com/posts/a-successful-git-branching-model/):
 `develop` for day-to-day work, `main` for tagged releases only) and how
 PRs get reviewed. Please also read the
-[Code of Conduct](https://iainchesworth.github.io/CountdownSolver/CODE_OF_CONDUCT/).
+[Code of Conduct](https://iainchesworthlabs.github.io/countdownsolver/CODE_OF_CONDUCT/).
 
 ## License
 

@@ -26,7 +26,7 @@ they install on **Ubuntu 24.04, Debian 13 and newer**. The app uses the X11
 platform plugin, so a Wayland session runs it through XWayland.
 
 **Android/iOS**: CPack packaging is skipped entirely for these targets
-([`Packaging.cmake`](https://github.com/iainchesworth/CountdownSolver/blob/develop/cmake/Packaging.cmake)) —
+([`Packaging.cmake`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/cmake/Packaging.cmake)) —
 mobile distribution goes through `androiddeployqt` and an Xcode
 archive+export instead ([CI & dependencies](ci.md#signed-mobile-release-packaging)
 has the full signing setup). The debug builds CI runs on every push are
@@ -99,7 +99,7 @@ ctest --preset linux-gcc-debug
 ## Debug builds: sanitizers & hardening
 
 Debug configurations enable, via
-[`Sanitizers.cmake`](https://github.com/iainchesworth/CountdownSolver/blob/develop/cmake/Sanitizers.cmake):
+[`Sanitizers.cmake`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/cmake/Sanitizers.cmake):
 
 - **AddressSanitizer + UndefinedBehaviorSanitizer** on GCC/Clang
   (`-fsanitize=address,undefined -fno-sanitize-recover=all`),
@@ -148,14 +148,14 @@ package and fail the build if one needs a newer glibc or libstdc++ than Ubuntu
 24.04 and Debian 13 carry. The pull request builds run on Ubuntu 26.04 and do not
 package.
 
-Released packages (built via the [release workflow](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/release.yml))
+Released packages (built via the [release workflow](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/release.yml))
 also ship a `SHA256SUMS`/`SHA512SUMS` per platform and a
 [build provenance attestation](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)
 for every package — verify a download with:
 
 ```sh
 sha256sum -c SHA256SUMS
-gh attestation verify CountdownSolver-1.2.3-Linux.tar.gz -R iainchesworth/CountdownSolver
+gh attestation verify CountdownSolver-1.2.3-Linux.tar.gz -R iainchesworthlabs/countdownsolver
 ```
 
 ## Versioning

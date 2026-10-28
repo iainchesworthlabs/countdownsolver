@@ -39,9 +39,9 @@ You changed or added a translatable string without updating the `.ts`
 files, or left one marked unfinished. See [Translations](translations.md).
 
 **Where do I report a security vulnerability?**
-Not as a public issue — see [Security policy](https://github.com/iainchesworth/CountdownSolver/security/policy)
+Not as a public issue — see [Security policy](https://github.com/iainchesworthlabs/countdownsolver/security/policy)
 for private reporting.
 
-Didn't find your issue here? [Open one](https://github.com/iainchesworth/CountdownSolver/issues/new/choose) —
+Didn't find your issue here? [Open one](https://github.com/iainchesworthlabs/countdownsolver/issues/new/choose) —
 see [Contributing](CONTRIBUTING.md) first if it's more than a quick
 question.

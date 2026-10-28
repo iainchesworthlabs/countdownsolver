@@ -19,7 +19,7 @@ into one word), which the app can generate and solve too.
 ## Try it
 
 Grab a build from the project's
-[releases](https://github.com/iainchesworth/CountdownSolver/releases), or
+[releases](https://github.com/iainchesworthlabs/countdownsolver/releases), or
 build it yourself — see [Getting started](getting-started.md). New to the
 app? [How to play](how-to-play.md) walks through each round and what the
 results mean.
@@ -73,5 +73,5 @@ A thin Qt 6 Quick (QML) app sits on top for the GUI you see above. See
 ## License
 
 CountdownSolver is free and open source under the
-[GPL-3.0-or-later](https://github.com/iainchesworth/CountdownSolver/blob/main/LICENSE)
+[GPL-3.0-or-later](https://github.com/iainchesworthlabs/countdownsolver/blob/main/LICENSE)
 license. Contributions are welcome — see [Contributing](CONTRIBUTING.md).

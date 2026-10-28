@@ -10,7 +10,7 @@ ship in the next release; only the latest release is supported.
 
 Please **don't** open a public issue for a security vulnerability. Use
 GitHub's private reporting instead:
-[Report a vulnerability](https://github.com/iainchesworth/CountdownSolver/security/advisories/new)
+[Report a vulnerability](https://github.com/iainchesworthlabs/countdownsolver/security/advisories/new)
 (**Security** tab → **Report a vulnerability**). That opens a private
 advisory only maintainers can see, so it can be fixed before details go
 public.

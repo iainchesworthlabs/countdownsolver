@@ -1,8 +1,8 @@
 site_name: Countdown Solver
 site_description: A cross-platform solver for the Numbers, Letters, and Conundrum games from Countdown.
-site_url: https://iainchesworth.github.io/CountdownSolver/
-repo_url: https://github.com/iainchesworth/CountdownSolver
-repo_name: iainchesworth/CountdownSolver
+site_url: https://iainchesworthlabs.github.io/countdownsolver/
+repo_url: https://github.com/iainchesworthlabs/countdownsolver
+repo_name: iainchesworthlabs/countdownsolver
 edit_uri: edit/develop/docs/
 
 theme:

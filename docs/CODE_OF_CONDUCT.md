@@ -41,7 +41,7 @@ the project in public spaces.
 ## Enforcement
 
 Instances of unacceptable behaviour may be reported by opening a
-[GitHub issue](https://github.com/iainchesworth/CountdownSolver/issues) or,
+[GitHub issue](https://github.com/iainchesworthlabs/countdownsolver/issues) or,
 for reports you'd rather not make public, by contacting the maintainer
 ([@iainchesworth](https://github.com/iainchesworth)) directly through
 GitHub. All complaints will be reviewed and investigated promptly and
