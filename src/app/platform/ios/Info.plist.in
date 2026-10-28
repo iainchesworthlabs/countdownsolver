@@ -70,6 +70,14 @@
 	<string>AppIcon</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!--
+	  App Store Connect asks, for every build, whether the app uses encryption that
+	  is not exempt. The app's own code makes no network connection (its links open
+	  in the system browser) and has no cryptography, so the answer is no; declaring
+	  it here spares the question on each TestFlight upload.
+	-->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHumanReadableCopyright</key>
 	<string>${MACOSX_BUNDLE_COPYRIGHT}</string>
 

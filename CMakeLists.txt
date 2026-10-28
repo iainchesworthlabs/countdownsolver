@@ -42,6 +42,11 @@ set(COUNTDOWN_APPLICATION_ID "com.iainchesworthlabs.countdownsolver")
 # Linux packages use it to sort a pre-release before the release.
 set(COUNTDOWN_VERSION_PRERELEASE "" CACHE STRING "Pre-release suffix of the version being packaged")
 
+# The build number of an Apple bundle (CFBundleVersion), which TestFlight needs to rise with
+# every upload of a version. The release workflow passes the run number; empty keeps CMake's
+# default, the project version.
+set(COUNTDOWN_BUILD_NUMBER "" CACHE STRING "CFBundleVersion of the macOS and iOS bundles")
+
 # ---------------------------------------------------------------------------
 # Global language settings: C++23 only, no compiler extensions.
 # ---------------------------------------------------------------------------
