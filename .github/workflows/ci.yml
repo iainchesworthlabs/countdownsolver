@@ -82,7 +82,8 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "latest"
+          cmakeVersion: "4.4.4"
+          ninjaVersion: "1.13.2"
 
       # GCC 15 provides libstdc++ 15 for both the GCC job and (as the standard
       # library) the Clang job.
@@ -191,6 +192,20 @@ jobs:
           fi
           echo "All translations reviewed and finished."
 
+  toolchain-pins:
+    name: Toolchain pins
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      # Every toolchain version in the workflows and install scripts must equal
+      # .github/toolchain-versions.json.
+      - name: Check toolchain versions
+        run: python3 tools/ci/check_toolchain_versions.py
+
   android-build:
     name: Android (arm64-v8a, build-only)
     runs-on: ubuntu-24.04
@@ -253,7 +268,8 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "latest"
+          cmakeVersion: "4.4.4"
+          ninjaVersion: "1.13.2"
 
       - name: Configure
         env:
@@ -286,7 +302,8 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "latest"
+          cmakeVersion: "4.4.4"
+          ninjaVersion: "1.13.2"
 
       - name: Configure
         run: >
@@ -326,7 +343,8 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "latest"
+          cmakeVersion: "4.4.4"
+          ninjaVersion: "1.13.2"
 
       - name: Install GCC 15 (Linux)
         run: |

@@ -1,0 +1,13 @@
+{
+  "$comment": "The toolchain the CI legs are pinned to, in one place. tools/ci/check_toolchain_versions.py fails when a workflow or an install script carries a different value (docs/ci.md). msvc_toolset is what windows-2025 carries and has no other home. The vcpkg baseline stays in vcpkg.json.",
+  "qt": "6.8.3",
+  "cmake": "4.4.4",
+  "ninja": "1.13.2",
+  "gcc": "15",
+  "llvm": "21",
+  "msvc_toolset": "14.51",
+  "android": {
+    "ndk": "26.1.10909125",
+    "jdk": "17"
+  }
+}
