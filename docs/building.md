@@ -42,7 +42,8 @@ Every preset states its build type explicitly:
 `<toolchain>-debug` or `<toolchain>-release`, e.g. `windows-msvc-debug`,
 `linux-gcc-release`, `linux-clang-debug`, `macos-clang-release`,
 `windows-clang-debug`, `android-arm64-v8a-debug`,
-`android-arm64-v8a-release`, `ios-debug`, `ios-release`.
+`android-arm64-v8a-release`, `ios-debug`, `ios-release`. `linux-gcc-coverage` and
+`linux-gcc-codeql` are for CI (coverage, and the nightly CodeQL build of the library and tests).
 
 ```sh
 cmake --preset windows-msvc-debug

@@ -4,10 +4,11 @@
                ".github/workflows/docs.yml", ".github/workflows/cache-hygiene.yml", ".github/workflows/scorecard.yml",
                ".github/workflows/osv-scanner.yml", ".github/workflows/zizmor.yml", ".github/workflows/dependency-review.yml",
                ".github/workflows/branch-name-check.yml", ".github/workflows/cflite_*.yml",
+               ".github/workflows/codeql.yml", ".github/workflows/dependabot-auto-merge.yml",
                "REUSE.toml", ".editorconfig", ".gitattributes", ".git-blame-ignore-revs", "LICENSES/**", "AGENTS.md"],
   "build": ["src/**", "tests/**", "CMakeLists.txt", "CMakePresets.json", "vcpkg.json", "cmake/**", "packaging/**", "ci/**",
             ".clang-format", ".clang-tidy", "**/.clang-tidy", ".clusterfuzzlite/**"],
   "gui": [],
-  "machinery": [".github/workflows/ci.yml", ".github/workflows/codeql.yml", ".github/workflows/release.yml",
+  "machinery": [".github/workflows/ci.yml", ".github/workflows/release.yml",
                 ".github/ci/**", ".github/toolchain-versions.json", "tools/ci/**"]
 }

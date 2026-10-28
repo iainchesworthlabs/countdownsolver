@@ -1,79 +1,32 @@
-name: CodeQL (C++)
+name: CodeQL
+
+# Code scanning, nightly and by hand. It has no pull request trigger, so a finding never
+# blocks a merge. A failed analysis opens or updates one `nightly-analysis` issue.
+#
+# C++ is built from the library and tests (the `linux-gcc-codeql` preset: no Qt app, and no
+# sanitizers, because CodeQL's build tracer sets an LD_PRELOAD that collides with ASan and
+# breaks the test discovery that runs the freshly linked binary).
 
 on:
-  push:
-    branches: [main, develop]
-    tags: ["v*.*.*"]
-  pull_request:
-    branches: [main, develop]
   schedule:
-    # Weekly scan catches new CodeQL query packs even without code changes.
-    - cron: "17 3 * * 1"
+    - cron: "17 18 * * *"
+  workflow_dispatch:
 
-# Minimal at workflow level; the analyze job below grants itself the
-# security-events/contents access it actually needs.
-permissions:
-  contents: read
-
-concurrency:
-  group: codeql-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions: {}
 
 jobs:
-  analyze:
-    name: Analyze (C++)
-    runs-on: ubuntu-24.04
+  codeql:
+    name: CodeQL
     permissions:
       security-events: write
       contents: read
-
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
-        with:
-          languages: cpp
-          build-mode: manual
-
-      - name: Install CMake 4 + Ninja
-        uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
-        with:
-          cmakeVersion: "4.3.4"
-          ninjaVersion: "1.13.2"
-
-      - name: Install GCC 16
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
-
-      # Sanitizers disabled: CodeQL's build tracer sets its own LD_PRELOAD for
-      # the whole build step, which collides with ASan needing to be first in
-      # the preload chain. That breaks catch_discover_tests' build-time test
-      # listing (it runs the freshly-linked binary to enumerate CTest cases).
-      # CodeQL is pure static analysis and gets nothing from ASan/UBSan being
-      # enabled here; see docs/building.md for the flag, and
-      # linux-gcc-coverage in CMakePresets.json for the same tradeoff made
-      # for the same reason (ASan vs. gcov).
-      - name: Configure (library + tests only, no Qt app)
-        run: >
-          cmake --preset linux-gcc-debug
-          -DCMAKE_CXX_COMPILER=g++-16
-          -DCOUNTDOWN_BUILD_APP=OFF
-          -DCOUNTDOWN_ENABLE_SANITIZERS=OFF
-
-      - name: Build
-        run: cmake --build --preset linux-gcc-debug
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
-        with:
-          category: "/language:cpp"
-
-      - name: Save the vcpkg caches
-        if: always()
-        continue-on-error: true
-        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+      issues: write
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/codeql.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    with:
+      runner: '["ubuntu-26.04"]'
+      languages: >-
+        [
+          {"language": "cpp", "build_mode": "manual", "preset": "linux-gcc-codeql", "vcpkg": true, "skip_qt": true},
+          {"language": "python", "build_mode": "none"},
+          {"language": "actions", "build_mode": "none"}
+        ]

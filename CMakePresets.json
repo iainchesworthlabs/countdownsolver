@@ -140,6 +140,18 @@
       }
     },
     {
+      "name": "linux-gcc-codeql",
+      "displayName": "Linux (GCC, library and tests for CodeQL)",
+      "inherits": [
+        "linux-gcc-base",
+        "debug"
+      ],
+      "cacheVariables": {
+        "COUNTDOWN_BUILD_APP": "OFF",
+        "COUNTDOWN_ENABLE_SANITIZERS": "OFF"
+      }
+    },
+    {
       "name": "linux-clang-base",
       "hidden": true,
       "inherits": [
@@ -297,6 +309,10 @@
     {
       "name": "linux-gcc-coverage",
       "configurePreset": "linux-gcc-coverage"
+    },
+    {
+      "name": "linux-gcc-codeql",
+      "configurePreset": "linux-gcc-codeql"
     },
     {
       "name": "linux-clang-debug",

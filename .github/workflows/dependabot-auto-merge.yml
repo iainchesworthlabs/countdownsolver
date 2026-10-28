@@ -1,0 +1,22 @@
+name: Dependabot auto-merge
+
+# Enables auto-merge on Dependabot pull requests for non-major updates of GitHub Actions and
+# CI tooling. GitHub then queues the pull request once the required checks pass. The vcpkg
+# baseline and every major update are left for a person (docs/ci.md).
+
+on:
+  pull_request:
+    branches: [develop]
+
+permissions: {}
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/dependabot-auto-merge.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    secrets:
+      MERGE_QUEUE_TOKEN: ${{ secrets.MERGE_QUEUE_TOKEN }}
