@@ -1,0 +1,1 @@
+**Releases are checksummed, signed and attested.** Each release carries SHA-512 sums with a GPG signature, a software bill of materials and build provenance, and `SECURITY.md` shows how to check them. Windows and macOS packages are named `-unsigned` until a signing certificate is in use.
