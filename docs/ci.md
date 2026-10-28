@@ -15,8 +15,11 @@ Qt.
 
 ## Pinned version
 
-`QT_VERSION = 6.8.3` (keep this in sync across the scripts here and the CI
-workflow's `install-qt-action` `version:` input).
+The Qt version, with the other toolchain versions, is in
+`.github/toolchain-versions.json`. The install scripts here and the
+workflows' `install-qt-action` `version:` inputs must carry the same value:
+`tools/ci/check_toolchain_versions.py` checks this in CI (the `Toolchain
+pins` job) and fails when a value drifts.
 
 ## Local install
 
@@ -209,3 +212,14 @@ holds only Catch2 (7-24 MB), so it is not worth more than that. The other
 repositories in this family (cubeulator, ICL Forge, aqualink-automate) build
 OpenCV, ONNX Runtime and OpenSSL and use a different, content-addressed scheme
 that is also saved when a job fails; none of it is needed here.
+
+## Checks before a push
+
+`python3 tools/ci/precheck.py` runs the static checks of the organisation's
+shared pull request policy locally. It finds a checkout of `icl-common-infra`
+through `ICL_COMMON_INFRA`, or next to this repository.
+
+`cmake/icl/` is a copy of the shared CMake modules. `cmake/icl/SOURCE` holds
+the `icl-common-infra` commit it came from, and
+`python3 tools/ci/sync_cmake.py --infra <checkout> --check` fails when the
+copy differs. Use a checkout at the tag to update it.
