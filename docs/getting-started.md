@@ -15,9 +15,9 @@
   Qt ships as an official prebuilt package rather than being built from
   source (a from-source Qt build is huge, and on Windows its build tree
   overruns `MAX_PATH`). Install it with
-  [`ci/install-qt.ps1`](https://github.com/iainchesworth/CountdownSolver/blob/develop/ci/install-qt.ps1)
+  [`ci/install-qt.ps1`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/ci/install-qt.ps1)
   (Windows) or
-  [`ci/install-qt.sh`](https://github.com/iainchesworth/CountdownSolver/blob/develop/ci/install-qt.sh)
+  [`ci/install-qt.sh`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/ci/install-qt.sh)
   (Linux/macOS) — both use [aqtinstall](https://github.com/miurahr/aqtinstall).
   See [CI & dependencies](ci.md) for details.
 - **Mobile builds only** (Android and iOS — both target tablet and phone,

@@ -1,6 +1,6 @@
 # CI / dependency provisioning
 
-See [CI & dependency provisioning](https://iainchesworth.github.io/CountdownSolver/ci/)
+See [CI & dependency provisioning](https://iainchesworthlabs.github.io/countdownsolver/ci/)
 in the published docs (source: [`docs/ci.md`](../docs/ci.md)) for the full
 write-up on how Qt is provisioned here and in CI, and which
 `CMAKE_PREFIX_PATH` to pass per platform.

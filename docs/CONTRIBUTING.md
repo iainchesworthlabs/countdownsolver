@@ -7,7 +7,7 @@ handful of things that aren't obvious from the code.
 ## Before you start
 
 For anything more than a typo fix, it's worth
-[opening an issue](https://github.com/iainchesworth/CountdownSolver/issues)
+[opening an issue](https://github.com/iainchesworthlabs/countdownsolver/issues)
 first to say what you're thinking — it avoids duplicated effort and lets
 us agree on the approach before you sink time into it.
 

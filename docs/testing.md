@@ -3,14 +3,14 @@
 Testing is mandatory and drives development (TDD): new behaviour gets a
 test alongside it, not after the fact.
 
-- **Unit tests** ([`tests/unit`](https://github.com/iainchesworth/CountdownSolver/tree/develop/tests/unit))
+- **Unit tests** ([`tests/unit`](https://github.com/iainchesworthlabs/countdownsolver/tree/develop/tests/unit))
   cover each behaviour in isolation, including the Numbers, Letters, and
   Conundrum game logic in `countdown::solver`.
-- **Integration tests** ([`tests/integration`](https://github.com/iainchesworth/CountdownSolver/tree/develop/tests/integration))
+- **Integration tests** ([`tests/integration`](https://github.com/iainchesworthlabs/countdownsolver/tree/develop/tests/integration))
   exercise the file-backed dictionary and full solve pipelines together.
-- **App tests** ([`tests/app`](https://github.com/iainchesworth/CountdownSolver/tree/develop/tests/app))
+- **App tests** ([`tests/app`](https://github.com/iainchesworthlabs/countdownsolver/tree/develop/tests/app))
   exercise the Qt-facing `Solver` facade with Qt Test.
-- **QML tests** ([`tests/qml`](https://github.com/iainchesworth/CountdownSolver/tree/develop/tests/qml))
+- **QML tests** ([`tests/qml`](https://github.com/iainchesworthlabs/countdownsolver/tree/develop/tests/qml))
   drive the real `Countdown` QML module (Numbers/Letters/Conundrum/Settings
   pages) headlessly with Qt Quick Test, exercising the QML → `solver` →
   library round trip end to end.
