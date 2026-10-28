@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <catch2/catch_test_macros.hpp>
 
+#include <countdown/build_target.hpp>
 #include <countdown/version.hpp>
 
 #include <string>
@@ -23,4 +24,11 @@ TEST_CASE("version_details renders a non-empty block", "[version]") {
     const std::string details = countdown::version_details();
     REQUIRE(details.find("CountdownSolver") != std::string::npos);
     REQUIRE(details.find(countdown::version_string) != std::string::npos);
+}
+
+TEST_CASE("version_details names the build target", "[version]") {
+    const std::string details = countdown::version_details();
+    REQUIRE_FALSE(std::string{countdown::build_target_text}.empty());
+    REQUIRE(details.find("target:  " + std::string{countdown::build_target_text}) !=
+            std::string::npos);
 }

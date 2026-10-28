@@ -1,0 +1,15 @@
+// SPDX-FileCopyrightText: 2026 Iain Chesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+#pragma once
+
+// NOTE: this header is generated from build_target.hpp.in by cmake/BuildTarget.cmake
+// when CMake configures. Do not edit the generated copy; edit the template instead.
+
+#include <string_view>
+
+namespace countdown {
+
+// The operating system, architecture and compiler this binary was built for.
+inline constexpr std::string_view build_target_text = "@COUNTDOWN_BUILD_TARGET@";
+
+}  // namespace countdown
