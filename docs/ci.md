@@ -205,6 +205,31 @@ repositories in this family (cubeulator, ICL Forge, aqualink-automate) build
 OpenCV, ONNX Runtime and OpenSSL and use a different, content-addressed scheme
 that is also saved when a job fails; none of it is needed here.
 
+## The pull request gate
+
+[`ci.yml`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/ci.yml)
+runs on pull requests, merge-queue entries and pushes to `develop` and `main`.
+
+- `Policy` is the shared `policy.yml`: branch name, commit and pull request text,
+  committed-file text, action pinning, REUSE, and the rule that a vcpkg baseline
+  named in `vcpkg.json` exists in the organisation's fork. The changelog check is
+  switched off until `changelog.d` exists, so a change that users see carries the
+  `no-changelog` label.
+- `Plan` runs the shared planner over the changed paths with
+  `.github/ci/plan.json`. A change to documentation, or to files no build reads,
+  skips the build jobs; a path the file does not list builds everything. It also
+  checks that the vendored `cmake/icl/` matches the pinned infra commit.
+- The build jobs (`build-and-test`, `android-build`, `ios-build`, `coverage`) run
+  when the plan asks for them, and not on a draft pull request.
+- `Translations complete` and `Toolchain pins` always run.
+- `CI Status` aggregates all of these. A failed or cancelled job fails it, and so
+  does a skipped job that the plan asked for.
+
+The required checks are `CI Status` and `Scan dependency diff`
+(`dependency-review.yml`, which also reports on merge-queue entries, where it
+passes without a scan because the pull request was scanned). Other workflows
+(CodeQL, OSV-Scanner, zizmor, Scorecard) report findings and do not block.
+
 ## Checks before a push
 
 `python3 tools/ci/precheck.py` runs the static checks of the organisation's
