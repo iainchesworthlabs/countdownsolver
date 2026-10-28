@@ -31,15 +31,51 @@ See [Getting started](getting-started.md) for toolchain requirements and
 your first build. `-DCOUNTDOWN_BUILD_APP=OFF` skips Qt entirely if you're
 only touching `countdown::solver` and want a faster inner loop.
 
+## Building and running tests
+
+The presets in `CMakePresets.json` are named `<platform>-<toolchain>-<build type>`,
+for example `linux-gcc-debug`, `windows-msvc-debug` and `macos-clang-debug`.
+Configure, build and test with the one for your machine:
+
+```sh
+cmake --preset linux-gcc-debug -DCMAKE_PREFIX_PATH=<qt>
+cmake --build --preset linux-gcc-debug
+ctest --preset linux-gcc-debug
+```
+
+[Building & packaging](building.md) lists every preset, and
+[Getting started](getting-started.md) says how to find vcpkg and Qt.
+
+## Commits
+
+- Sign off every commit with `git commit -s`. The sign-off is your statement
+  under the [Developer Certificate of Origin](https://developercertificate.org)
+  that you may submit the change under the project's licence.
+- Write the subject in the imperative, 72 characters or fewer, and the body as
+  a plain description of what changed and why.
+- Run `python3 tools/ci/precheck.py` before you push. It runs the static checks
+  of the pull request gate on your commits.
+
 ## Tests are not optional
 
 This project is TDD by convention: new behaviour comes with a test, and
 existing behaviour that changes gets its test updated in the same PR. See
 [Testing & coverage](testing.md) for where each kind of test lives.
 
+To add a test, put it next to the others of its kind (unit tests in
+`tests/unit`, the Qt app's tests in `tests/app`, QML tests in `tests/qml`) and
+register it in that directory's `CMakeLists.txt`.
+
 CI enforces an **80% line and branch coverage** floor
 (`Coverage (Linux, GCC)`) — a PR that drops coverage below that will fail
 the required check.
+
+## Translations
+
+Every string the user sees goes through `qsTr` (QML) or `tr` (C++). After you
+add or change one, refresh the catalogues with the `update_translations` target
+and translate the new entries; CI fails on an entry still marked unfinished.
+[Translations](translations.md) covers updating a language and adding one.
 
 ## Code style
 
