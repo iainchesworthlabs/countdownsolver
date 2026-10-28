@@ -85,7 +85,7 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "4.4.4"
+          cmakeVersion: "4.3.4"
           ninjaVersion: "1.13.2"
 
       - name: Install GCC 15 (Linux)
@@ -296,7 +296,7 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "4.4.4"
+          cmakeVersion: "4.3.4"
           ninjaVersion: "1.13.2"
 
       - name: Decode release keystore
@@ -463,7 +463,7 @@ jobs:
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
-          cmakeVersion: "4.4.4"
+          cmakeVersion: "4.3.4"
           ninjaVersion: "1.13.2"
 
       # Standard GitHub Actions pattern: import the distribution cert into a

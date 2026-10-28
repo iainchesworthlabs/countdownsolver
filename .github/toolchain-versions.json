@@ -1,7 +1,7 @@
 {
-  "$comment": "The toolchain the CI legs are pinned to, in one place. tools/ci/check_toolchain_versions.py fails when a workflow or an install script carries a different value (docs/ci.md). msvc_toolset is what windows-2025 carries and has no other home. The vcpkg baseline stays in vcpkg.json.",
+  "$comment": "The toolchain the CI legs are pinned to, in one place. tools/ci/check_toolchain_versions.py fails when a workflow or an install script carries a different value (docs/ci.md). msvc_toolset is what windows-2025 carries and has no other home. The vcpkg baseline stays in vcpkg.json. cmake is the newest version that lukka/get-cmake v4.3.4 has in its catalog, which is what its latest resolved to before the version was pinned.",
   "qt": "6.8.3",
-  "cmake": "4.4.4",
+  "cmake": "4.3.4",
   "ninja": "1.13.2",
   "gcc": "15",
   "llvm": "21",
