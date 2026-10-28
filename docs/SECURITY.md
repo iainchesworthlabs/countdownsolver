@@ -2,9 +2,8 @@
 
 ## Supported versions
 
-CountdownSolver is pre-1.0 and hasn't cut a release yet — there's no
-version-support matrix to speak of. Security fixes land on `develop` and
-ship in the next release; only the latest release is supported.
+CountdownSolver is pre-1.0. Security fixes land on `develop` and ship in the next
+release; only the latest release is supported.
 
 ## Reporting a vulnerability
 
@@ -23,3 +22,23 @@ report it privately anyway and let's figure it out there.
 There's no bounty program, but you can expect an initial response within 14
 days — this is a small solo/hobby project, not a funded one, so that's a
 response acknowledging the report and starting triage, not necessarily a fix.
+
+## Verifying a release
+
+Every release lists `SHA256SUMS` and `SHA512SUMS` for its files. The checksum
+files are signed with Sigstore, and each package has a build provenance
+attestation. With the files in one folder:
+
+```sh
+sha256sum -c SHA256SUMS
+gh attestation verify <file> -R iainchesworthlabs/countdownsolver
+cosign verify-blob --bundle SHA256SUMS.sigstore.json \
+  --certificate-identity "https://github.com/iainchesworthlabs/countdownsolver/.github/workflows/release.yml@refs/tags/<tag>" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  SHA256SUMS
+```
+
+The releases up to `v0.3.0-beta.4` were built while the repository was
+`iainchesworth/CountdownSolver`, so for those use `-R iainchesworth/CountdownSolver`
+and the identity
+`https://github.com/iainchesworth/CountdownSolver/.github/workflows/release.yml@refs/tags/<tag>`.
