@@ -137,11 +137,13 @@ jobs:
         with:
           persist-credentials: false
 
-      # Unlike ci.yml, this job doesn't use the vcpkg binary cache: this
-      # workflow builds the artifacts that get attested and released, and a
-      # populated-by-an-earlier-run cache is a cache-poisoning vector into a
-      # workflow that publishes trusted output. The release configure builds
-      # no tests, so vcpkg has nothing to build.
+      # The vcpkg caches are restored here and never saved: only ci.yml saves them,
+      # so nothing this workflow does, which builds what gets attested and
+      # released, can end up in a cache the other workflows trust. The release
+      # configure builds no tests, so vcpkg has little to build anyway.
+      - name: Set up vcpkg
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
@@ -161,6 +163,22 @@ jobs:
       - name: Install packaging tools (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -y rpm fakeroot desktop-file-utils appstream
+
+      # makensis has to be on PATH at configure time: cmake/Packaging.cmake adds the
+      # installer only when it finds it, and the Windows image no longer ships it.
+      # Chocolatey's feed answers 504 now and then, so the install is retried.
+      - name: Install NSIS (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          foreach ($attempt in 1..4) {
+            choco install nsis --version 3.13.0 --no-progress -y
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -eq 4) { throw "choco install nsis failed four times" }
+            Write-Warning "choco install nsis failed (attempt $attempt of 4)"
+            Start-Sleep -Seconds (15 * $attempt)
+          }
+          Add-Content -Path $env:GITHUB_PATH -Value "${env:ProgramFiles(x86)}\NSIS"
 
       - name: Set up MSVC environment (Windows)
         if: runner.os == 'Windows'
