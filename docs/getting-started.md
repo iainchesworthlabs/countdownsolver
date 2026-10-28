@@ -4,11 +4,13 @@
 
 - A **C++23** compiler: GCC 14+, Clang 18+, or MSVC 19.40+ (VS 2022 17.10+ / VS 18).
 - **CMake 4.0+** and **Ninja**.
-- **Git** — vcpkg is vendored as a submodule at
-  [`deps/vcpkg`](https://github.com/iainchesworth/CountdownSolver/tree/develop/deps/vcpkg),
-  so there's nothing to install machine-wide for it. It provides
-  [Catch2](https://github.com/catchorg/Catch2) for the test suite, pinned to
-  the submodule commit.
+- **Git** and **vcpkg**. vcpkg provides [Catch2](https://github.com/catchorg/Catch2)
+  for the test suite, pinned by `builtin-baseline` in `vcpkg.json`. The
+  baseline is a commit of the organisation's fork,
+  [`iainchesworthlabs/vcpkg`](https://github.com/iainchesworthlabs/vcpkg). Set
+  `ICL_VCPKG_STORE` to a directory shared by your checkouts and the first
+  configure makes a checkout of that commit there (see
+  [Choosing a vcpkg](#choosing-a-vcpkg)).
 - **Qt 6.8** — only needed if you want to build the GUI app (the default).
   Qt ships as an official prebuilt package rather than being built from
   source (a from-source Qt build is huge, and on Windows its build tree
@@ -26,14 +28,23 @@
 ## Clone
 
 ```sh
-git clone --recurse-submodules https://github.com/iainchesworth/CountdownSolver
+git clone https://github.com/iainchesworthlabs/countdownsolver
 ```
 
-Already cloned without `--recurse-submodules`? Run:
+## Choosing a vcpkg
 
-```sh
-git submodule update --init --depth 1 deps/vcpkg
-```
+A configure that uses vcpkg picks the checkout in this order
+(`cmake/icl/IclVcpkgRoot.cmake`):
+
+1. `CMAKE_TOOLCHAIN_FILE`, if you pass one.
+2. `COUNTDOWN_VCPKG_ROOT`, a vcpkg checkout you manage yourself.
+3. `COUNTDOWN_VCPKG_STORE`, else `ICL_VCPKG_STORE`: a directory that holds one
+   checkout per pinned commit, made on first use from a shared clone of the
+   fork. Checkouts and repositories that pin the same commit share it.
+4. `VCPKG_ROOT`, which CI sets.
+
+With none of these, a preset that needs vcpkg stops and lists the options. A
+configure with `-DCOUNTDOWN_BUILD_TESTS=OFF` does not need vcpkg.
 
 ## Build and run
 

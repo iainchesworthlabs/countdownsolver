@@ -452,3 +452,6 @@ CMakeUserPresets.json
 
 # JetBrains IDEs (VS/.NET editors already covered above)
 .idea/
+
+# icl-common-infra scripts checked out by CI (checkout-infra)
+/.icl-infra/

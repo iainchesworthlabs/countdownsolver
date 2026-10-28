@@ -44,7 +44,7 @@ src/app/platform/{windows,macos,linux,android,ios}/   one impl each, chosen by C
 tests/unit/          unit tests
 tests/integration/   integration tests
 cmake/               shared CMake modules (strict warnings-as-errors)
-deps/vcpkg/          vendored vcpkg (git submodule, pinned)
+cmake/icl/            shared CMake modules (vendored from icl-common-infra)
 ```
 
 ## Design highlights
@@ -106,9 +106,10 @@ frontend. The Qt Quick app is deliberately kept thin — a `Solver` backend
 plus QML presentation — so game logic changes never touch UI code and
 vice versa.
 
-**Dependencies: vcpkg vendored, Qt prebuilt.** vcpkg is a pinned git
-submodule rather than a system install, so the C++ dependency set
-(currently just Catch2) is reproducible without machine-wide setup. Qt is
+**Dependencies: vcpkg pinned, Qt prebuilt.** vcpkg is pinned by the
+`builtin-baseline` commit in `vcpkg.json` and checked out from the
+organisation's fork, so the C++ dependency set (currently just Catch2) is
+reproducible. Qt is
 installed as an official prebuilt package instead of built from source —
 seen in [Getting started](getting-started.md) and
 [CI & dependencies](ci.md) — because a from-source Qt build is both huge

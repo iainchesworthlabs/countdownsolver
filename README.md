@@ -40,8 +40,9 @@ tree is laid out.
 ## Quick start
 
 ```sh
-git clone --recurse-submodules https://github.com/iainchesworth/CountdownSolver
-cd CountdownSolver
+git clone https://github.com/iainchesworthlabs/countdownsolver
+cd countdownsolver
+export ICL_VCPKG_STORE=~/vcpkg-store   # a directory of your choice
 cmake --preset windows-msvc-debug -DCMAKE_PREFIX_PATH=<qt>/6.8.3/<arch>
 cmake --build --preset windows-msvc-debug
 ./build/windows-msvc-debug/bin/countdownsolver
@@ -49,9 +50,9 @@ cmake --build --preset windows-msvc-debug
 
 That needs a C++23 compiler, CMake 4+, Ninja, and Qt 6.8 — see
 [Getting started](https://iainchesworth.github.io/CountdownSolver/getting-started/)
-for the full requirements and every platform's preset. vcpkg is vendored
-as a submodule and bootstraps itself automatically, so there's nothing to
-install for it.
+for the full requirements and every platform's preset. vcpkg comes from the
+organisation's fork and is checked out into `ICL_VCPKG_STORE` on the first
+configure.
 
 Just want the solver library and tests, no Qt/GUI?
 

@@ -73,7 +73,6 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
       # Unlike ci.yml, this job doesn't use the vcpkg binary cache: this
@@ -240,7 +239,6 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
       # Fail fast with a clear message rather than silently falling back to
@@ -436,7 +434,6 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
       - name: Verify signing secrets are configured
