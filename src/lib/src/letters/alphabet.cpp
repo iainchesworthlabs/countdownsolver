@@ -27,8 +27,8 @@ struct TileWeight {
 };
 
 void apply_weights(std::array<int, kMaxAlphabetSize>& weights,
-                    std::array<bool, kMaxAlphabetSize>& is_vowel,
-                    std::initializer_list<TileWeight> tiles) noexcept {
+                   std::array<bool, kMaxAlphabetSize>& is_vowel,
+                   std::initializer_list<TileWeight> tiles) noexcept {
     for (const TileWeight& tile : tiles) {
         weights[static_cast<std::size_t>(tile.slot)] = tile.weight;
         is_vowel[static_cast<std::size_t>(tile.slot)] = tile.vowel;
@@ -44,10 +44,10 @@ void apply_weights(std::array<int, kMaxAlphabetSize>& weights,
 // instead of the single precomposed codepoint every fold_xxx() above
 // expects).
 [[nodiscard]] constexpr bool is_combining_mark(char32_t cp) noexcept {
-    return (cp >= 0x0300 && cp <= 0x036F) ||   // general combining diacriticals
-           (cp >= 0x0591 && cp <= 0x05C7) ||   // Hebrew points/cantillation
-           (cp >= 0x064B && cp <= 0x065F) ||   // Arabic tashkeel
-           cp == 0x0670;                       // Arabic superscript alef
+    return (cp >= 0x0300 && cp <= 0x036F) ||  // general combining diacriticals
+           (cp >= 0x0591 && cp <= 0x05C7) ||  // Hebrew points/cantillation
+           (cp >= 0x064B && cp <= 0x065F) ||  // Arabic tashkeel
+           cp == 0x0670;                      // Arabic superscript alef
 }
 
 // a, b, c, ..., z - the display form every alphabet's first 26 slots share;
@@ -135,12 +135,12 @@ void apply_weights(std::array<int, kMaxAlphabetSize>& weights,
         case U'\U000000FF':  // ÿ
         case U'\U00000178':  // Ÿ
             return one(24);
-        case U'\U00000153':  // œ
-        case U'\U00000152':  // Œ
+        case U'\U00000153':     // œ
+        case U'\U00000152':     // Œ
             return two(14, 4);  // o, e
-        case U'\U000000E6':  // æ
-        case U'\U000000C6':  // Æ
-            return two(0, 4);  // a, e
+        case U'\U000000E6':     // æ
+        case U'\U000000C6':     // Æ
+            return two(0, 4);   // a, e
         default:
             return none();
     }
@@ -166,7 +166,7 @@ void apply_weights(std::array<int, kMaxAlphabetSize>& weights,
         case U'\U000000FC':  // ü
         case U'\U000000DC':  // Ü
             return one(28);
-        case U'\U000000DF':  // ß
+        case U'\U000000DF':      // ß
             return two(18, 18);  // ss
         default:
             return none();
@@ -223,31 +223,56 @@ void apply_weights(std::array<int, kMaxAlphabetSize>& weights,
         case U'\U00000622':  // alif with madda above
         case U'\U00000671':  // alif wasla
             return one(0);
-        case U'\U00000628': return one(1);   // baa
-        case U'\U0000062A': return one(2);   // taa
-        case U'\U0000062B': return one(3);   // thaa
-        case U'\U0000062C': return one(4);   // jiim
-        case U'\U0000062D': return one(5);   // Haa
-        case U'\U0000062E': return one(6);   // khaa
-        case U'\U0000062F': return one(7);   // daal
-        case U'\U00000630': return one(8);   // dhaal
-        case U'\U00000631': return one(9);   // raa
-        case U'\U00000632': return one(10);  // zaay
-        case U'\U00000633': return one(11);  // siin
-        case U'\U00000634': return one(12);  // shiin
-        case U'\U00000635': return one(13);  // Saad
-        case U'\U00000636': return one(14);  // Daad
-        case U'\U00000637': return one(15);  // Taa
-        case U'\U00000638': return one(16);  // Zaa
-        case U'\U00000639': return one(17);  // ain
-        case U'\U0000063A': return one(18);  // ghain
-        case U'\U00000641': return one(19);  // faa
-        case U'\U00000642': return one(20);  // qaaf
-        case U'\U00000643': return one(21);  // kaaf
-        case U'\U00000644': return one(22);  // laam
-        case U'\U00000645': return one(23);  // miim
-        case U'\U00000646': return one(24);  // nuun
-        case U'\U00000647': return one(25);  // haa
+        case U'\U00000628':
+            return one(1);  // baa
+        case U'\U0000062A':
+            return one(2);  // taa
+        case U'\U0000062B':
+            return one(3);  // thaa
+        case U'\U0000062C':
+            return one(4);  // jiim
+        case U'\U0000062D':
+            return one(5);  // Haa
+        case U'\U0000062E':
+            return one(6);  // khaa
+        case U'\U0000062F':
+            return one(7);  // daal
+        case U'\U00000630':
+            return one(8);  // dhaal
+        case U'\U00000631':
+            return one(9);  // raa
+        case U'\U00000632':
+            return one(10);  // zaay
+        case U'\U00000633':
+            return one(11);  // siin
+        case U'\U00000634':
+            return one(12);  // shiin
+        case U'\U00000635':
+            return one(13);  // Saad
+        case U'\U00000636':
+            return one(14);  // Daad
+        case U'\U00000637':
+            return one(15);  // Taa
+        case U'\U00000638':
+            return one(16);  // Zaa
+        case U'\U00000639':
+            return one(17);  // ain
+        case U'\U0000063A':
+            return one(18);  // ghain
+        case U'\U00000641':
+            return one(19);  // faa
+        case U'\U00000642':
+            return one(20);  // qaaf
+        case U'\U00000643':
+            return one(21);  // kaaf
+        case U'\U00000644':
+            return one(22);  // laam
+        case U'\U00000645':
+            return one(23);  // miim
+        case U'\U00000646':
+            return one(24);  // nuun
+        case U'\U00000647':
+            return one(25);  // haa
         case U'\U00000648':  // waaw
         case U'\U00000624':  // waaw with hamza
             return one(26);
@@ -267,38 +292,55 @@ void apply_weights(std::array<int, kMaxAlphabetSize>& weights,
 // purely positional variants, not distinct letters.
 [[nodiscard]] FoldedLetters fold_hebrew(char32_t cp) noexcept {
     switch (cp) {
-        case U'\U000005D0': return one(0);   // alef
-        case U'\U000005D1': return one(1);   // bet
-        case U'\U000005D2': return one(2);   // gimel
-        case U'\U000005D3': return one(3);   // dalet
-        case U'\U000005D4': return one(4);   // he
-        case U'\U000005D5': return one(5);   // vav
-        case U'\U000005D6': return one(6);   // zayin
-        case U'\U000005D7': return one(7);   // het
-        case U'\U000005D8': return one(8);   // tet
-        case U'\U000005D9': return one(9);   // yod
+        case U'\U000005D0':
+            return one(0);  // alef
+        case U'\U000005D1':
+            return one(1);  // bet
+        case U'\U000005D2':
+            return one(2);  // gimel
+        case U'\U000005D3':
+            return one(3);  // dalet
+        case U'\U000005D4':
+            return one(4);  // he
+        case U'\U000005D5':
+            return one(5);  // vav
+        case U'\U000005D6':
+            return one(6);  // zayin
+        case U'\U000005D7':
+            return one(7);  // het
+        case U'\U000005D8':
+            return one(8);  // tet
+        case U'\U000005D9':
+            return one(9);   // yod
         case U'\U000005DB':  // kaf
         case U'\U000005DA':  // final kaf (kaf sofit)
             return one(10);
-        case U'\U000005DC': return one(11);  // lamed
+        case U'\U000005DC':
+            return one(11);  // lamed
         case U'\U000005DE':  // mem
         case U'\U000005DD':  // final mem (mem sofit)
             return one(12);
         case U'\U000005E0':  // nun
         case U'\U000005DF':  // final nun (nun sofit)
             return one(13);
-        case U'\U000005E1': return one(14);  // samekh
-        case U'\U000005E2': return one(15);  // ayin
+        case U'\U000005E1':
+            return one(14);  // samekh
+        case U'\U000005E2':
+            return one(15);  // ayin
         case U'\U000005E4':  // pe
         case U'\U000005E3':  // final pe (fe sofit)
             return one(16);
         case U'\U000005E6':  // tsadi
         case U'\U000005E5':  // final tsadi (tsadi sofit)
             return one(17);
-        case U'\U000005E7': return one(18);  // qof
-        case U'\U000005E8': return one(19);  // resh
-        case U'\U000005E9': return one(20);  // shin
-        case U'\U000005EA': return one(21);  // tav
+        case U'\U000005E7':
+            return one(18);  // qof
+        case U'\U000005E8':
+            return one(19);  // resh
+        case U'\U000005E9':
+            return one(20);  // shin
+        case U'\U000005EA':
+            return one(21);  // tav
         default:
             return none();
     }
@@ -361,34 +403,35 @@ Alphabet english_alphabet() noexcept {
     // show doesn't publish its own exact counts, but describes the
     // weighting as following Scrabble's); Y is treated as a consonant,
     // matching the show.
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 9, true},   // a
-        {1, 2, false},  // b
-        {2, 2, false},  // c
-        {3, 4, false},  // d
-        {4, 12, true},  // e
-        {5, 2, false},  // f
-        {6, 3, false},  // g
-        {7, 2, false},  // h
-        {8, 9, true},   // i
-        {9, 1, false},  // j
-        {10, 1, false}, // k
-        {11, 4, false}, // l
-        {12, 2, false}, // m
-        {13, 6, false}, // n
-        {14, 8, true},  // o
-        {15, 2, false}, // p
-        {16, 1, false}, // q
-        {17, 6, false}, // r
-        {18, 4, false}, // s
-        {19, 6, false}, // t
-        {20, 4, true},  // u
-        {21, 2, false}, // v
-        {22, 2, false}, // w
-        {23, 1, false}, // x
-        {24, 2, false}, // y
-        {25, 1, false}, // z
-    });
+    apply_weights(alphabet.letter_weights, alphabet.is_vowel,
+                  {
+                      {0, 9, true},    // a
+                      {1, 2, false},   // b
+                      {2, 2, false},   // c
+                      {3, 4, false},   // d
+                      {4, 12, true},   // e
+                      {5, 2, false},   // f
+                      {6, 3, false},   // g
+                      {7, 2, false},   // h
+                      {8, 9, true},    // i
+                      {9, 1, false},   // j
+                      {10, 1, false},  // k
+                      {11, 4, false},  // l
+                      {12, 2, false},  // m
+                      {13, 6, false},  // n
+                      {14, 8, true},   // o
+                      {15, 2, false},  // p
+                      {16, 1, false},  // q
+                      {17, 6, false},  // r
+                      {18, 4, false},  // s
+                      {19, 6, false},  // t
+                      {20, 4, true},   // u
+                      {21, 2, false},  // v
+                      {22, 2, false},  // w
+                      {23, 1, false},  // x
+                      {24, 2, false},  // y
+                      {25, 1, false},  // z
+                  });
     // The only three legal vowel/consonant splits: at least 3 vowels, at
     // least 4 consonants, nine letters total.
     alphabet.vowel_consonant_splits = {{3, 6}, {4, 5}, {5, 4}};
@@ -396,144 +439,162 @@ Alphabet english_alphabet() noexcept {
 }
 
 Alphabet french_alphabet() noexcept {
-    Alphabet alphabet{.id = AlphabetId::french, .size = 26,
+    Alphabet alphabet{.id = AlphabetId::french,
+                      .size = 26,
                       .fold = +[](char32_t cp) noexcept { return fold_french(cp); },
-                      .display_letters = {}, .letter_weights = {}, .is_vowel = {},
-                      .vowel_consonant_splits = {}, .rack_size = 9};
+                      .display_letters = {},
+                      .letter_weights = {},
+                      .is_vowel = {},
+                      .vowel_consonant_splits = {},
+                      .rack_size = 9};
     alphabet.display_letters = ascii_display_letters();
     alphabet.rack_size = 10;  // Des chiffres et des lettres draws 10, not 9.
     // Sourced from the published French Scrabble tile distribution
     // (fr.wikipedia.org/wiki/Scrabble, en.wikipedia.org/wiki/Scrabble_letter_distributions).
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 9, true},    // a
-        {1, 2, false},   // b
-        {2, 2, false},   // c
-        {3, 3, false},   // d
-        {4, 15, true},   // e
-        {5, 2, false},   // f
-        {6, 2, false},   // g
-        {7, 2, false},   // h
-        {8, 8, true},    // i
-        {9, 1, false},   // j
-        {10, 1, false},  // k
-        {11, 5, false},  // l
-        {12, 3, false},  // m
-        {13, 6, false},  // n
-        {14, 6, true},   // o
-        {15, 2, false},  // p
-        {16, 1, false},  // q
-        {17, 6, false},  // r
-        {18, 6, false},  // s
-        {19, 6, false},  // t
-        {20, 6, true},   // u
-        {21, 2, false},  // v
-        {22, 1, false},  // w
-        {23, 1, false},  // x
-        {24, 1, false},  // y
-        {25, 1, false},  // z
-    });
+    apply_weights(alphabet.letter_weights, alphabet.is_vowel,
+                  {
+                      {0, 9, true},    // a
+                      {1, 2, false},   // b
+                      {2, 2, false},   // c
+                      {3, 3, false},   // d
+                      {4, 15, true},   // e
+                      {5, 2, false},   // f
+                      {6, 2, false},   // g
+                      {7, 2, false},   // h
+                      {8, 8, true},    // i
+                      {9, 1, false},   // j
+                      {10, 1, false},  // k
+                      {11, 5, false},  // l
+                      {12, 3, false},  // m
+                      {13, 6, false},  // n
+                      {14, 6, true},   // o
+                      {15, 2, false},  // p
+                      {16, 1, false},  // q
+                      {17, 6, false},  // r
+                      {18, 6, false},  // s
+                      {19, 6, false},  // t
+                      {20, 6, true},   // u
+                      {21, 2, false},  // v
+                      {22, 1, false},  // w
+                      {23, 1, false},  // x
+                      {24, 1, false},  // y
+                      {25, 1, false},  // z
+                  });
     alphabet.vowel_consonant_splits = {{4, 6}, {5, 5}, {6, 4}};
     return alphabet;
 }
 
 Alphabet german_alphabet() noexcept {
-    Alphabet alphabet{.id = AlphabetId::german, .size = 29,
+    Alphabet alphabet{.id = AlphabetId::german,
+                      .size = 29,
                       .fold = +[](char32_t cp) noexcept { return fold_german(cp); },
-                      .display_letters = {}, .letter_weights = {}, .is_vowel = {},
-                      .vowel_consonant_splits = {}, .rack_size = 9};
+                      .display_letters = {},
+                      .letter_weights = {},
+                      .is_vowel = {},
+                      .vowel_consonant_splits = {},
+                      .rack_size = 9};
     alphabet.display_letters = ascii_display_letters();
-    alphabet.display_letters.insert(alphabet.display_letters.end(),
-                                     {"ä", "ö", "ü"});  // ä, ö, ü
+    alphabet.display_letters.insert(alphabet.display_letters.end(), {"ä", "ö", "ü"});  // ä, ö, ü
     alphabet.rack_size = 9;  // No round-size difference found for Zahlen und Buchstaben.
     // Sourced from the published German Scrabble tile distribution
     // (en.wikipedia.org/wiki/Scrabble_letter_distributions). Ä/Ö/Ü are
     // vowels like their unmarked counterparts; Y is a rare, foreign-word
     // consonant as in English.
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 5, true},    // a
-        {1, 2, false},   // b
-        {2, 2, false},   // c
-        {3, 4, false},   // d
-        {4, 15, true},   // e
-        {5, 2, false},   // f
-        {6, 3, false},   // g
-        {7, 4, false},   // h
-        {8, 6, true},    // i
-        {9, 1, false},   // j
-        {10, 2, false},  // k
-        {11, 3, false},  // l
-        {12, 4, false},  // m
-        {13, 9, false},  // n
-        {14, 3, true},   // o
-        {15, 1, false},  // p
-        {16, 1, false},  // q
-        {17, 6, false},  // r
-        {18, 7, false},  // s
-        {19, 6, false},  // t
-        {20, 6, true},   // u
-        {21, 1, false},  // v
-        {22, 1, false},  // w
-        {23, 1, false},  // x
-        {24, 1, false},  // y
-        {25, 1, false},  // z
-        {26, 1, true},   // ä
-        {27, 1, true},   // ö
-        {28, 1, true},   // ü
-    });
+    apply_weights(alphabet.letter_weights, alphabet.is_vowel,
+                  {
+                      {0, 5, true},    // a
+                      {1, 2, false},   // b
+                      {2, 2, false},   // c
+                      {3, 4, false},   // d
+                      {4, 15, true},   // e
+                      {5, 2, false},   // f
+                      {6, 3, false},   // g
+                      {7, 4, false},   // h
+                      {8, 6, true},    // i
+                      {9, 1, false},   // j
+                      {10, 2, false},  // k
+                      {11, 3, false},  // l
+                      {12, 4, false},  // m
+                      {13, 9, false},  // n
+                      {14, 3, true},   // o
+                      {15, 1, false},  // p
+                      {16, 1, false},  // q
+                      {17, 6, false},  // r
+                      {18, 7, false},  // s
+                      {19, 6, false},  // t
+                      {20, 6, true},   // u
+                      {21, 1, false},  // v
+                      {22, 1, false},  // w
+                      {23, 1, false},  // x
+                      {24, 1, false},  // y
+                      {25, 1, false},  // z
+                      {26, 1, true},   // ä
+                      {27, 1, true},   // ö
+                      {28, 1, true},   // ü
+                  });
     alphabet.vowel_consonant_splits = {{3, 6}, {4, 5}, {5, 4}};
     return alphabet;
 }
 
 Alphabet spanish_alphabet() noexcept {
-    Alphabet alphabet{.id = AlphabetId::spanish, .size = 27,
+    Alphabet alphabet{.id = AlphabetId::spanish,
+                      .size = 27,
                       .fold = +[](char32_t cp) noexcept { return fold_spanish(cp); },
-                      .display_letters = {}, .letter_weights = {}, .is_vowel = {},
-                      .vowel_consonant_splits = {}, .rack_size = 9};
+                      .display_letters = {},
+                      .letter_weights = {},
+                      .is_vowel = {},
+                      .vowel_consonant_splits = {},
+                      .rack_size = 9};
     alphabet.display_letters = ascii_display_letters();
     alphabet.display_letters.push_back("ñ");  // ñ
-    alphabet.rack_size = 9;  // Cifras y letras plays 9, same as English.
+    alphabet.rack_size = 9;                   // Cifras y letras plays 9, same as English.
     // Approximate Spanish letter-frequency-weighted distribution (the show
     // doesn't publish its own counts either, same caveat as English above).
     // K/W are genuinely rare in Spanish (loanwords only) but not absent, so
     // they get a token weight rather than zero.
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 12, true},   // a
-        {1, 2, false},   // b
-        {2, 4, false},   // c
-        {3, 5, false},   // d
-        {4, 12, true},   // e
-        {5, 1, false},   // f
-        {6, 2, false},   // g
-        {7, 2, false},   // h
-        {8, 6, true},    // i
-        {9, 1, false},   // j
-        {10, 1, false},  // k
-        {11, 4, false},  // l
-        {12, 2, false},  // m
-        {13, 5, false},  // n
-        {14, 9, true},   // o
-        {15, 2, false},  // p
-        {16, 1, false},  // q
-        {17, 5, false},  // r
-        {18, 6, false},  // s
-        {19, 4, false},  // t
-        {20, 5, true},   // u
-        {21, 1, false},  // v
-        {22, 1, false},  // w
-        {23, 1, false},  // x
-        {24, 1, false},  // y
-        {25, 1, false},  // z
-        {26, 1, false},  // ñ
-    });
+    apply_weights(alphabet.letter_weights, alphabet.is_vowel,
+                  {
+                      {0, 12, true},   // a
+                      {1, 2, false},   // b
+                      {2, 4, false},   // c
+                      {3, 5, false},   // d
+                      {4, 12, true},   // e
+                      {5, 1, false},   // f
+                      {6, 2, false},   // g
+                      {7, 2, false},   // h
+                      {8, 6, true},    // i
+                      {9, 1, false},   // j
+                      {10, 1, false},  // k
+                      {11, 4, false},  // l
+                      {12, 2, false},  // m
+                      {13, 5, false},  // n
+                      {14, 9, true},   // o
+                      {15, 2, false},  // p
+                      {16, 1, false},  // q
+                      {17, 5, false},  // r
+                      {18, 6, false},  // s
+                      {19, 4, false},  // t
+                      {20, 5, true},   // u
+                      {21, 1, false},  // v
+                      {22, 1, false},  // w
+                      {23, 1, false},  // x
+                      {24, 1, false},  // y
+                      {25, 1, false},  // z
+                      {26, 1, false},  // ñ
+                  });
     alphabet.vowel_consonant_splits = {{3, 6}, {4, 5}, {5, 4}};
     return alphabet;
 }
 
 Alphabet arabic_alphabet() noexcept {
-    Alphabet alphabet{.id = AlphabetId::arabic, .size = 29,
+    Alphabet alphabet{.id = AlphabetId::arabic,
+                      .size = 29,
                       .fold = +[](char32_t cp) noexcept { return fold_arabic(cp); },
-                      .display_letters = {}, .letter_weights = {}, .is_vowel = {},
-                      .vowel_consonant_splits = {}, .rack_size = 9};
+                      .display_letters = {},
+                      .letter_weights = {},
+                      .is_vowel = {},
+                      .vowel_consonant_splits = {},
+                      .rack_size = 9};
     // alif, baa, taa, thaa, jiim, Haa, khaa, daal, dhaal, raa, zaay, siin,
     // shiin, Saad, Daad, Taa, Zaa, ain, ghain, faa, qaaf, kaaf, laam, miim,
     // nuun, haa, waaw, yaa, taa marbuta.
@@ -548,12 +609,11 @@ Alphabet arabic_alphabet() noexcept {
     // char32_t \U-escapes elsewhere in this file already are for a
     // different reason.
     alphabet.display_letters = {
-        "\xD8\xA7", "\xD8\xA8", "\xD8\xAA", "\xD8\xAB", "\xD8\xAC",
-        "\xD8\xAD", "\xD8\xAE", "\xD8\xAF", "\xD8\xB0", "\xD8\xB1",
-        "\xD8\xB2", "\xD8\xB3", "\xD8\xB4", "\xD8\xB5", "\xD8\xB6",
-        "\xD8\xB7", "\xD8\xB8", "\xD8\xB9", "\xD8\xBA", "\xD9\x81",
-        "\xD9\x82", "\xD9\x83", "\xD9\x84", "\xD9\x85", "\xD9\x86",
-        "\xD9\x87", "\xD9\x88", "\xD9\x8A", "\xD8\xA9",
+        "\xD8\xA7", "\xD8\xA8", "\xD8\xAA", "\xD8\xAB", "\xD8\xAC", "\xD8\xAD",
+        "\xD8\xAE", "\xD8\xAF", "\xD8\xB0", "\xD8\xB1", "\xD8\xB2", "\xD8\xB3",
+        "\xD8\xB4", "\xD8\xB5", "\xD8\xB6", "\xD8\xB7", "\xD8\xB8", "\xD8\xB9",
+        "\xD8\xBA", "\xD9\x81", "\xD9\x82", "\xD9\x83", "\xD9\x84", "\xD9\x85",
+        "\xD9\x86", "\xD9\x87", "\xD9\x88", "\xD9\x8A", "\xD8\xA9",
     };
     alphabet.rack_size = 9;  // No reference game exists to justify anything else.
     // Approximate Arabic letter-frequency-weighted distribution - no
@@ -562,37 +622,38 @@ Alphabet arabic_alphabet() noexcept {
     // from general letter-frequency knowledge, not a certified source.
     // Abjad script: no vowel_consonant_splits, so `vowel` is irrelevant here
     // and left false throughout.
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 15, false},   // alif
-        {1, 7, false},    // baa
-        {2, 7, false},    // taa
-        {3, 2, false},    // thaa
-        {4, 4, false},    // jiim
-        {5, 4, false},    // Haa
-        {6, 3, false},    // khaa
-        {7, 5, false},    // daal
-        {8, 2, false},    // dhaal
-        {9, 7, false},    // raa
-        {10, 2, false},   // zaay
-        {11, 5, false},   // siin
-        {12, 3, false},   // shiin
-        {13, 3, false},   // Saad
-        {14, 2, false},   // Daad
-        {15, 3, false},   // Taa
-        {16, 1, false},   // Zaa
-        {17, 6, false},   // ain
-        {18, 2, false},   // ghain
-        {19, 5, false},   // faa
-        {20, 5, false},   // qaaf
-        {21, 5, false},   // kaaf
-        {22, 12, false},  // laam
-        {23, 9, false},   // miim
-        {24, 9, false},   // nuun
-        {25, 4, false},   // haa
-        {26, 8, false},   // waaw
-        {27, 10, false},  // yaa
-        {28, 6, false},   // taa marbuta (very common feminine suffix)
-    });
+    apply_weights(alphabet.letter_weights, alphabet.is_vowel,
+                  {
+                      {0, 15, false},   // alif
+                      {1, 7, false},    // baa
+                      {2, 7, false},    // taa
+                      {3, 2, false},    // thaa
+                      {4, 4, false},    // jiim
+                      {5, 4, false},    // Haa
+                      {6, 3, false},    // khaa
+                      {7, 5, false},    // daal
+                      {8, 2, false},    // dhaal
+                      {9, 7, false},    // raa
+                      {10, 2, false},   // zaay
+                      {11, 5, false},   // siin
+                      {12, 3, false},   // shiin
+                      {13, 3, false},   // Saad
+                      {14, 2, false},   // Daad
+                      {15, 3, false},   // Taa
+                      {16, 1, false},   // Zaa
+                      {17, 6, false},   // ain
+                      {18, 2, false},   // ghain
+                      {19, 5, false},   // faa
+                      {20, 5, false},   // qaaf
+                      {21, 5, false},   // kaaf
+                      {22, 12, false},  // laam
+                      {23, 9, false},   // miim
+                      {24, 9, false},   // nuun
+                      {25, 4, false},   // haa
+                      {26, 8, false},   // waaw
+                      {27, 10, false},  // yaa
+                      {28, 6, false},   // taa marbuta (very common feminine suffix)
+                  });
     // Empty on purpose - abjad script, no written short vowels, so
     // randomRack() falls back to a flat weighted draw (see
     // Alphabet::vowel_consonant_splits's doc comment).
@@ -601,79 +662,87 @@ Alphabet arabic_alphabet() noexcept {
 }
 
 Alphabet hebrew_alphabet() noexcept {
-    Alphabet alphabet{.id = AlphabetId::hebrew, .size = 22,
+    Alphabet alphabet{.id = AlphabetId::hebrew,
+                      .size = 22,
                       .fold = +[](char32_t cp) noexcept { return fold_hebrew(cp); },
-                      .display_letters = {}, .letter_weights = {}, .is_vowel = {},
-                      .vowel_consonant_splits = {}, .rack_size = 9};
+                      .display_letters = {},
+                      .letter_weights = {},
+                      .is_vowel = {},
+                      .vowel_consonant_splits = {},
+                      .rack_size = 9};
     // alef, bet, gimel, dalet, he, vav, zayin, het, tet, yod, kaf, lamed,
     // mem, nun, samekh, ayin, pe, tsadi, qof, resh, shin, tav.
     alphabet.display_letters = {
-        "\xD7\x90", "\xD7\x91", "\xD7\x92", "\xD7\x93", "\xD7\x94",
-        "\xD7\x95", "\xD7\x96", "\xD7\x97", "\xD7\x98", "\xD7\x99",
-        "\xD7\x9B", "\xD7\x9C", "\xD7\x9E", "\xD7\xA0", "\xD7\xA1",
-        "\xD7\xA2", "\xD7\xA4", "\xD7\xA6", "\xD7\xA7", "\xD7\xA8",
-        "\xD7\xA9", "\xD7\xAA",
+        "\xD7\x90", "\xD7\x91", "\xD7\x92", "\xD7\x93", "\xD7\x94", "\xD7\x95",
+        "\xD7\x96", "\xD7\x97", "\xD7\x98", "\xD7\x99", "\xD7\x9B", "\xD7\x9C",
+        "\xD7\x9E", "\xD7\xA0", "\xD7\xA1", "\xD7\xA2", "\xD7\xA4", "\xD7\xA6",
+        "\xD7\xA7", "\xD7\xA8", "\xD7\xA9", "\xD7\xAA",
     };
     alphabet.rack_size = 9;  // No reference game exists to justify anything else.
     // Approximate Hebrew letter-frequency-weighted distribution - same
     // good-faith-estimate caveat as Arabic above.
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 10, false},  // alef
-        {1, 6, false},   // bet
-        {2, 3, false},   // gimel
-        {3, 4, false},   // dalet
-        {4, 10, false},  // he
-        {5, 12, false},  // vav
-        {6, 3, false},   // zayin
-        {7, 4, false},   // het
-        {8, 3, false},   // tet
-        {9, 12, false},  // yod
-        {10, 5, false},  // kaf
-        {11, 9, false},  // lamed
-        {12, 9, false},  // mem
-        {13, 8, false},  // nun
-        {14, 3, false},  // samekh
-        {15, 5, false},  // ayin
-        {16, 5, false},  // pe
-        {17, 3, false},  // tsadi
-        {18, 4, false},  // qof
-        {19, 8, false},  // resh
-        {20, 6, false},  // shin
-        {21, 6, false},  // tav
-    });
+    apply_weights(alphabet.letter_weights, alphabet.is_vowel,
+                  {
+                      {0, 10, false},  // alef
+                      {1, 6, false},   // bet
+                      {2, 3, false},   // gimel
+                      {3, 4, false},   // dalet
+                      {4, 10, false},  // he
+                      {5, 12, false},  // vav
+                      {6, 3, false},   // zayin
+                      {7, 4, false},   // het
+                      {8, 3, false},   // tet
+                      {9, 12, false},  // yod
+                      {10, 5, false},  // kaf
+                      {11, 9, false},  // lamed
+                      {12, 9, false},  // mem
+                      {13, 8, false},  // nun
+                      {14, 3, false},  // samekh
+                      {15, 5, false},  // ayin
+                      {16, 5, false},  // pe
+                      {17, 3, false},  // tsadi
+                      {18, 4, false},  // qof
+                      {19, 8, false},  // resh
+                      {20, 6, false},  // shin
+                      {21, 6, false},  // tav
+                  });
     alphabet.vowel_consonant_splits = {};  // abjad script - see arabic_alphabet()
     return alphabet;
 }
 
 Alphabet yiddish_alphabet() noexcept {
-    Alphabet alphabet{.id = AlphabetId::yiddish, .size = 22,
+    Alphabet alphabet{.id = AlphabetId::yiddish,
+                      .size = 22,
                       .fold = +[](char32_t cp) noexcept { return fold_yiddish(cp); },
-                      .display_letters = {}, .letter_weights = {}, .is_vowel = {},
-                      .vowel_consonant_splits = {}, .rack_size = 9};
+                      .display_letters = {},
+                      .letter_weights = {},
+                      .is_vowel = {},
+                      .vowel_consonant_splits = {},
+                      .rack_size = 9};
     // Same 22-letter Hebrew-script base and display glyphs as
     // hebrew_alphabet() - Yiddish's three extra digraph letters decompose
     // to two of these existing slots rather than needing dedicated ones
     // (see fold_yiddish()).
     alphabet.display_letters = {
-        "\xD7\x90", "\xD7\x91", "\xD7\x92", "\xD7\x93", "\xD7\x94",
-        "\xD7\x95", "\xD7\x96", "\xD7\x97", "\xD7\x98", "\xD7\x99",
-        "\xD7\x9B", "\xD7\x9C", "\xD7\x9E", "\xD7\xA0", "\xD7\xA1",
-        "\xD7\xA2", "\xD7\xA4", "\xD7\xA6", "\xD7\xA7", "\xD7\xA8",
-        "\xD7\xA9", "\xD7\xAA",
+        "\xD7\x90", "\xD7\x91", "\xD7\x92", "\xD7\x93", "\xD7\x94", "\xD7\x95",
+        "\xD7\x96", "\xD7\x97", "\xD7\x98", "\xD7\x99", "\xD7\x9B", "\xD7\x9C",
+        "\xD7\x9E", "\xD7\xA0", "\xD7\xA1", "\xD7\xA2", "\xD7\xA4", "\xD7\xA6",
+        "\xD7\xA7", "\xD7\xA8", "\xD7\xA9", "\xD7\xAA",
     };
     alphabet.rack_size = 9;  // No reference game exists to justify anything else.
     // Reuses Hebrew's weight distribution as a starting approximation -
     // Yiddish is written in the same script, but as a Germanic (not
     // Semitic) language its real-world letter frequency genuinely differs;
     // this is a placeholder, not a claim they match.
-    apply_weights(alphabet.letter_weights, alphabet.is_vowel, {
-        {0, 10, false}, {1, 6, false}, {2, 3, false}, {3, 4, false},
-        {4, 10, false}, {5, 12, false}, {6, 3, false}, {7, 4, false},
-        {8, 3, false}, {9, 12, false}, {10, 5, false}, {11, 9, false},
-        {12, 9, false}, {13, 8, false}, {14, 3, false}, {15, 5, false},
-        {16, 5, false}, {17, 3, false}, {18, 4, false}, {19, 8, false},
-        {20, 6, false}, {21, 6, false},
-    });
+    apply_weights(
+        alphabet.letter_weights, alphabet.is_vowel,
+        {
+            {0, 10, false}, {1, 6, false},  {2, 3, false},  {3, 4, false},  {4, 10, false},
+            {5, 12, false}, {6, 3, false},  {7, 4, false},  {8, 3, false},  {9, 12, false},
+            {10, 5, false}, {11, 9, false}, {12, 9, false}, {13, 8, false}, {14, 3, false},
+            {15, 5, false}, {16, 5, false}, {17, 3, false}, {18, 4, false}, {19, 8, false},
+            {20, 6, false}, {21, 6, false},
+        });
     alphabet.vowel_consonant_splits = {};  // abjad-derived script - see arabic_alphabet()
     return alphabet;
 }

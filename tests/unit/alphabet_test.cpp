@@ -117,8 +117,7 @@ TEST_CASE("spanish_alphabet folds accented vowels (including u-diaeresis) to the
     REQUIRE(spanish.fold(0xFC).indices[0] == 20);  // u-diaeresis (gue/gui) -> u
 }
 
-TEST_CASE("every alphabet's game-rules fields are internally self-consistent",
-          "[alphabet][rack]") {
+TEST_CASE("every alphabet's game-rules fields are internally self-consistent", "[alphabet][rack]") {
     for (const Alphabet& alphabet :
          {english_alphabet(), french_alphabet(), german_alphabet(), spanish_alphabet(),
           arabic_alphabet(), hebrew_alphabet(), yiddish_alphabet()}) {
@@ -170,9 +169,9 @@ TEST_CASE("every alphabet rejects codepoints outside its own script", "[alphabet
     // A Cyrillic letter (Cyrillic Ya, U+042F) and a CJK ideograph
     // (U+4E2D, "middle") belong to no alphabet in this library, Latin or
     // otherwise.
-    for (const Alphabet& alphabet : {english_alphabet(), french_alphabet(), german_alphabet(),
-                                      spanish_alphabet(), arabic_alphabet(), hebrew_alphabet(),
-                                      yiddish_alphabet()}) {
+    for (const Alphabet& alphabet :
+         {english_alphabet(), french_alphabet(), german_alphabet(), spanish_alphabet(),
+          arabic_alphabet(), hebrew_alphabet(), yiddish_alphabet()}) {
         REQUIRE(alphabet.fold(0x42F).count == 0);
         REQUIRE(alphabet.fold(0x4E2D).count == 0);
         REQUIRE(alphabet.fold(U'3').count == 0);
@@ -207,8 +206,7 @@ TEST_CASE("arabic_alphabet folds hamza variants and alif maksura to their base l
     REQUIRE(arabic.fold(0x0647).indices[0] == 25);  // haa itself
 }
 
-TEST_CASE("hebrew_alphabet folds final letter forms to their base letter",
-          "[alphabet][hebrew]") {
+TEST_CASE("hebrew_alphabet folds final letter forms to their base letter", "[alphabet][hebrew]") {
     const Alphabet hebrew = hebrew_alphabet();
     REQUIRE(hebrew.size == 22);
 
@@ -232,7 +230,7 @@ TEST_CASE("yiddish_alphabet shares Hebrew's base letters and final-form folding"
     REQUIRE(yiddish.size == hebrew.size);
 
     // Same base letters, same finals-fold-to-base behaviour as Hebrew.
-    REQUIRE(yiddish.fold(0x05D0).indices[0] == hebrew.fold(0x05D0).indices[0]);  // alef
+    REQUIRE(yiddish.fold(0x05D0).indices[0] == hebrew.fold(0x05D0).indices[0]);   // alef
     REQUIRE(yiddish.fold(0x05DB).indices[0] == yiddish.fold(0x05DA).indices[0]);  // kaf/kaf sofit
 }
 
@@ -325,16 +323,17 @@ TEST_CASE("decode_utf8 is permissive about malformed input", "[alphabet][utf8]")
     REQUIRE(codepoints[1] == U'b');
 }
 
-TEST_CASE("frequencies_of folds a whole UTF-8 word through an alphabet", "[alphabet][frequencies]") {
+TEST_CASE("frequencies_of folds a whole UTF-8 word through an alphabet",
+          "[alphabet][frequencies]") {
     const Alphabet french = french_alphabet();
     // "sœur" (sister): s, oe-ligature (expands to o+e), u, r.
     const std::string soeur = utf8({U's', 0x153, U'u', U'r'});
 
     const Frequencies frequency = frequencies_of(soeur, french);
     REQUIRE(letter_count(frequency) == 5);  // s, o, e, u, r - the ligature counts as two letters
-    REQUIRE(frequency[18] == 1);  // s
-    REQUIRE(frequency[14] == 1);  // o
-    REQUIRE(frequency[4] == 1);   // e
-    REQUIRE(frequency[20] == 1);  // u
-    REQUIRE(frequency[17] == 1);  // r
+    REQUIRE(frequency[18] == 1);            // s
+    REQUIRE(frequency[14] == 1);            // o
+    REQUIRE(frequency[4] == 1);             // e
+    REQUIRE(frequency[20] == 1);            // u
+    REQUIRE(frequency[17] == 1);            // r
 }

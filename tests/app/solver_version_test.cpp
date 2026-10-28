@@ -13,7 +13,7 @@ void VersionTest::versionDetails_nonEmpty() {
 }
 
 void VersionTest::shortVersion_matchesLibraryVersion() {
-    const QString expected = QString::fromUtf8(countdown::version_string.data(),
-                                                 static_cast<qsizetype>(countdown::version_string.size()));
+    const QString expected = QString::fromUtf8(
+        countdown::version_string.data(), static_cast<qsizetype>(countdown::version_string.size()));
     QCOMPARE(solver_.shortVersion(), expected);
 }

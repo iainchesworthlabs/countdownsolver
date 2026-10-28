@@ -69,12 +69,18 @@ private:
     static const letters::Alphabet arabic = letters::arabic_alphabet();
     static const letters::Alphabet hebrew = letters::hebrew_alphabet();
     static const letters::Alphabet yiddish = letters::yiddish_alphabet();
-    if (code == QStringLiteral("fr")) return french;
-    if (code == QStringLiteral("de")) return german;
-    if (code == QStringLiteral("es")) return spanish;
-    if (code == QStringLiteral("ar")) return arabic;
-    if (code == QStringLiteral("he")) return hebrew;
-    if (code == QStringLiteral("yi")) return yiddish;
+    if (code == QStringLiteral("fr"))
+        return french;
+    if (code == QStringLiteral("de"))
+        return german;
+    if (code == QStringLiteral("es"))
+        return spanish;
+    if (code == QStringLiteral("ar"))
+        return arabic;
+    if (code == QStringLiteral("he"))
+        return hebrew;
+    if (code == QStringLiteral("yi"))
+        return yiddish;
     return english;
 }
 
@@ -82,12 +88,18 @@ private:
 // falling back to the English word list for any language without its own
 // placeholder/real dictionary yet.
 [[nodiscard]] QString dictionary_resource_for_language(const QString& code) {
-    if (code == QStringLiteral("fr")) return QStringLiteral(":/dictionary/words_fr.txt");
-    if (code == QStringLiteral("de")) return QStringLiteral(":/dictionary/words_de.txt");
-    if (code == QStringLiteral("es")) return QStringLiteral(":/dictionary/words_es.txt");
-    if (code == QStringLiteral("ar")) return QStringLiteral(":/dictionary/words_ar.txt");
-    if (code == QStringLiteral("he")) return QStringLiteral(":/dictionary/words_he.txt");
-    if (code == QStringLiteral("yi")) return QStringLiteral(":/dictionary/words_yi.txt");
+    if (code == QStringLiteral("fr"))
+        return QStringLiteral(":/dictionary/words_fr.txt");
+    if (code == QStringLiteral("de"))
+        return QStringLiteral(":/dictionary/words_de.txt");
+    if (code == QStringLiteral("es"))
+        return QStringLiteral(":/dictionary/words_es.txt");
+    if (code == QStringLiteral("ar"))
+        return QStringLiteral(":/dictionary/words_ar.txt");
+    if (code == QStringLiteral("he"))
+        return QStringLiteral(":/dictionary/words_he.txt");
+    if (code == QStringLiteral("yi"))
+        return QStringLiteral(":/dictionary/words_yi.txt");
     return QStringLiteral(":/dictionary/words_en.txt");
 }
 
@@ -96,11 +108,11 @@ private:
 // src/app/CMakeLists.txt), giving the app a complete dictionary with no user
 // setup required.
 [[nodiscard]] letters::Dictionary load_default_dictionary(const QString& resource_path,
-                                                           const letters::Alphabet& alphabet) {
+                                                          const letters::Alphabet& alphabet) {
     QFile file(resource_path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qCCritical(lcDictionary) << "failed to open bundled dictionary resource"
-                                  << file.fileName() << ":" << file.errorString();
+        qCCritical(lcDictionary) << "failed to open bundled dictionary resource" << file.fileName()
+                                 << ":" << file.errorString();
         return letters::Dictionary::from_words({}, alphabet);
     }
 
@@ -112,17 +124,21 @@ private:
     letters::Dictionary dictionary = letters::Dictionary::from_words(words, alphabet);
     if (dictionary.empty()) {
         qCWarning(lcDictionary) << "bundled dictionary resource" << file.fileName()
-                                 << "opened but yielded no usable words";
+                                << "opened but yielded no usable words";
     }
     return dictionary;
 }
 
 [[nodiscard]] QString op_symbol(numbers::Op op) {
     switch (op) {
-        case numbers::Op::add:      return QStringLiteral("+");
-        case numbers::Op::subtract: return QString(QChar(0x2212));  // MINUS SIGN
-        case numbers::Op::multiply: return QString(QChar(0x00D7));  // MULTIPLICATION SIGN
-        case numbers::Op::divide:   return QString(QChar(0x00F7));  // DIVISION SIGN
+        case numbers::Op::add:
+            return QStringLiteral("+");
+        case numbers::Op::subtract:
+            return QString(QChar(0x2212));  // MINUS SIGN
+        case numbers::Op::multiply:
+            return QString(QChar(0x00D7));  // MULTIPLICATION SIGN
+        case numbers::Op::divide:
+            return QString(QChar(0x00F7));  // DIVISION SIGN
     }
     return QStringLiteral("?");
 }
@@ -171,22 +187,24 @@ void Solver::setLanguageCode(const QString& code) {
 
 void Solver::loadDictionaries() {
     const letters::Alphabet& alphabet = alphabet_for_language(language_code_);
-    default_dictionary_ = load_default_dictionary(dictionary_resource_for_language(language_code_), alphabet);
+    default_dictionary_ =
+        load_default_dictionary(dictionary_resource_for_language(language_code_), alphabet);
     full_dictionary_ = load_full_dictionary(alphabet);
     dictionaries_ready_ = true;
 
     // A handful of sampled words (not the full list - that would flood the
     // log) confirms at a glance that the intended dictionary loaded and its
     // contents look sane, without adding a dedicated word-dump API.
-    qCDebug(lcDictionary) << "default dictionary loaded for" << language_code_
-                           << "(rack size" << alphabet.rack_size << "):"
-                           << default_dictionary_.size()
-                           << "words; sample:" << to_qstringlist(default_dictionary_.sample(500, 5));
+    qCDebug(lcDictionary) << "default dictionary loaded for" << language_code_ << "(rack size"
+                          << alphabet.rack_size << "):" << default_dictionary_.size()
+                          << "words; sample:" << to_qstringlist(default_dictionary_.sample(500, 5));
     if (full_dictionary_) {
         qCDebug(lcDictionary) << "full dictionary loaded:" << full_dictionary_->size()
-                               << "words; sample:" << to_qstringlist(full_dictionary_->sample(500, 5));
+                              << "words; sample:"
+                              << to_qstringlist(full_dictionary_->sample(500, 5));
     } else {
-        qCInfo(lcDictionary) << "full dictionary unavailable:" << to_qstring(full_dictionary_.error());
+        qCInfo(lcDictionary) << "full dictionary unavailable:"
+                             << to_qstring(full_dictionary_.error());
     }
 
     emit dictionariesReadyChanged();
@@ -249,8 +267,8 @@ void Solver::solveNumbersAsync(const QVariantList& numbers, int target) {
         emit numbersSolved(watcher->result());
         watcher->deleteLater();
     });
-    watcher->setFuture(QtConcurrent::run(
-        [this, numbers, target]() { return solveNumbers(numbers, target); }));
+    watcher->setFuture(
+        QtConcurrent::run([this, numbers, target]() { return solveNumbers(numbers, target); }));
 }
 
 QVariantMap Solver::solveLetters(const QString& rack, int minLen, int maxResults) const {
@@ -370,7 +388,8 @@ QString Solver::shuffledWord(std::size_t length) const {
     // for English in principle - fixed generally rather than special-cased.
     std::vector<char32_t> codepoints = letters::decode_utf8(candidates[pick(rng_)]);
     std::ranges::shuffle(codepoints, rng_);
-    return QString::fromUcs4(codepoints.data(), static_cast<qsizetype>(codepoints.size())).toUpper();
+    return QString::fromUcs4(codepoints.data(), static_cast<qsizetype>(codepoints.size()))
+        .toUpper();
 }
 
 QString Solver::randomRack() const {
@@ -383,7 +402,8 @@ QString Solver::randomRack() const {
         // rich set of words, same as the real show.
         std::uniform_int_distribution<std::size_t> pick_split(
             0, alphabet.vowel_consonant_splits.size() - 1);
-        const auto [vowel_count, consonant_count] = alphabet.vowel_consonant_splits[pick_split(rng_)];
+        const auto [vowel_count, consonant_count] =
+            alphabet.vowel_consonant_splits[pick_split(rng_)];
 
         std::vector<int> vowel_pool;
         std::vector<int> consonant_pool;
@@ -396,9 +416,9 @@ QString Solver::randomRack() const {
         std::ranges::shuffle(consonant_pool, rng_);
 
         rack_slots.insert(rack_slots.end(), vowel_pool.begin(),
-                     vowel_pool.begin() + static_cast<std::ptrdiff_t>(vowel_count));
+                          vowel_pool.begin() + static_cast<std::ptrdiff_t>(vowel_count));
         rack_slots.insert(rack_slots.end(), consonant_pool.begin(),
-                     consonant_pool.begin() + static_cast<std::ptrdiff_t>(consonant_count));
+                          consonant_pool.begin() + static_cast<std::ptrdiff_t>(consonant_count));
     } else {
         // No split defined (abjad scripts): flat weighted draw of rack_size
         // letter slots with no vowel/consonant constraint.
@@ -434,7 +454,7 @@ QString Solver::versionDetails() const {
 
 QString Solver::shortVersion() const {
     return QString::fromUtf8(countdown::version_string.data(),
-                              static_cast<qsizetype>(countdown::version_string.size()));
+                             static_cast<qsizetype>(countdown::version_string.size()));
 }
 
 bool Solver::isDirty() const {
@@ -454,7 +474,8 @@ QString Solver::fullDictionaryStatus() const {
         return tr("A custom dictionary is available.");
     }
     if (full_dictionary_.error() == SolveError::dictionary_empty) {
-        return tr("A words.txt file was found in the config folder, but it contained no usable words.");
+        return tr(
+            "A words.txt file was found in the config folder, but it contained no usable words.");
     }
     return tr("Add a words.txt file to the config folder to enable a custom dictionary.");
 }

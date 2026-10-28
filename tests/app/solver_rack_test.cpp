@@ -17,8 +17,14 @@ constexpr std::array<std::pair<int, int>, 3> kLegalSplits{{{3, 6}, {4, 5}, {5, 4
 
 [[nodiscard]] bool isVowel(QChar ch) {
     switch (ch.toLower().unicode()) {
-        case 'a': case 'e': case 'i': case 'o': case 'u': return true;
-        default: return false;
+        case 'a':
+        case 'e':
+        case 'i':
+        case 'o':
+        case 'u':
+            return true;
+        default:
+            return false;
     }
 }
 
@@ -61,7 +67,7 @@ void RackGenerationTest::randomRack_respectsFrenchRackSize() {
     // the full English dictionary first, since setLanguageCode() only
     // triggers a reload once dictionaries have already loaded once.
     countdown::app::Solver french_solver(nullptr,
-                                          countdown::app::Solver::DictionaryLoad::kDeferred);
+                                         countdown::app::Solver::DictionaryLoad::kDeferred);
     french_solver.setLanguageCode(QStringLiteral("fr"));
     french_solver.loadDictionaries();
 

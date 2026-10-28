@@ -10,7 +10,8 @@ PlatformInfo current() {
     // macOS convention: ~/Library/Application Support/<app>.
     std::filesystem::path config_dir;
     if (const char* home = std::getenv("HOME")) {
-        config_dir = std::filesystem::path(home) / "Library" / "Application Support" / "CountdownSolver";
+        config_dir =
+            std::filesystem::path(home) / "Library" / "Application Support" / "CountdownSolver";
     }
     return PlatformInfo{"macOS", std::move(config_dir)};
 }

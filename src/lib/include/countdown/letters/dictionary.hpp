@@ -22,7 +22,7 @@ public:
     // (e.g. "café", not "cafe") while matching/length always use the folded
     // form (see Frequencies/letter_count in frequencies.hpp).
     [[nodiscard]] static Dictionary from_words(const std::vector<std::string>& words,
-                                                const Alphabet& alphabet = english_alphabet());
+                                               const Alphabet& alphabet = english_alphabet());
 
     // Loads a newline-delimited UTF-8 word list from disk. Returns a
     // SolveError instead of throwing if the file is missing or yields no

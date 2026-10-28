@@ -50,10 +50,14 @@ namespace detail {
 
 [[nodiscard]] constexpr char symbol(Op op) noexcept {
     switch (op) {
-        case Op::add:      return '+';
-        case Op::subtract: return '-';
-        case Op::multiply: return 'x';
-        case Op::divide:   return '/';
+        case Op::add:
+            return '+';
+        case Op::subtract:
+            return '-';
+        case Op::multiply:
+            return 'x';
+        case Op::divide:
+            return '/';
     }
     return '?';
 }

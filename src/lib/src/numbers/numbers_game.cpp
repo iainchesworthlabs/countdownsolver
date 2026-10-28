@@ -56,8 +56,8 @@ void update_best(const Term& term, Value target, std::optional<SolveOutcome>& be
 // a newly-merged term is genuinely new information, so combine() below is the
 // sole place update_best() runs, rather than rescanning the whole working set
 // at every node.
-void search(std::vector<Term>& terms, Value target,
-            std::optional<SolveOutcome>& best, bool exhaustive) {
+void search(std::vector<Term>& terms, Value target, std::optional<SolveOutcome>& best,
+            bool exhaustive) {
     if (best && best->exact && !exhaustive) {
         return;
     }
@@ -118,8 +118,7 @@ Result<void> NumbersGame::validate() const {
     if (numbers_.size() > kMaxNumberCount) {
         return std::unexpected(SolveError::count_out_of_range);
     }
-    if (std::ranges::any_of(numbers_,
-                             [](int n) { return n <= 0 || n > kMaxNumberValue; })) {
+    if (std::ranges::any_of(numbers_, [](int n) { return n <= 0 || n > kMaxNumberValue; })) {
         return std::unexpected(SolveError::number_out_of_range);
     }
     return {};
