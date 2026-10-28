@@ -1,0 +1,11 @@
+{
+  "files": {
+    "src/app/platform/windows/platform_windows.cpp": 2,
+    "tests/app/app_tests_main.cpp": 2,
+    "tests/app/solver_dictionary_test.cpp": 4,
+    "tests/app/solver_dictionary_test.hpp": 2,
+    "tests/app/solver_logging_test.cpp": 2,
+    "tests/app/solver_logging_test.hpp": 2,
+    "tests/integration/solver_integration_test.cpp": 2
+  }
+}

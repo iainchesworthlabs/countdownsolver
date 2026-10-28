@@ -33,6 +33,14 @@ add_custom_target(countdown_version ALL
     COMMENT "Stamping version and git information"
     VERBATIM)
 
+# The OS, architecture and compiler the version details report: worked out once, at
+# configure time (src/lib/src/version.cpp includes the result).
+include("${PROJECT_SOURCE_DIR}/cmake/BuildTarget.cmake")
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/countdown/build_target.hpp.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/countdown/build_target.hpp"
+    @ONLY)
+
 target_sources(countdown_solver
     PRIVATE
         src/numbers/numbers_game.cpp
