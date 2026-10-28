@@ -8,7 +8,9 @@
   There is no <uses-sdk> tag: Qt 6.12's Gradle (Android Gradle Plugin 9)
   rejects one. The minimum (28, the lowest androiddeployqt accepts) and target
   levels are the QT_ANDROID_MIN_SDK_VERSION and QT_ANDROID_TARGET_SDK_VERSION
-  properties of the app target in src/app/CMakeLists.txt.
+  properties of the app target in src/app/CMakeLists.txt. Nor is there
+  android:extractNativeLibs: the same Gradle rejects it in the manifest, and Qt's
+  build script sets the equivalent (useLegacyPackaging).
 
   No screenOrientation lock and no supports-screens size exclusion (both
   removed - see git history for the original tablet/landscape-only values):
@@ -25,8 +27,7 @@
 
     <application
         android:name="org.qtproject.qt.android.bindings.QtApplication"
-        android:label="Countdown Solver"
-        android:extractNativeLibs="true">
+        android:label="Countdown Solver">
 
         <activity
             android:name="org.qtproject.qt.android.bindings.QtActivity"
