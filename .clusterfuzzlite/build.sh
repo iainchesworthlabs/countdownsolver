@@ -3,9 +3,9 @@
 # Builds countdown::solver's fuzz harnesses (tests/fuzz/) for ClusterFuzzLite.
 # Only the harnesses need building here - not the Qt app (no Qt available in
 # this image, and none of its code is fuzzed) or the Catch2-based test suite
-# (an unrelated vcpkg manifest feature). deps/vcpkg is bootstrapped
-# automatically by the top-level CMakeLists.txt's own submodule-init logic,
-# the same as every other build of this project.
+# (an unrelated vcpkg manifest feature). With the tests off nothing needs
+# vcpkg, so the configure runs without it (cmake/icl/IclVcpkgRoot.cmake leaves
+# a configure that does not ask for vcpkg alone).
 #
 # $CFLAGS/$CXXFLAGS carry ClusterFuzzLite's sanitizer/coverage instrumentation
 # and must reach every translation unit, not just the harnesses - passed as
@@ -33,8 +33,6 @@
 # Nothing in this codebase declares/imports a module, so disabling the scan
 # is a no-op for correctness.
 cmake -S "$SRC/CountdownSolver" -B "$WORK/build" -G Ninja \
-  -DCMAKE_TOOLCHAIN_FILE="$SRC/CountdownSolver/deps/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-  -DVCPKG_TARGET_TRIPLET=x64-linux \
   -DCMAKE_C_COMPILER="$CC" \
   -DCMAKE_CXX_COMPILER="$CXX" \
   -DCMAKE_C_FLAGS="$CFLAGS" \

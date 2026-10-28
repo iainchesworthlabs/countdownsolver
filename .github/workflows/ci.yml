@@ -50,31 +50,10 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
-      # Cache vcpkg build artefacts between runs via a local binary cache
-      # directory (the 'files' provider), persisted across runs by
-      # actions/cache below. The vcpkg provider itself is the vendored
-      # deps/vcpkg submodule and is bootstrapped automatically by its CMake
-      # toolchain on first configure.
-      #
-      # x-gha was removed from vcpkg (https://learn.microsoft.com/vcpkg/users/binarycaching);
-      # 'files' + actions/cache is the simplest supported replacement.
-      #
-      # The 'runner' context isn't available in job-level env: blocks, so this
-      # is set via GITHUB_ENV in a step instead.
-      - name: Configure vcpkg binary cache
-        shell: bash
-        run: echo "VCPKG_BINARY_SOURCES=clear;files,${{ runner.temp }}/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
-
-      - name: Cache vcpkg binaries
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/vcpkg-cache
-          key: vcpkg-binary-cache-${{ matrix.preset }}-${{ hashFiles('vcpkg.json') }}
-          restore-keys: |
-            vcpkg-binary-cache-${{ matrix.preset }}-
+      - name: Set up vcpkg
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       # The GitHub runners ship CMake 3.x; the project (and CMakePresets)
       # require CMake 4. get-cmake installs a matching CMake 4 and Ninja on
@@ -170,6 +149,11 @@ jobs:
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 
+      - name: Save the vcpkg caches
+        if: always()
+        continue-on-error: true
+        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
   translations:
     name: Translations complete
     runs-on: ubuntu-24.04
@@ -213,7 +197,6 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
       # androiddeployqt's generated Gradle project needs a JDK.
@@ -289,7 +272,6 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
       - name: Install Qt (iOS kit)
@@ -322,23 +304,10 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          submodules: recursive
           persist-credentials: false
 
-      # See the build-and-test job above for why 'files' + actions/cache
-      # replaces the removed x-gha binary caching backend, and why this is
-      # set via GITHUB_ENV rather than a job-level env:.
-      - name: Configure vcpkg binary cache
-        shell: bash
-        run: echo "VCPKG_BINARY_SOURCES=clear;files,${{ runner.temp }}/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
-
-      - name: Cache vcpkg binaries
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ runner.temp }}/vcpkg-cache
-          key: vcpkg-binary-cache-linux-gcc-coverage-${{ hashFiles('vcpkg.json') }}
-          restore-keys: |
-            vcpkg-binary-cache-linux-gcc-coverage-
+      - name: Set up vcpkg
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
@@ -399,3 +368,8 @@ jobs:
         with:
           name: coverage-report
           path: build/coverage*.html
+
+      - name: Save the vcpkg caches
+        if: always()
+        continue-on-error: true
+        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17

@@ -2,36 +2,18 @@
 cmake_minimum_required(VERSION 3.28...4.3)
 
 # ---------------------------------------------------------------------------
-# Vendored vcpkg (git submodule at deps/vcpkg).
+# vcpkg.
 #
-# The dependency provider is pinned by the submodule so builds are fully
-# reproducible without a machine-wide vcpkg or a VCPKG_ROOT env var. The
-# CMakePresets point CMAKE_TOOLCHAIN_FILE at deps/vcpkg/scripts/buildsystems.
-# If the submodule was not checked out, initialise it here so a fresh clone
-# configures without extra steps.
+# vcpkg.json pins the registry with builtin-baseline. Which vcpkg checkout a
+# configure uses for that commit - one shared between checkouts through
+# ICL_VCPKG_STORE, a root you name, or the VCPKG_ROOT that CI sets - is decided
+# in cmake/icl/IclVcpkgRoot.cmake (docs/building.md), which sets
+# CMAKE_TOOLCHAIN_FILE. The presets deliberately do not. The module is included
+# by path: cmake/icl is not on CMAKE_MODULE_PATH, so its FindQt6 does not take
+# the place of cmake/FindQt6.cmake.
 # ---------------------------------------------------------------------------
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vcpkg/scripts/buildsystems/vcpkg.cmake")
-    find_package(Git QUIET)
-    if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
-        message(STATUS "Initialising vendored vcpkg submodule (deps/vcpkg)")
-        execute_process(
-            COMMAND "${GIT_EXECUTABLE}" submodule update --init --depth 1 -- deps/vcpkg
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            RESULT_VARIABLE COUNTDOWN_SUBMODULE_RESULT)
-        if(NOT COUNTDOWN_SUBMODULE_RESULT EQUAL 0)
-            message(FATAL_ERROR
-                "Failed to initialise the vcpkg submodule. Run:\n"
-                "  git submodule update --init --depth 1 deps/vcpkg")
-        endif()
-    endif()
-endif()
-
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/vcpkg/scripts/buildsystems/vcpkg.cmake")
-    message(FATAL_ERROR
-        "Vendored vcpkg not found at deps/vcpkg.\n"
-        "Clone with submodules (git clone --recurse-submodules ...) or run:\n"
-        "  git submodule update --init --depth 1 deps/vcpkg")
-endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/icl/IclVcpkgRoot.cmake")
+icl_resolve_vcpkg("${CMAKE_CURRENT_SOURCE_DIR}" COUNTDOWN)
 
 # ---------------------------------------------------------------------------
 # Select vcpkg manifest features BEFORE project() (the vcpkg toolchain reads

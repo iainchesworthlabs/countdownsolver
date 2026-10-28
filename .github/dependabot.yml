@@ -20,3 +20,14 @@ updates:
       github-actions:
         patterns:
           - "*"
+
+  # The vcpkg baseline moves monthly and is reviewed by hand. The
+  # vcpkg-baseline-in-fork check fails the pull request until the organisation's
+  # fork has the commit.
+  - package-ecosystem: "vcpkg"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
