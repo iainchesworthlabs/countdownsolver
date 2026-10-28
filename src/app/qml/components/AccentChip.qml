@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Iain Chesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
 import QtQuick
 
 // A single accent-filled word chip (LettersPage's "longest word(s)" list).

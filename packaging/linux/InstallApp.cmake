@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Iain Chesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Linux: the install rules that the .deb, .rpm and .tar.gz package. The app and
 # the Qt it carries live in one private directory, a launcher goes in
 # /usr/bin, and the desktop entry, AppStream metadata and icons go to the

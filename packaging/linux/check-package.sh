@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 Iain Chesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Checks what the Linux packages hold, from the packages themselves.
 #
 #   packaging/linux/check-package.sh <folder with the .deb, .rpm and .tar.gz>

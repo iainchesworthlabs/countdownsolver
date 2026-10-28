@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Iain Chesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
 # ---------------------------------------------------------------------------
 # countdown::solver - all game logic, no GUI, no platform code.
 # ---------------------------------------------------------------------------
