@@ -1,0 +1,17 @@
+{
+  "repository": {
+    "description": "A cross-platform desktop solver for Countdown's Numbers, Letters, and Conundrum puzzles",
+    "homepage": "https://iainchesworthlabs.github.io/countdownsolver/"
+  },
+  "topics": [
+    "countdown",
+    "countdown-game-show",
+    "cpp23",
+    "cross-platform",
+    "desktop-application",
+    "gplv3",
+    "puzzle-solver",
+    "qml",
+    "qt6"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "docs": ["docs/**", "*.md", "mkdocs.yml", "LICENSE*", "changelog.d/**"],
-  "no_build": [".github/PULL_REQUEST_TEMPLATE*", ".github/ISSUE_TEMPLATE/**", ".github/CODEOWNERS", ".github/dependabot.yml",
+  "no_build": [".github/PULL_REQUEST_TEMPLATE*", ".github/ISSUE_TEMPLATE/**", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/repo-settings.json",
                ".github/workflows/docs.yml", ".github/workflows/cache-hygiene.yml", ".github/workflows/scorecard.yml",
                ".github/workflows/osv-scanner.yml", ".github/workflows/zizmor.yml", ".github/workflows/dependency-review.yml",
                ".github/workflows/branch-name-check.yml", ".github/workflows/cflite_*.yml",
