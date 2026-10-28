@@ -341,14 +341,27 @@ qt_add_translations(countdownsolver_qml
 if(ANDROID)
     set_target_properties(countdownsolver PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/platform/android"
+        QT_ANDROID_PACKAGE_NAME "${COUNTDOWN_APPLICATION_ID}"
         QT_ANDROID_MIN_SDK_VERSION 28
         QT_ANDROID_TARGET_SDK_VERSION 34)
+endif()
+
+# The bundle identifier and the copyright line of the macOS and iOS bundles. The
+# identifier is COUNTDOWN_APPLICATION_ID, the same one Android and the Linux desktop
+# entry use.
+if(APPLE)
+    set_target_properties(countdownsolver PROPERTIES
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${COUNTDOWN_APPLICATION_ID}"
+        MACOSX_BUNDLE_COPYRIGHT "Copyright (C) 2026 Iain Chesworth")
+    if(COUNTDOWN_BUILD_NUMBER)
+        set_target_properties(countdownsolver PROPERTIES
+            MACOSX_BUNDLE_BUNDLE_VERSION "${COUNTDOWN_BUILD_NUMBER}")
+    endif()
 endif()
 
 if(IOS)
     set_target_properties(countdownsolver PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/ios/Info.plist.in"
-        MACOSX_BUNDLE_GUI_IDENTIFIER "org.iainchesworth.countdownsolver"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
         # Points Xcode's asset catalog compiler at the AppIcon icon set
         # below to fill the CFBundleIconName "AppIcon" slot declared in

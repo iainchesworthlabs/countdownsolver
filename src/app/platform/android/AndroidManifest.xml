@@ -5,6 +5,10 @@
   (org.qtproject.qt.android.bindings.QtActivity/QtApplication) is correct
   as-is for this Qt version.
 
+  The application id is not written here: Gradle takes it from the app target's
+  QT_ANDROID_PACKAGE_NAME (src/app/CMakeLists.txt), which is COUNTDOWN_APPLICATION_ID,
+  and ignores a package attribute.
+
   There is no <uses-sdk> tag: Qt 6.12's Gradle (Android Gradle Plugin 9)
   rejects one. The minimum (28, the lowest androiddeployqt accepts) and target
   levels are the QT_ANDROID_MIN_SDK_VERSION and QT_ANDROID_TARGET_SDK_VERSION
@@ -20,7 +24,6 @@
   forcing landscape and refusing to install on phones.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.iainchesworth.countdownsolver"
     android:versionName="-- %%INSERT_VERSION_NAME%% --"
     android:versionCode="-- %%INSERT_VERSION_CODE%% --"
     android:installLocation="auto">
