@@ -16,6 +16,7 @@ updates:
     # before this repo auto-updates to it.
     cooldown:
       default-days: 7
+    rebase-strategy: disabled
     groups:
       github-actions:
         patterns:
@@ -31,3 +32,33 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
+    rebase-strategy: disabled
+
+  # The pinned Python tools of CI and the docs build. Each requirements.txt is
+  # compiled with hashes from its requirements.in (pip-compile).
+  - package-ecosystem: "pip"
+    directory: "/ci"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    rebase-strategy: disabled
+
+  - package-ecosystem: "pip"
+    directory: "/docs"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    rebase-strategy: disabled
+
+  - package-ecosystem: "pip"
+    directory: "/.clusterfuzzlite"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    rebase-strategy: disabled
