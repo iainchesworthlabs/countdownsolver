@@ -45,7 +45,7 @@ will also find it a short list of what the checks expect; [CONTRIBUTING](docs/CO
 | A toolchain version | `.github/toolchain-versions.json`, then `docs/ci.md`; the `Toolchain pins` job checks the workflows against it |
 | A workflow in `.github/workflows` | `docs/ci.md`; pin every `uses:` to a full SHA with a version comment |
 | A dependency in `vcpkg.json` | Nothing else; the baseline check and Dependabot cover the fork |
-| Test labels or the coverage gate | `docs/testing.md` |
+| Test labels, or coverage | `docs/testing.md`, and `tools/coverage-floors.json` (raise a floor when coverage rose) |
 | The Linux package files or their dependencies | `packaging/linux/Packaging.cmake`, and `docs/building.md` |
 | A string the user sees | `qsTr` or `tr`, then refresh the catalogues with the `update_translations` target ([translations](docs/translations.md)) |
 | A language or a word list | `docs/translations.md` and `docs/how-to-play.md` |
