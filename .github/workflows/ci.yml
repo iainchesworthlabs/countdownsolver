@@ -308,6 +308,14 @@ jobs:
       - name: Install Qt (prebuilt)
         uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
+      # The Qt install leaves the newest Python first on PATH, and the pinned
+      # lxml has no wheel for it, so pip would build it from source. gcovr runs
+      # on a Python that has wheels for what ci/requirements-gcovr.txt pins.
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
       - name: Install gcovr
         run: pip install --quiet --require-hashes -r ci/requirements-gcovr.txt
 
