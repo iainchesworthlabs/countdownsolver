@@ -11,8 +11,11 @@ CMakeLists.txt text
 *.txt  text
 *.json text
 *.md   text
+*.ts   text
+*.qml  text
 
 # Treat these as binary.
 *.png binary
 *.ico binary
 *.qm  binary
+*.ttf binary
