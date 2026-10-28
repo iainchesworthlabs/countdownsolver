@@ -4,7 +4,7 @@ This page is the plan for moving Countdown Solver into the `iainchesworthlabs` o
 
 Countdown Solver is a working project, not a port. Its naming, code layout and design choices stay. The standard's branching, CI structure, release tooling, repository settings, licensing, identifiers and dependency handling apply.
 
-Status: the plan is agreed and under way. The repository was transferred on 2026-10-28. The last column of the table below says which pull requests have merged.
+Status: most of the work has merged. The repository was transferred on 2026-10-28 and the organisation settings were applied in two parts; the second part (the D1 rulesets and the default branch) is waiting for the maintainer. The release workflow has had a dry run without a tag. The iOS TestFlight job is written and switched off until the Apple steps below are done. The last column of the table below says which pull requests have merged.
 
 ## Values chosen
 
@@ -24,14 +24,14 @@ Status: the plan is agreed and under way. The repository was transferred on 2026
 | Layout | `src/lib` and `src/app` stay | The standard's `libs/` and `apps/` layout is not adopted. |
 | Code conventions | The repository's own `.clang-format`; naming written into `.clang-tidy` as measured | No renames, no change of brace style. |
 | Copyright line | `Copyright (C) 2026 Iain Chesworth` | Licence stays `GPL-3.0-or-later`. |
-| Languages | English, French, Spanish, German, Hebrew, Yiddish, Arabic, Japanese, Simplified Chinese (`zh_CN`) | Japanese and Simplified Chinese are new. |
+| Languages | English, French, Spanish, German, Hebrew, Yiddish, Arabic, Japanese, Simplified Chinese (`zh_CN`) | Japanese and Simplified Chinese are new and not yet added. |
 | Changelog | `changelog.d/` fragments, assembled into `CHANGELOG.md` before the tag | |
 | Release signing | Organisation GPG key, SHA-512 sums, SPDX SBOM, build provenance attestations | Windows behind `SIGN_WINDOWS`, macOS behind `SIGN_MACOS`. |
 | iOS | Signed TestFlight build, internal testing; no IPA on a public release | The ad-hoc path is removed. |
 | Android signing key | The current keystore, kept as repository secrets | No organisation upload key yet. |
 | Orientation | Not locked on Android or iOS | An exception to standard section 7.7 is to be requested. |
-| Coverage gate | 90% lines and 80% branches, with a floor file | Measured today: 92.6% and 86.0%. |
-| Preset names | Kept | `tsan`, `fuzz` and `ios-simulator` are added. |
+| Coverage gate | Floors per component in `tools/coverage-floors.json`: `src/lib` 90% lines and 88% branches, `src/app` 92% and 83% | Measured at the time: `src/lib` 91.5% and 89.3%, `src/app` 93.6% and 83.9%. |
+| Preset names | Kept | `linux-gcc-codeql` is added for the nightly CodeQL scan. `tsan`, `fuzz` and `ios-simulator` are not added yet. |
 
 ## Order of pull requests
 
@@ -39,42 +39,45 @@ Pull requests target `develop` and are named `feature/` or `bugfix/` until the n
 
 | # | Pull request | Depends on | State |
 |---|---|---|---|
-| 0 | Owner: transfer the repository; organisation settings (below) | | Transfer and the first settings done |
+| 0 | Owner: transfer the repository; organisation settings (below) | | Transfer and part A of the settings done; part B (the rulesets) is the maintainer's |
 | 1 | This plan (`docs/migration.md`) | 0 | Merged (#115) |
 | 2 | Merge #110 (theme, accessibility and locale); close the Dependabot pull request #114 | 0 | Done |
-| 3 | Links and badges for the new owner and name; `.git` remote URLs | 0 | |
+| 3 | Links and badges for the new owner and name; `.git` remote URLs | 0 | Merged (#123) |
 | 4 | Toolchain pins (`.github/toolchain-versions.json`), vendored `cmake/icl` with `cmake/icl/SOURCE`, `tools/ci` scripts including `precheck.py` | 1 | Merged (#116) |
 | 5 | vcpkg fork scheme; remove the submodule; update ClusterFuzzLite | 4 | Merged (#117) |
-| 6 | Qt 6.12, compiler floor, runner images; Android NDK and SDK; the Linux package with Qt bundled and built on the 24.04 image | 5 | Toolchain merged (#118); Linux package in review (#119) |
-| 7 | Conventions written down: `.clang-tidy` naming, `src/app/.clang-tidy`, `.editorconfig`, `.gitattributes`, `.git-blame-ignore-revs`, Objective-C++ format document | 4 | |
-| 8 | Withdraw the ad-hoc iOS path: assets, install page, docs, workflow export | 3 | |
-| 9 | One-commit reformat with the repository's own `.clang-format`, listed in `.git-blame-ignore-revs` | 2, 7 | |
-| 10 | SPDX headers, `REUSE.toml`, `LICENSES/` | 9 | |
-| 11 | `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, issue forms, pull request template | 7 | |
-| 12 | CI on the shared pieces: `CI Status`, policy, zizmor, docs, merge_group triggers, Dependabot (`pip`, `vcpkg`), auto-merge, CodeQL nightly, preprocessor and format checks | 6, 7, 9 | |
-| 13 | Owner: apply the D1 rulesets and make `develop` the default branch (after 12) | 12 | |
-| 14 | Identifier in one CMake variable; Android application id; Info.plist for TestFlight | 6 | |
-| 15 | iOS release job on the shared signing actions, with `release-preflight` | 13, 14 | |
-| 16 | Release tooling: `changelog.d`, release workflow on `release-publish.yml`, SBOM, GPG, glibc floor check | 13 | |
-| 17 | Documentation: required pages, README badges, releasing and signing | 16 | |
+| 6 | Qt 6.12, compiler floor, runner images; Android NDK and SDK; the Linux package with Qt bundled and built on the 24.04 image | 5 | Merged (#118, #119) |
+| 7 | Conventions written down: `.clang-tidy` naming, `src/app/.clang-tidy`, `.editorconfig`, `.gitattributes`, `.git-blame-ignore-revs`, Objective-C++ format document | 4 | Merged (#120) |
+| 8 | Withdraw the ad-hoc iOS path: assets, install page, docs, workflow export | 3 | Merged (#121) |
+| 9 | One-commit reformat with the repository's own `.clang-format`, listed in `.git-blame-ignore-revs` | 2, 7 | Merged (#122) |
+| 10 | SPDX headers, `REUSE.toml`, `LICENSES/` | 9 | Merged (#125) |
+| 11 | `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, issue forms, pull request template | 7 | Merged (#124) |
+| 12 | CI on the shared pieces: `CI Status`, policy, zizmor, docs, merge_group triggers, Dependabot (`pip`, `vcpkg`), auto-merge, CodeQL nightly, preprocessor and format checks | 6, 7, 9 | Merged (#126, #127, #128, #129, #130) |
+| 13 | Owner: apply the D1 rulesets and make `develop` the default branch (after 12) | 12 | Waiting for the maintainer |
+| 14 | Identifier in one CMake variable; Android application id; Info.plist for TestFlight | 6 | Merged (#131) |
+| 15 | iOS release job on the shared signing actions, with `release-preflight` | 13, 14 | Merged with the release workflow (#133); off until `SIGN_IOS_UPLOAD` is `true` |
+| 16 | Release tooling: `changelog.d`, release workflow on `release-publish.yml`, SBOM, GPG, glibc floor check | 13 | Merged (#132, #133) |
+| 17 | Documentation: required pages, README badges, releasing and signing | 16 | In progress: `docs/releasing.md` and `SECURITY.md` merged (#133) |
 
-After 15, a validate-only run of the release workflow is read in full before any tag.
+The release workflow has had a dry run from a branch, which builds and checks the Linux, Windows and macOS packages and publishes nothing. The Android and iOS jobs wait for the maintainer's approval of the `release` environment and were not approved. The first iOS run is the test of that job.
 
 ## Owner actions
 
 Each is the maintainer's. The settings and the secrets stay with the maintainer.
 
-1. Transfer the repository: `gh api -X POST repos/iainchesworth/CountdownSolver/transfer -f new_owner=iainchesworthlabs -f new_name=countdownsolver`.
+1. Done: transfer the repository: `gh api -X POST repos/iainchesworth/CountdownSolver/transfer -f new_owner=iainchesworthlabs -f new_name=countdownsolver`.
 2. Check that the fine-grained token behind the Dependabot secret `MERGE_QUEUE_TOKEN` covers the new repository.
-3. Apply repository settings, the `release` environment (required reviewer: the maintainer) and variables with `admin/apply.sh` (dry run first). The variables start as `false`.
-4. Open the organisation secrets `IOS_DIST_CERT_P12_BASE64`, `IOS_DIST_CERT_PASSWORD`, `APPSTORE_API_KEY_ID`, `APPSTORE_API_ISSUER_ID` and `APPSTORE_API_PRIVATE_KEY` to the repository, after the `release` environment exists.
+3. Apply repository settings, the `release` environment (required reviewer: the maintainer) and variables with `admin/apply.sh` (dry run first). The variables start as `false`. The `release` environment, the variables and the labels are done. Still to do: `--only settings,pages,rulesets`, which makes `develop` the default branch and puts the D1 rulesets in force, then deleting the old `main-protection` ruleset.
+4. Done: open the organisation secrets `IOS_DIST_CERT_P12_BASE64`, `IOS_DIST_CERT_PASSWORD`, `APPSTORE_API_KEY_ID`, `APPSTORE_API_ISSUER_ID` and `APPSTORE_API_PRIVATE_KEY` to the repository, after the `release` environment exists.
 5. In the Apple developer portal: register the App ID `com.iainchesworthlabs.countdownsolver`; make an App Store Connect distribution profile for it with the organisation's Apple Distribution certificate; set it as the repository secret `IOS_PROVISIONING_PROFILE_BASE64`.
 6. In App Store Connect: create the app record "ICL Countdown Solver" for that identifier; create an internal TestFlight group.
 7. After the TestFlight build runs on the phone: revoke or let expire the ad-hoc provisioning profile, delete the old App ID `org.iainchesworth.countdownsolver` if nothing else uses it, and remove the old app from the phone.
 8. Delete the old repository secrets `IOS_DIST_CERTIFICATE_BASE64`, `IOS_DIST_CERTIFICATE_PASSWORD`, `APPLE_TEAM_ID` and `APPLE_PROVISIONING_PROFILE_NAME` once the new iOS job has passed.
-9. Push the release tags and approve the `release` environment for each release.
+9. Commit the public release key as `docs/signing-key.asc`. The shared publish workflow checks every signature against it, and `SECURITY.md` quotes its fingerprint. The organisation secrets `REPO_GPG_*` and `RELEASE_BOT_*` have to be open to the repository.
+10. Push the release tags and approve the `release` environment for each release.
 
 ## Done on the maintainer's approval
+
+All done.
 
 - Delete the four ad-hoc IPAs (`v0.3.0-beta.1` to `v0.3.0-beta.4`) and the three iOS plists (`v0.3.0-beta.2` to `v0.3.0-beta.4`) from the public releases.
 - Delete the merged remote and local branches `bugfix/ci-actions-cache-hygiene` and `feature/vcpkg-from-labs-fork`. The worktree and branch for #110 follow once #110 has merged.
@@ -90,10 +93,11 @@ Each is the maintainer's. The settings and the secrets stay with the maintainer.
 ## Requests to the standard
 
 - An exception to section 7.7 for applications that follow the device orientation.
-- Clarify whether `Branch Name` is a required check (section 11.3 against the shipped rulesets).
+- Clarify which checks are required (section 11.3 names `Branch Name` and `vcpkg-baseline-in-fork`; the shipped rulesets require `CI Status` and `Scan dependency diff`).
 - `cache-hygiene` as a shared workflow.
 - `Q_OS_*` in the preprocessor checker's token list.
 - ClusterFuzzLite as an accepted fuzz engine beside the standard's libFuzzer jobs.
+- Release notes for a pre-release with a `-beta.N` suffix: say how the `## [x.y.z-beta.N]` headings and pending fragments are read.
 
 ## Preserved features
 
