@@ -7,7 +7,7 @@ Instead we use the **official prebuilt Qt binaries** via
 
 - **CI** uses the shared `setup-qt` action of `icl-common-infra`, which wraps
   `jurplel/install-qt-action` (itself a wrapper around aqtinstall) and reads the
-  version from the pins file — see [`.github/workflows/ci.yml`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/ci.yml).
+  version from the pins file — see [`.github/workflows/ci.yml`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/ci.yml).
 - **Locally**, run the matching script below; both install the same
   pinned Qt and print the `CMAKE_PREFIX_PATH` to pass to CMake.
 
@@ -65,7 +65,7 @@ cmake --build --preset windows-msvc-debug
 
 ## Mobile CI jobs
 
-Two build-only, unsigned jobs in [`ci.yml`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/ci.yml)
+Two build-only, unsigned jobs in [`ci.yml`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/ci.yml)
 gate every PR/branch push, mirroring the desktop `build-and-test` jobs but
 without a `ctest` step (mobile presets set `COUNTDOWN_BUILD_TESTS=OFF` —
 see [Building & packaging](building.md)):
@@ -79,48 +79,31 @@ see [Building & packaging](building.md)):
   Qt-for-iOS kit, then configures/builds the `ios-debug` preset (unsigned,
   per that preset's `CODE_SIGNING_ALLOWED=NO` cache variables).
 
-## Signed mobile release packaging
+## Signed Android release packaging
 
-The [release workflow](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/release.yml)'s
-`android-release`/`ios-release` jobs produce a real, signed, distributable
-package for each mobile platform (alongside the existing signed-by-checksum
-Windows/Linux/macOS packages, all with the same SHA256/512 + Sigstore
-attestation treatment). This needs the following **GitHub Secrets**
-(Settings → Secrets and variables → Actions), which you create yourself —
-the workflow never sees or stores the underlying key material beyond the
-lifetime of a single job run:
+The [release workflow](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/release.yml)'s
+`android-release` job produces a real, signed, distributable package for
+Android (alongside the signed-by-checksum Windows/Linux/macOS packages, all with
+the same SHA256/512 + Sigstore attestation treatment). This needs the following
+**GitHub Secrets** (Settings → Secrets and variables → Actions), which the
+maintainer creates — the workflow never sees or stores the underlying key
+material beyond the lifetime of a single job run:
 
 | Secret | Purpose |
 | --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | Your Android release keystore file, base64-encoded (`base64 -w0 release.keystore`) |
+| `ANDROID_KEYSTORE_BASE64` | The Android release keystore file, base64-encoded (`base64 -w0 release.keystore`) |
 | `ANDROID_KEYSTORE_PASSWORD` | The keystore's store password |
 | `ANDROID_KEY_ALIAS` | The signing key's alias inside the keystore |
 | `ANDROID_KEY_PASSWORD` | The signing key's own password |
-| `IOS_DIST_CERTIFICATE_BASE64` | Your Apple Distribution certificate `.p12`, base64-encoded |
-| `IOS_DIST_CERTIFICATE_PASSWORD` | The `.p12`'s export password |
-| `IOS_PROVISIONING_PROFILE_BASE64` | An **ad-hoc** provisioning profile (`.mobileprovision`), base64-encoded |
-| `APPLE_TEAM_ID` | Your Apple Developer Team ID |
-| `APPLE_PROVISIONING_PROFILE_NAME` | The provisioning profile's own display name in Apple's system, exactly as named there (passed to Xcode as `PROVISIONING_PROFILE_SPECIFIER`) — a secret rather than a repo constant, since it has to match whatever you actually name the profile, not a name this repo can predict |
 
-If any of these are unset, the corresponding release job fails fast with an
-explicit error rather than silently producing an unsigned package.
+If any of these are unset, the Android release job is skipped.
 
-**iOS distribution note**: a standard Apple Developer account can only
-produce an *ad-hoc* signed IPA — installable solely on devices whose UDIDs
-are pre-registered in the provisioning profile above, not on arbitrary iOS
-devices the way a sideloaded Android APK is. Wider distribution (TestFlight
-or an Apple Developer Enterprise account) is a separate, later decision.
+`release.yml`'s `publish` job appends a direct APK link to the GitHub Release
+body. See [Installing](installing.md) for the end-user install flow.
 
-Alongside the IPA, `ios-release` also generates `manifest.plist` — the
-property list Safari's `itms-services://` OTA-install trigger needs (a
-bare `.ipa` link can't be installed directly, unlike an Android APK).
-`release.yml`'s `publish` job then appends working install links to the
-GitHub Release body itself: a direct Android APK link, and for iOS a link
-to [`install-ios.html`](install-ios.html) (GitHub Pages) rather than a raw
-`itms-services://` URL — GitHub's release-notes markdown renderer strips
-`<a>` tags using non-allowlisted schemes like `itms-services://` entirely,
-so that page builds the real install link client-side instead. See
-[Installing](installing.md) for the end-user install flow.
+There is no iOS release job. The earlier ad-hoc IPA path (a provisioning profile
+that listed registered devices, a `manifest.plist` and an install page) has been
+withdrawn; iOS testing will go through TestFlight.
 
 **Current verification status** (no Android SDK/NDK, no Mac/Xcode
 available in this project's day-to-day dev environment — everything below
@@ -153,12 +136,7 @@ was confirmed via real CI runs, not locally):
   shipped with.
 - **`ios-build` (unsigned compile) is verified**: it's passed real Xcode
   CI runs repeatedly since the fixes below landed.
-- **`ios-release` (signed, ad-hoc) has never run for real** — blocked on
-  you creating the five `APPLE_*`/`IOS_*` secrets above (pending Apple
-  Developer Program enrollment). Treat the first real run's failures as
-  expected things to fix (exact Xcode archive/export mechanics, whether
-  the provisioning-profile-specifier matches), not as a sign the approach
-  is wrong.
+- **iOS is not released.** There is no `ios-release` job; `ios-build` is the only iOS job.
 
 ### iOS build fixes (all confirmed via real Xcode CI runs)
 
@@ -213,7 +191,7 @@ and the default branch, so an install that `develop` has not stored is stored
 again by every pull request under its own ref: on 2026-10-13 one open PR held
 5.2 GB of Qt.
 
-[`cache-hygiene.yml`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/cache-hygiene.yml)
+[`cache-hygiene.yml`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/cache-hygiene.yml)
 runs `ci/prune-actions-cache.sh` when a pull request closes and after a push to
 `develop` or `main`, and removes entries whose ref no longer exists (a closed PR,
 a deleted branch) and superseded generations (per ref, the newest of each Qt

@@ -26,15 +26,11 @@ at startup. See
 [Getting started → Using your own word list](getting-started.md#using-your-own-word-list).
 
 **Is there an Android or iOS download?**
-Android, yes — every [release](https://github.com/iainchesworth/CountdownSolver/releases)
+Android, yes — every [release](https://github.com/iainchesworthlabs/countdownsolver/releases)
 from `v0.2.0-beta.1` on ships a signed APK/AAB, covering tablet and phone
-in both portrait and landscape. iOS builds successfully in CI, now targets
-iPhone and iPad in all orientations too, but isn't signed for release yet
-(needs a maintainer with an Apple Developer account to configure signing
-secrets — see
-[CI & dependencies → Signed mobile release packaging](ci.md#signed-mobile-release-packaging)),
-and nothing beyond "it compiles" has been verified on real hardware — no
-Mac available in day-to-day dev. See
+in both portrait and landscape. iOS builds successfully in CI and targets
+iPhone and iPad in all orientations, but it is not published from a release:
+testing on devices will go through TestFlight. See
 [Building & packaging → Supported platforms](building.md#supported-platforms).
 
 **My PR is failing the "Translations complete" / "Check translations are
