@@ -25,20 +25,28 @@ response acknowledging the report and starting triage, not necessarily a fix.
 
 ## Verifying a release
 
-Every release lists `SHA256SUMS` and `SHA512SUMS` for its files. The checksum
-files are signed with Sigstore, and each package has a build provenance
-attestation. With the files in one folder:
+Every release lists `SHA512SUMS`, a detached GPG signature (`.asc`) for every file and for
+`SHA512SUMS`, an SBOM (`sbom.spdx.json`), and a build provenance attestation for every file.
+The public key is committed as [`docs/signing-key.asc`](https://github.com/iainchesworthlabs/countdownsolver/blob/main/docs/signing-key.asc).
+With the release files in one folder:
+
+```sh
+gpg --import signing-key.asc
+gpg --verify SHA512SUMS.asc SHA512SUMS
+sha512sum -c SHA512SUMS
+gh attestation verify <file> -R iainchesworthlabs/countdownsolver
+```
+
+`gpg --show-keys signing-key.asc` prints the key's fingerprint.
+
+The releases up to `v0.3.0-beta.4` were built before this and were signed with Sigstore instead:
+they list `SHA256SUMS` and `SHA512SUMS` with a `.sigstore.json` bundle. They were built while the
+repository was `iainchesworth/CountdownSolver`, so for those use `-R iainchesworth/CountdownSolver` and:
 
 ```sh
 sha256sum -c SHA256SUMS
-gh attestation verify <file> -R iainchesworthlabs/countdownsolver
 cosign verify-blob --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity "https://github.com/iainchesworthlabs/countdownsolver/.github/workflows/release.yml@refs/tags/<tag>" \
+  --certificate-identity "https://github.com/iainchesworth/CountdownSolver/.github/workflows/release.yml@refs/tags/<tag>" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   SHA256SUMS
 ```
-
-The releases up to `v0.3.0-beta.4` were built while the repository was
-`iainchesworth/CountdownSolver`, so for those use `-R iainchesworth/CountdownSolver`
-and the identity
-`https://github.com/iainchesworth/CountdownSolver/.github/workflows/release.yml@refs/tags/<tag>`.

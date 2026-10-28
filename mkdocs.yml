@@ -62,5 +62,6 @@ nav:
   - Translations: translations.md
   - Code of conduct: CODE_OF_CONDUCT.md
   - For maintainers:
+      - Releasing: releasing.md
       - CI & dependencies: ci.md
       - Branch protection: branch-protection.md
