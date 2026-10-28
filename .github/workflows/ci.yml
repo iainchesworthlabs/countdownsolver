@@ -24,27 +24,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Toolchain baseline: GCC 15+, Clang 21+, MSVC 14.51+, AppleClang 17+.
-          # Anything older lacks the C++23 features used here (deducing this,
+          # Toolchain floor: GCC 16, Clang 23, MSVC 14.51, AppleClang 17 (the
+          # versions are pinned in .github/toolchain-versions.json). Anything
+          # older lacks the C++23 features used here (deducing this,
           # views::enumerate / stride / zip, ranges::to, std::expected).
-          - name: Linux (GCC 15)
-            os: ubuntu-24.04
+          - name: Linux (GCC 16)
+            os: ubuntu-26.04
             preset: linux-gcc-debug
-            cxx: g++-15
-          - name: Linux (Clang 21)
-            os: ubuntu-24.04
+            cxx: g++-16
+          - name: Linux (Clang 23)
+            os: ubuntu-26.04
             preset: linux-clang-debug
-            cxx: clang++-21
-            # Use libstdc++ (from GCC 15): libc++ does not yet implement
-            # views::enumerate / views::stride. clang 21 handles libstdc++'s
-            # <expected> fine (unlike the older clang 18).
+            cxx: clang++-23
+            # Use libstdc++ (from GCC 16): libc++ does not yet implement
+            # views::enumerate / views::stride.
           - name: macOS (AppleClang)
-            os: macos-15
+            os: macos-26
             preset: macos-clang-debug
             # macOS uses libc++, which still lacks views::enumerate / stride;
             # countdown/detail/ranges_compat.hpp provides fallbacks so it builds.
           - name: Windows (MSVC)
-            os: windows-2025
+            os: windows-2025-vs2026
             preset: windows-msvc-debug
 
     steps:
@@ -55,6 +55,12 @@ jobs:
       - name: Set up vcpkg
         uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
+      # Ahead of CMake: the Visual Studio environment puts its own tools on
+      # PATH, and the CMake 4 below has to come after it.
+      - name: Set up MSVC environment (Windows)
+        if: runner.os == 'Windows'
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
       # The GitHub runners ship CMake 3.x; the project (and CMakePresets)
       # require CMake 4. get-cmake installs a matching CMake 4 and Ninja on
       # every OS.
@@ -64,42 +70,24 @@ jobs:
           cmakeVersion: "4.3.4"
           ninjaVersion: "1.13.2"
 
-      # GCC 15 provides libstdc++ 15 for both the GCC job and (as the standard
-      # library) the Clang job.
-      - name: Install GCC 15 (Linux)
+      # GCC 16 provides libstdc++ 16 for both the GCC job and (as the standard
+      # library) the Clang job, so it is installed on both and only the GCC job
+      # makes it the compiler.
+      - name: Install GCC 16 (Linux)
         if: runner.os == 'Linux'
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install -y g++-15
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          export-compiler: ${{ startsWith(matrix.cxx, 'g++') }}
 
-      # Installs Clang from LLVM's official apt repository rather than piping
-      # the live contents of https://apt.llvm.org/llvm.sh through sudo. The
-      # signing key is pinned by checksum before use, so apt (not an
-      # unauthenticated script run as root) verifies every package it installs.
-      - name: Install Clang 21 (Linux Clang)
-        if: matrix.cxx == 'clang++-21'
-        run: |
-          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key -o /tmp/llvm-snapshot.gpg.key
-          echo "8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d  /tmp/llvm-snapshot.gpg.key" | sha256sum -c -
-          sudo install -m 0755 -d /etc/apt/keyrings
-          sudo gpg --dearmor -o /etc/apt/keyrings/llvm-snapshot.gpg /tmp/llvm-snapshot.gpg.key
-          echo "deb [signed-by=/etc/apt/keyrings/llvm-snapshot.gpg] http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          sudo apt-get update
-          sudo apt-get install -y clang-21
-
-      - name: Set up MSVC environment (Windows)
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+      - name: Install Clang 23 (Linux Clang)
+        if: startsWith(matrix.cxx, 'clang++')
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-llvm@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       # Prebuilt Qt (official binaries) so the GUI app builds without compiling
-      # Qt from source. Sets QT_ROOT_DIR for find_package(Qt6). Keep the version
-      # in sync with docs/ci.md and ci/install-qt.*.
+      # Qt from source. Sets QT_ROOT_DIR for find_package(Qt6). The version and
+      # the Windows aqtinstall source come from .github/toolchain-versions.json.
       - name: Install Qt (prebuilt)
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
-        with:
-          version: "6.8.3"
-          cache: true
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       # Builds the library, tests AND the Qt app (COUNTDOWN_BUILD_APP defaults
       # ON); vcpkg supplies only Catch2, Qt comes from the prebuilt install.
@@ -137,7 +125,7 @@ jobs:
       # additionally catches a UI string that changed/was added but lupdate
       # was never re-run to reflect it in src/app/translations.
       - name: Check translations are up to date
-        if: matrix.name == 'Linux (GCC 15)'
+        if: matrix.name == 'Linux (GCC 16)'
         shell: bash
         run: |
           cmake --build --preset ${{ matrix.preset }} --target update_translations
@@ -208,8 +196,8 @@ jobs:
 
       # Installs the Android SDK cmdline-tools/platform-tools and sets
       # ANDROID_HOME/ANDROID_SDK_ROOT; the NDK itself is a separate
-      # sdkmanager install below (version pinned once confirmed against Qt
-      # 6.8.3's documented compatibility - see docs/ci.md).
+      # sdkmanager install below (the one Qt 6.12's Android kit is built with -
+      # see docs/ci.md).
       # >= v4.0.2: v4.0.1's default `packages: tools platform-tools` asks
       # sdkmanager for the long-removed `tools` package ("Warning: Failed to
       # find package 'tools'", exit code 1), which fails this step on the
@@ -217,8 +205,12 @@ jobs:
       - name: Install Android SDK
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
 
-      - name: Install Android NDK
-        run: sdkmanager --install "ndk;26.1.10909125"
+      # The platform and build-tools are the ones the standard names for a
+      # store build (.github/toolchain-versions.json, android.*).
+      - name: Install Android NDK, platform and build-tools
+        run: |
+          sdkmanager --install "ndk;27.2.12479018" "platforms;android-36" "build-tools;36.0.0"
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
 
       # Two Qt kits: a desktop one for QT_HOST_PATH (cross-build host tools -
       # moc, qmlcachegen, ...) and the Android one actually targeted.
@@ -227,23 +219,16 @@ jobs:
       # silently clobber the first before both are needed below (host Qt for
       # QT_HOST_PATH/cross-build tools, Android Qt for QT_ANDROID_ROOT).
       - name: Install Qt (desktop host kit)
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
-        with:
-          version: "6.8.3"
-          dir: ${{ runner.temp }}/qt-host
-          cache: true
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       - name: Capture host Qt path
         run: echo "COUNTDOWN_QT_HOST_ROOT=$QT_ROOT_DIR" >> "$GITHUB_ENV"
 
       - name: Install Qt (Android kit)
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
         with:
-          version: "6.8.3"
           target: android
           arch: android_arm64_v8a
-          dir: ${{ runner.temp }}/qt-android
-          cache: true
 
       - name: Capture Android Qt path
         run: echo "COUNTDOWN_QT_ANDROID_ROOT=$QT_ROOT_DIR" >> "$GITHUB_ENV"
@@ -267,7 +252,7 @@ jobs:
 
   ios-build:
     name: iOS (device, build-only, unsigned)
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -275,11 +260,9 @@ jobs:
           persist-credentials: false
 
       - name: Install Qt (iOS kit)
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
         with:
-          version: "6.8.3"
           target: ios
-          cache: true
 
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
@@ -299,7 +282,7 @@ jobs:
 
   coverage:
     name: Coverage (Linux, GCC)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -315,21 +298,15 @@ jobs:
           cmakeVersion: "4.3.4"
           ninjaVersion: "1.13.2"
 
-      - name: Install GCC 15 (Linux)
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install -y g++-15
+      - name: Install GCC 16 (Linux)
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       # Qt Quick's offscreen QPA plugin needs libxkbcommon at runtime.
       - name: Install offscreen QPA runtime dependencies
         run: sudo apt-get install -y libxkbcommon0
 
       - name: Install Qt (prebuilt)
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
-        with:
-          version: "6.8.3"
-          cache: true
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       - name: Install gcovr
         run: pip install --quiet --require-hashes -r ci/requirements-gcovr.txt
@@ -338,7 +315,7 @@ jobs:
         run: >
           cmake --preset linux-gcc-coverage
           -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
-          -DCMAKE_CXX_COMPILER=g++-15
+          -DCMAKE_CXX_COMPILER=g++-16
 
       - name: Build
         run: cmake --build --preset linux-gcc-coverage
@@ -355,7 +332,7 @@ jobs:
       - name: Coverage report + gate
         run: >
           gcovr --root . --filter 'src/.*' --exclude 'src/app/main\.cpp'
-          --gcov-executable gcov-15
+          --gcov-executable gcov-16
           --exclude-throw-branches --exclude-unreachable-branches
           --gcov-ignore-errors=no_working_dir_found
           --object-directory build/linux-gcc-coverage

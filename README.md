@@ -43,12 +43,12 @@ tree is laid out.
 git clone https://github.com/iainchesworthlabs/countdownsolver
 cd countdownsolver
 export ICL_VCPKG_STORE=~/vcpkg-store   # a directory of your choice
-cmake --preset windows-msvc-debug -DCMAKE_PREFIX_PATH=<qt>/6.8.3/<arch>
+cmake --preset windows-msvc-debug -DCMAKE_PREFIX_PATH=<qt>/6.12.0/<arch>
 cmake --build --preset windows-msvc-debug
 ./build/windows-msvc-debug/bin/countdownsolver
 ```
 
-That needs a C++23 compiler, CMake 4+, Ninja, and Qt 6.8 — see
+That needs a C++23 compiler, CMake 4+, Ninja, and Qt 6.12 — see
 [Getting started](https://iainchesworth.github.io/CountdownSolver/getting-started/)
 for the full requirements and every platform's preset. vcpkg comes from the
 organisation's fork and is checked out into `ICL_VCPKG_STORE` on the first

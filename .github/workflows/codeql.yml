@@ -47,11 +47,8 @@ jobs:
           cmakeVersion: "4.3.4"
           ninjaVersion: "1.13.2"
 
-      - name: Install GCC 15
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install -y g++-15
+      - name: Install GCC 16
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       # Sanitizers disabled: CodeQL's build tracer sets its own LD_PRELOAD for
       # the whole build step, which collides with ASan needing to be first in
@@ -64,7 +61,7 @@ jobs:
       - name: Configure (library + tests only, no Qt app)
         run: >
           cmake --preset linux-gcc-debug
-          -DCMAKE_CXX_COMPILER=g++-15
+          -DCMAKE_CXX_COMPILER=g++-16
           -DCOUNTDOWN_BUILD_APP=OFF
           -DCOUNTDOWN_ENABLE_SANITIZERS=OFF
 

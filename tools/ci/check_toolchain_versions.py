@@ -6,7 +6,9 @@
 
 Each rule names the files it reads, a pattern with one group, and the key whose value the group
 must equal. A rule that matches nothing is an error too, so a rewrite that moves a version
-cannot leave the check passing without looking at anything.
+cannot leave the check passing without looking at anything. The exception is a rule marked
+optional: the shared setup actions read the Qt version from the pins file, so a workflow
+carries none of its own, and one that does must still agree.
 """
 
 from __future__ import annotations
@@ -19,17 +21,20 @@ from pathlib import Path
 
 WORKFLOWS = [".github/workflows/*.yml"]
 
-# (key path, files, pattern)
+# (key path, files, pattern, optional)
 RULES = [
-    ("qt", ["ci/install-qt.sh"], r'^QT_VERSION="([^"]+)"'),
-    ("qt", ["ci/install-qt.ps1"], r'^\$QtVersion = "([^"]+)"'),
-    ("qt", WORKFLOWS, r'^\s+version: "(6\.\d+\.\d+)"'),
-    ("cmake", WORKFLOWS, r'cmakeVersion: "([^"]+)"'),
-    ("ninja", WORKFLOWS, r'ninjaVersion: "([^"]+)"'),
-    ("gcc", WORKFLOWS, r"\bg\+\+-(\d+)"),
-    ("llvm", WORKFLOWS, r"clang(?:\+\+)?-(\d+)"),
-    ("android.ndk", WORKFLOWS, r"ndk;(\d+\.\d+\.\d+)"),
-    ("android.jdk", WORKFLOWS, r'java-version: "(\d+)"'),
+    ("qt", ["ci/install-qt.sh"], r'^QT_VERSION="([^"]+)"', False),
+    ("qt", ["ci/install-qt.ps1"], r'^\$QtVersion = "([^"]+)"', False),
+    ("aqtsource", ["ci/install-qt.ps1"], r'^\$AqtSource = "([^"]+)"', False),
+    ("qt", WORKFLOWS, r'^\s+version: "(6\.\d+\.\d+)"', True),
+    ("cmake", WORKFLOWS, r'cmakeVersion: "([^"]+)"', False),
+    ("ninja", WORKFLOWS, r'ninjaVersion: "([^"]+)"', False),
+    ("gcc", WORKFLOWS, r"\bg\+\+-(\d+)", False),
+    ("llvm", WORKFLOWS, r"clang(?:\+\+)?-(\d+)", False),
+    ("android.ndk", WORKFLOWS, r"ndk;(\d+\.\d+\.\d+)", False),
+    ("android.platform", WORKFLOWS, r"platforms;(android-\d+)", False),
+    ("android.build_tools", WORKFLOWS, r"build-tools;(\d+\.\d+\.\d+)", False),
+    ("android.jdk", WORKFLOWS, r'java-version: "(\d+)"', False),
 ]
 
 
@@ -46,7 +51,7 @@ def main() -> int:
     root = ap.parse_args().root
     pins = json.loads((root / ".github" / "toolchain-versions.json").read_text(encoding="utf-8"))
     problems: list[str] = []
-    for key, globs, pattern in RULES:
+    for key, globs, pattern, optional in RULES:
         want = pinned(pins, key)
         regex = re.compile(pattern, re.MULTILINE)
         seen = 0
@@ -60,7 +65,7 @@ def main() -> int:
                                 f"{path.relative_to(root)}:{number}: {key} is {match.group(1)}, "
                                 f"toolchain-versions.json says {want}"
                             )
-        if seen == 0:
+        if seen == 0 and not optional:
             problems.append(f"rule for {key} matched nothing in {', '.join(globs)}")
     for problem in problems:
         print(problem, file=sys.stderr)
