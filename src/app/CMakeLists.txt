@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Iain Chesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
 # ---------------------------------------------------------------------------
 # countdownsolver - the Qt6 Quick (QML) GUI. All game logic lives in
 # countdown::solver; this target is presentation + platform glue only.

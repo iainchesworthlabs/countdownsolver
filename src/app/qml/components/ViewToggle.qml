@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Iain Chesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
 import QtQuick
 
 // Input/Results toggle for the three new form factors' game pages (hidden

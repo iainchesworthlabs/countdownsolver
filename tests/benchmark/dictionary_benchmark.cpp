@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Iain Chesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include <countdown/letters/dictionary.hpp>
 
 #include <catch2/benchmark/catch_benchmark.hpp>

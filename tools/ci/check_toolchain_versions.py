@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Iain Chesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Fail when a workflow or install script carries a toolchain version that differs from
 .github/toolchain-versions.json.
 

@@ -1,4 +1,6 @@
 #!/bin/bash -eu
+# SPDX-FileCopyrightText: 2026 Iain Chesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Builds countdown::solver's fuzz harnesses (tests/fuzz/) for ClusterFuzzLite.
 # Only the harnesses need building here - not the Qt app (no Qt available in
