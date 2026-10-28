@@ -122,7 +122,10 @@
       "inherits": [
         "linux-gcc-base",
         "release"
-      ]
+      ],
+      "cacheVariables": {
+        "COUNTDOWN_STATIC_LIBSTDCXX": "ON"
+      }
     },
     {
       "name": "linux-gcc-coverage",

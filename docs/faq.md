@@ -9,18 +9,15 @@ and alphabet rules, not just translated labels — see
 [How to play → Languages](how-to-play.md#languages). Numbers is
 language-independent (it's arithmetic).
 
-**I unzipped the Linux build and the app won't start / complains about
-missing Qt libraries.**
-Unlike the Windows/macOS packages, the Linux `.zip`/`.tar.gz` don't
-bundle the Qt runtime — you need a system Qt 6.8+ install. See
-[Building & packaging → Supported platforms](building.md#supported-platforms)
-for exactly what each package format expects.
+**I unzipped the Linux build and the app won't start.**
+The Linux packages carry their own Qt, so a missing Qt is not the cause. Run
+`usr/bin/countdownsolver` from the unpacked folder. It needs the X11 and
+OpenGL libraries a desktop normally has (the `.deb` lists them), and glibc 2.39
+or newer. See [Building & packaging → Supported platforms](building.md#supported-platforms).
 
 **`apt install` refuses the `.deb` package.**
-The `.deb` requires Qt 6.8+, which only Debian 13+ and Ubuntu 25.04+ ship
-via `apt` — see [Building & packaging](building.md#packaging) for why,
-and use the `.rpm` or the plain `.tar.gz` (with your own Qt 6.8+ install)
-on an older distro instead.
+The `.deb` needs glibc 2.39 or newer, which is Ubuntu 24.04 and Debian 13 and
+later. On an older system, build from source ([Getting started](getting-started.md)).
 
 **My custom word list isn't showing up.**
 Drop a newline-delimited word list at `<config-dir>/words.txt` (the exact

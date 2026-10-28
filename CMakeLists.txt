@@ -28,8 +28,17 @@ endif()
 project(CountdownSolver
     VERSION 0.3.0
     DESCRIPTION "A solver for the Countdown TV show numbers and letters games"
-    HOMEPAGE_URL "https://github.com/iainchesworth/CountdownSolver"
+    HOMEPAGE_URL "https://github.com/iainchesworthlabs/countdownsolver"
     LANGUAGES CXX)
+
+# The application's identifier: the desktop entry and AppStream id on Linux,
+# and the name the other platforms' identifiers are written to match.
+set(COUNTDOWN_APPLICATION_ID "com.iainchesworthlabs.countdownsolver")
+
+# The part of a release's version after the dash ("beta.5" for 0.3.0-beta.5),
+# empty for a final release. The release workflow passes it from the tag; the
+# Linux packages use it to sort a pre-release before the release.
+set(COUNTDOWN_VERSION_PRERELEASE "" CACHE STRING "Pre-release suffix of the version being packaged")
 
 # ---------------------------------------------------------------------------
 # Global language settings: C++23 only, no compiler extensions.
@@ -55,6 +64,8 @@ include(Coverage)
 option(COUNTDOWN_BUILD_APP "Build the Qt6 GUI application" ON)
 option(COUNTDOWN_BUILD_TESTS "Build the unit and integration test suites" ON)
 option(COUNTDOWN_BUILD_FUZZERS "Build libFuzzer harnesses for countdown::solver" OFF)
+option(COUNTDOWN_STATIC_LIBSTDCXX
+    "Link libstdc++ and libgcc into the Linux app, so it does not need a system libstdc++ as new as the compiler's (the Linux release preset sets it)" OFF)
 
 # ---------------------------------------------------------------------------
 # Targets

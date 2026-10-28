@@ -493,18 +493,8 @@ endif()
 # bundle on macOS). This is separate from the POST_BUILD windeployqt step
 # above, which targets the build tree, not an install/package tree.
 #
-# Linux gets none of this: it has no supported deploy step, and Linux
-# packages rely on a system Qt6 install instead (see the DEB/RPM Depends in
-# cmake/Packaging.cmake). NO_UNSUPPORTED_PLATFORM_ERROR would turn the
-# unsupported-platform library copy into a no-op rather than a configure
-# error, but it does NOT stop qt_generate_deploy_app_script() from still
-# writing a "Prefix = .." qt.conf next to the installed binary - confirmed
-# empirically: that qt.conf, meant for a self-contained relocatable bundle
-# (Windows/macOS), instead misdirects the system Qt6 library's QML import
-# path lookup on Linux (e.g. to "/usr/qml" instead of the real multiarch
-# "/usr/lib/x86_64-linux-gnu/qt6/qml"), breaking QtQuick.Controls at
-# startup even when a compatible Qt6 is installed. Skip the whole call on
-# Linux, where it has nothing useful left to do anyway.
+# Linux deploys Qt into a private directory of its own, with the launcher,
+# desktop entry, metadata and icons: packaging/linux/InstallApp.cmake.
 #
 # Mobile (ANDROID/IOS) skips this entire block, same rationale as the CPack
 # early-return in cmake/Packaging.cmake: real mobile packaging is
@@ -517,15 +507,24 @@ endif()
 if(NOT (ANDROID OR IOS))
     include(GNUInstallDirs)
 
-    install(TARGETS countdownsolver
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        BUNDLE DESTINATION ".")
-
     if(WIN32 OR APPLE)
+        install(TARGETS countdownsolver
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+            BUNDLE DESTINATION ".")
+
         qt_generate_deploy_app_script(
             TARGET countdownsolver
             OUTPUT_SCRIPT COUNTDOWN_SOLVER_DEPLOY_SCRIPT
             NO_UNSUPPORTED_PLATFORM_ERROR)
         install(SCRIPT "${COUNTDOWN_SOLVER_DEPLOY_SCRIPT}")
+    else()
+        # The release is built with a newer GCC than the oldest system it runs on
+        # carries (GCC 16 against Ubuntu 24.04's libstdc++ 14), and <format> alone
+        # references a libstdc++ symbol that only exists from GCC 16. The app
+        # carries its own copy; Qt's libraries keep using the system's.
+        if(COUNTDOWN_STATIC_LIBSTDCXX)
+            target_link_options(countdownsolver PRIVATE -static-libstdc++ -static-libgcc)
+        endif()
+        include("${PROJECT_SOURCE_DIR}/packaging/linux/InstallApp.cmake")
     endif()
 endif()
