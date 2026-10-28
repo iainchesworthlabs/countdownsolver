@@ -1,0 +1,17 @@
+[Desktop Entry]
+# Named for the application id (COUNTDOWN_APPLICATION_ID), which is also the id
+# a Wayland or GNOME session matches a window to this file by.
+Type=Application
+Version=1.5
+Name=Countdown Solver
+Comment=@PROJECT_DESCRIPTION@
+Exec=countdownsolver
+Icon=@COUNTDOWN_APPLICATION_ID@
+Terminal=false
+# One main category (Game), with LogicGame under it: two main categories would
+# list the application twice in a menu.
+Categories=Game;LogicGame;
+Keywords=countdown;letters;numbers;anagram;solver;word;
+StartupNotify=true
+# The class X11 windows carry: Qt uses the application name.
+StartupWMClass=Countdown Solver

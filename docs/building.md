@@ -9,7 +9,7 @@ What's actually built and tested by CI — see
 | --- | --- | --- | --- |
 | Windows | x64 | MSVC toolset 14.51+ (Visual Studio 2026), tested on Windows Server 2025 | `.zip` or NSIS installer; Qt runtime is bundled, nothing extra to install |
 | macOS | arm64 (Apple Silicon) | AppleClang, tested on macOS 26 | `.zip` or `.dmg`; Qt runtime is bundled. Intel Macs aren't covered by CI |
-| Linux | x64 | GCC 16 or Clang 23, tested on Ubuntu 26.04 | See below — unlike Windows/macOS, Linux packages don't bundle Qt |
+| Linux | x64 | GCC 16 or Clang 23, tested on Ubuntu 26.04 | `.deb`, `.rpm`, `.tar.gz` or `.zip`; Qt runtime is bundled. Needs glibc 2.39 or newer: Ubuntu 24.04 and Debian 13 are the systems it is checked against |
 | Android | arm64-v8a | CI-verified via the `android-arm64-v8a-debug` preset (Qt's Android kit). Tablet and phone, portrait and landscape | Signed APK/AAB via `release.yml`'s `android-release` job (needs maintainer-supplied keystore secrets — see [CI & dependencies](ci.md#signed-mobile-release-packaging)); proven end-to-end against a real tagged release (`v0.2.0-beta.1`), installed and driven on a real emulator across all four form factors. See [Installing](installing.md#android) |
 | iOS | device (arm64) | CI-verified via the `ios-debug` preset (Qt's iOS kit), unsigned. Targets iPhone and iPad, all orientations — same breadth as Android, but unverified: no Mac available to run it on real hardware or a simulator | Ad-hoc signed IPA via `release.yml`'s `ios-release` job — installable only on devices pre-registered in the provisioning profile, not a public App Store build. Signing has never run for real yet (no Apple Developer secrets configured) and nothing has been verified on real hardware — no Mac available in day-to-day dev. See [Installing](installing.md#ios-ad-hoc-pre-registered-devices-only) |
 
@@ -18,13 +18,12 @@ platform-specific code — see [Architecture](architecture.md) — so it isn't
 restricted to this table; any C++23 compiler with CMake 4+ and Ninja
 should work even where the full GUI app isn't verified.
 
-**Running Linux packages**: the `.zip`/`.tar.gz` expect a system Qt 6.8+
-already installed, since Qt's CMake deploy step doesn't support Linux (see
-[Packaging](#packaging) below). The `.deb` declares that dependency
-explicitly, so `apt install` refuses on a system that can't satisfy it —
-in practice **Debian 13 (trixie) or newer, and Ubuntu 25.04 or newer**.
-The `.rpm` resolves its own Qt version requirement automatically via
-`rpmbuild`'s auto-requires.
+**Running Linux packages**: every Linux package carries its own Qt, in
+`/usr/lib/countdownsolver` (the `.zip` and `.tar.gz` hold the same tree and run
+from wherever they are unpacked, with `usr/bin/countdownsolver`). The `.deb` and
+`.rpm` depend only on the system libraries Qt's X11 and OpenGL support loads, so
+they install on **Ubuntu 24.04, Debian 13 and newer**. The app uses the X11
+platform plugin, so a Wayland session runs it through XWayland.
 
 **Android/iOS**: CPack packaging is skipped entirely for these targets
 ([`Packaging.cmake`](https://github.com/iainchesworth/CountdownSolver/blob/develop/cmake/Packaging.cmake)) —
@@ -129,16 +128,25 @@ added when their packaging tool is available: `NSIS` installer on
 Windows, `DragNDrop` (`.dmg`) on macOS, `TGZ` + `DEB` (Debian/Ubuntu) +
 `RPM` (Fedora/RHEL and other Red Hat–based distros) on Linux — `DEB`
 needs `dpkg-deb`, `RPM` needs `rpmbuild`; each is skipped if its tool
-isn't on `PATH`. Linux packages rely on a system Qt6 install — Qt's CMake
-deploy step doesn't support Linux.
+isn't on `PATH`.
 
-The `.deb` requires Qt 6.8+ (the app is built against whatever Qt SDK CI
-pins — see [ci.md](ci.md) — and its compiled QML metadata hard-requires
-that major.minor at runtime). That means **Debian 13 (trixie) or newer,
-and Ubuntu 25.04 or newer (including 26.04 LTS)** — Ubuntu 24.04 LTS and
-Debian 12 only ship Qt 6.4 and can't satisfy it via `apt install`. The
-`.rpm` doesn't need a manual version pin: `rpmbuild`'s auto-requires picks
-up Qt's own versioned symbols (`libQt6Core.so.6(Qt_6.8)`) automatically.
+The Linux packages bundle Qt (`packaging/linux/InstallApp.cmake` deploys it with
+Qt's own script, and removes the plugins that would need dependencies the package
+cannot honestly declare). Their dependencies are therefore written by hand in
+`packaging/linux/Packaging.cmake`, not discovered, and
+`packaging/linux/check-depends.sh` fails the release build when the list and the
+files disagree. `packaging/linux/check-package.sh` checks the rest of what the
+packages hold, and the release workflow also starts the installed program.
+
+The release is built on the Ubuntu 24.04 runner, with GCC 16 from the toolchain
+PPA, so its glibc is 24.04's and the package starts there. The app links
+libstdc++ and libgcc statically (`COUNTDOWN_STATIC_LIBSTDCXX`, on in the
+`linux-gcc-release` preset), because GCC 16's `<format>` needs a libstdc++ symbol
+that 24.04's library does not have. `check-glibc-floor` and
+`packaging/linux/check-libstdcxx-floor.sh` read every program and library in the
+package and fail the build if one needs a newer glibc or libstdc++ than Ubuntu
+24.04 and Debian 13 carry. The pull request builds run on Ubuntu 26.04 and do not
+package.
 
 Released packages (built via the [release workflow](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/release.yml))
 also ship a `SHA256SUMS`/`SHA512SUMS` per platform and a

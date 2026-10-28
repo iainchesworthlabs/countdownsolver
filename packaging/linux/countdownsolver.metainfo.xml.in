@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AppStream metadata. Software centres do not list an application without it.
+  Configured by packaging/linux/InstallApp.cmake.
+-->
+<component type="desktop-application">
+  <id>@COUNTDOWN_APPLICATION_ID@</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Countdown Solver</name>
+  <summary>@PROJECT_DESCRIPTION@</summary>
+  <description>
+    <p>Countdown Solver solves the numbers and letters games from the Countdown television show. For the numbers game it finds an expression that reaches, or comes closest to, the target. For the letters game it finds the longest words that can be spelled from nine letters. It can also set and solve the conundrum. It works offline.</p>
+  </description>
+
+  <developer id="com.iainchesworthlabs">
+    <name>Iain Chesworth</name>
+  </developer>
+
+  <launchable type="desktop-id">@COUNTDOWN_APPLICATION_ID@.desktop</launchable>
+  <icon type="stock">@COUNTDOWN_APPLICATION_ID@</icon>
+  <url type="homepage">@PROJECT_HOMEPAGE_URL@</url>
+  <url type="bugtracker">@PROJECT_HOMEPAGE_URL@/issues</url>
+
+  <!-- The same categories as Categories= in the desktop entry. -->
+  <categories>
+    <category>Game</category>
+    <category>LogicGame</category>
+  </categories>
+
+  <keywords>
+    <keyword>countdown</keyword>
+    <keyword>letters</keyword>
+    <keyword>numbers</keyword>
+    <keyword>anagram</keyword>
+    <keyword>solver</keyword>
+  </keywords>
+
+  <provides>
+    <binary>countdownsolver</binary>
+  </provides>
+
+  <recommends>
+    <display_length compare="ge">360</display_length>
+  </recommends>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="@COUNTDOWN_APPSTREAM_VERSION@" type="@COUNTDOWN_APPSTREAM_RELEASE_TYPE@" date="@COUNTDOWN_RELEASE_DATE@" />
+  </releases>
+</component>

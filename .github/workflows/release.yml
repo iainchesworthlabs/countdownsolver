@@ -94,11 +94,12 @@ jobs:
         uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
       # rpmbuild isn't preinstalled on the Ubuntu runner; without it CPack
-      # silently skips the RPM generator (see cmake/Packaging.cmake) and we'd
-      # only notice by the .rpm being missing from the release.
-      - name: Install rpmbuild (Linux)
+      # silently skips the RPM generator (see packaging/linux/Packaging.cmake)
+      # and we'd only notice by the .rpm being missing from the release. The
+      # other tools are the ones packaging/linux/check-package.sh uses.
+      - name: Install packaging tools (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -y rpm
+        run: sudo apt-get install -y rpm fakeroot desktop-file-utils appstream
 
       - name: Set up MSVC environment (Windows)
         if: runner.os == 'Windows'
@@ -107,17 +108,35 @@ jobs:
       - name: Install Qt (prebuilt)
         uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
+      # What follows the dash in the tag (v0.3.0-beta.5 gives beta.5), empty for
+      # a final release or a run that is not on a tag. The Linux packages use it
+      # to sort a pre-release before the release it leads up to.
+      - name: Work out the pre-release suffix
+        id: version
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          prerelease=""
+          if [ "$REF_TYPE" = tag ] && [[ "$REF_NAME" == v*-* ]]; then
+            prerelease="${REF_NAME#*-}"
+          fi
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
       # See ci.yml's Configure step for why matrix values go through env:
       # rather than straight into run:, and why shell: bash is explicit here.
       - name: Configure
         shell: bash
         env:
           CMAKE_PRESET: ${{ matrix.preset }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
           EXTRA_CXX_COMPILER: ${{ matrix.cxx && format('-DCMAKE_CXX_COMPILER={0}', matrix.cxx) || '' }}
         run: >
           cmake --preset "$CMAKE_PRESET"
           -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
           -DCOUNTDOWN_BUILD_TESTS=OFF
+          -DCOUNTDOWN_VERSION_PRERELEASE="$PRERELEASE"
           $EXTRA_CXX_COMPILER
 
       - name: Build
@@ -127,47 +146,56 @@ jobs:
         working-directory: build/${{ matrix.preset }}
         run: cpack
 
-      # Windows/macOS bundle their own private copy of Qt via
-      # qt_generate_deploy_app_script (see src/app/CMakeLists.txt); Linux has
-      # no such deploy step and instead relies on
-      # CPACK_DEBIAN_PACKAGE_SHLIBDEPS / CPACK_RPM_PACKAGE_AUTOREQPROV
-      # (cmake/Packaging.cmake) to auto-detect the Qt6 shared libraries the
-      # binary links against and record them as a package dependency, so
-      # apt/dnf pull Qt in for the user on install. Verify that actually
-      # happened rather than assume it: dpkg-shlibdeps/rpmbuild's
-      # auto-requires can silently omit a library if it can't map its soname
-      # to an owning package - a real risk here since Qt comes from
-      # jurplel/install-qt-action's private prebuilt archive, not an
-      # apt/dnf-installed package.
-      - name: Verify Qt dependency in Linux packages (DEB/RPM)
+      # Every platform carries its own Qt (packaging/linux/InstallApp.cmake on
+      # Linux), so the Linux packages depend only on the system libraries Qt's
+      # xcb and OpenGL plumbing loads. Installing the .deb has apt install exactly
+      # those, which also shows they can be had on the oldest system the package is
+      # for, and gives the checks below a machine that has what the package links.
+      - name: Install the .deb (Linux)
         if: runner.os == 'Linux'
         working-directory: build/${{ matrix.preset }}
         shell: bash
+        run: sudo apt-get install -y xvfb ./CountdownSolver-*-Linux.deb
+
+      - name: Check the Linux packages
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash packaging/linux/check-package.sh build/${{ matrix.preset }}
+
+      # The floor of the package: it has to start on Ubuntu 24.04 and Debian 13
+      # (glibc 2.39, GCC 14's libstdc++). It is built on the 24.04 runner, so the
+      # glibc is that system's, but the symbols are read directly all the same.
+      - name: Unpack the .deb (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: dpkg-deb -x build/${{ matrix.preset }}/CountdownSolver-*-Linux.deb "$RUNNER_TEMP/deb"
+
+      - name: Check the glibc the package needs (Linux)
+        if: runner.os == 'Linux'
+        uses: iainchesworthlabs/icl-common-infra/actions/check-glibc-floor@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          folder: ${{ runner.temp }}/deb
+
+      - name: Check the libstdc++ the package needs (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash packaging/linux/check-libstdcxx-floor.sh "$RUNNER_TEMP/deb"
+
+      # Still running after ten seconds is a start; a crash or a missing library
+      # ends the program sooner. The software renderer keeps this independent of
+      # the runner's graphics.
+      - name: Start the installed program (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          QT_QUICK_BACKEND: software
         run: |
-          shopt -s nullglob
           status=0
-
-          for deb in *.deb; do
-            depends=$(dpkg-deb -f "$deb" Depends)
-            echo "== $deb =="
-            echo "Depends: $depends"
-            if ! grep -qi 'qt6\|libqt' <<< "$depends"; then
-              echo "::error::$deb has no Qt6 dependency in its Depends field" >&2
-              status=1
-            fi
-          done
-
-          for rpm in *.rpm; do
-            requires=$(rpm -qp --requires "$rpm")
-            echo "== $rpm =="
-            echo "$requires"
-            if ! grep -qi 'qt6' <<< "$requires"; then
-              echo "::error::$rpm has no Qt6 dependency in its Requires list" >&2
-              status=1
-            fi
-          done
-
-          exit $status
+          timeout 10 xvfb-run -a countdownsolver || status=$?
+          if [ "$status" -ne 124 ]; then
+            echo "::error::the installed program ended with status $status within ten seconds" >&2
+            exit 1
+          fi
 
       # Only these six extensions are ever produced (see cmake/Packaging.cmake):
       # ZIP always, plus DragNDrop/.dmg, NSIS/.exe, TGZ/.tar.gz, DEB/.deb,
