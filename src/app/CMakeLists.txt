@@ -338,7 +338,9 @@ qt_add_translations(countdownsolver_qml
 # that already covers phone/tablet, portrait/landscape on Android.
 if(ANDROID)
     set_target_properties(countdownsolver PROPERTIES
-        QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/platform/android")
+        QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/platform/android"
+        QT_ANDROID_MIN_SDK_VERSION 28
+        QT_ANDROID_TARGET_SDK_VERSION 34)
 endif()
 
 if(IOS)

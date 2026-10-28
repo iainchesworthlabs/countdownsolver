@@ -71,8 +71,9 @@ QVariantMap AccessibilityProbe::info(QObject* item) const {
     }
 
     const QAccessible::State state = accessible->state();
-    result[QStringLiteral("role")] = QString::fromLatin1(
-        QMetaEnum::fromType<QAccessible::Role>().valueToKey(static_cast<int>(accessible->role())));
+    result[QStringLiteral("role")] =
+        QString::fromLatin1(QMetaEnum::fromType<QAccessible::Role>().valueToKey(
+            static_cast<quint64>(accessible->role())));
     result[QStringLiteral("name")] = accessible->text(QAccessible::Name);
     result[QStringLiteral("description")] = accessible->text(QAccessible::Description);
     result[QStringLiteral("checked")] = static_cast<bool>(state.checked);

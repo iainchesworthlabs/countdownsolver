@@ -5,8 +5,9 @@ tree blows past Windows' 260-char `MAX_PATH` under a normal project path).
 Instead we use the **official prebuilt Qt binaries** via
 [`aqtinstall`](https://github.com/miurahr/aqtinstall):
 
-- **CI** uses `jurplel/install-qt-action` (a wrapper around aqtinstall) —
-  see [`.github/workflows/ci.yml`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/ci.yml).
+- **CI** uses the shared `setup-qt` action of `icl-common-infra`, which wraps
+  `jurplel/install-qt-action` (itself a wrapper around aqtinstall) and reads the
+  version from the pins file — see [`.github/workflows/ci.yml`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/ci.yml).
 - **Locally**, run the matching script below; both install the same
   pinned Qt and print the `CMAKE_PREFIX_PATH` to pass to CMake.
 
@@ -16,10 +17,21 @@ Qt.
 ## Pinned version
 
 The Qt version, with the other toolchain versions, is in
-`.github/toolchain-versions.json`. The install scripts here and the
-workflows' `install-qt-action` `version:` inputs must carry the same value:
-`tools/ci/check_toolchain_versions.py` checks this in CI (the `Toolchain
-pins` job) and fails when a value drifts.
+`.github/toolchain-versions.json`. The install scripts here, and any version a
+workflow names itself (the compilers, CMake, Ninja, the NDK), must carry the same
+value: `tools/ci/check_toolchain_versions.py` checks this in CI (the `Toolchain
+pins` job) and fails when a value drifts. Qt is 6.12.0. The compiler floor is
+GCC 16, Clang 23, MSVC toolset 14.51 and AppleClang 17.
+
+On Windows the Qt install uses `aqtsource`, a pinned commit of aqtinstall, in
+place of the PyPI release: Qt 6.11 and later split the Windows repository per
+architecture, which the last release (3.3.0) cannot read. `ci/install-qt.ps1`
+installs from the same commit. Linux and macOS keep the release, pinned with
+hashes in `ci/requirements-qt.txt`.
+
+The runners are `ubuntu-26.04`, `macos-26` and `windows-2025-vs2026`. The Android
+job stays on `ubuntu-24.04`. GCC 16 and Clang 23 are installed by the shared
+`setup-gcc` and `setup-llvm` actions.
 
 ## Local install
 
@@ -37,7 +49,7 @@ Then configure the app build against it, e.g. on Windows:
 
 ```powershell
 cmake --preset windows-msvc-debug -DCOUNTDOWN_BUILD_APP=ON `
-  -DCMAKE_PREFIX_PATH=C:/Qt/6.8.3/msvc2022_64
+  -DCMAKE_PREFIX_PATH=C:/Qt/6.12.0/msvc2022_64
 cmake --build --preset windows-msvc-debug
 ```
 
@@ -45,11 +57,11 @@ cmake --build --preset windows-msvc-debug
 
 | Platform | Path |
 | --- | --- |
-| Windows (MSVC) | `<outdir>/6.8.3/msvc2022_64` |
-| Linux (GCC)    | `<outdir>/6.8.3/gcc_64` |
-| macOS          | `<outdir>/6.8.3/macos` |
-| Android (arm64-v8a) | `<outdir>/6.8.3/android_arm64_v8a` — also needs a **second**, desktop Qt install (`QT_HOST_PATH`) for cross-build host tools (`moc`, `qmlcachegen`, ...) |
-| iOS (device)   | `<outdir>/6.8.3/ios` — macOS/Xcode only |
+| Windows (MSVC) | `<outdir>/6.12.0/msvc2022_64` |
+| Linux (GCC)    | `<outdir>/6.12.0/gcc_64` |
+| macOS          | `<outdir>/6.12.0/macos` |
+| Android (arm64-v8a) | `<outdir>/6.12.0/android_arm64_v8a` — also needs a **second**, desktop Qt install (`QT_HOST_PATH`) for cross-build host tools (`moc`, `qmlcachegen`, ...) |
+| iOS (device)   | `<outdir>/6.12.0/ios` — macOS/Xcode only |
 
 ## Mobile CI jobs
 
@@ -58,11 +70,12 @@ gate every PR/branch push, mirroring the desktop `build-and-test` jobs but
 without a `ctest` step (mobile presets set `COUNTDOWN_BUILD_TESTS=OFF` —
 see [Building & packaging](building.md)):
 
-- **`android-build`** (`ubuntu-24.04`): installs a JDK, the Android SDK, a
-  pinned NDK version, and *two* Qt kits via `install-qt-action` — a desktop
+- **`android-build`** (`ubuntu-24.04`): installs a JDK, the Android SDK, the
+  NDK that Qt 6.12's Android kit is built with (r27c, 27.2.12479018) with
+  platform `android-36` and build-tools 36.0.0, and *two* Qt kits via `setup-qt` — a desktop
   one (`QT_HOST_PATH`) and an Android one (`QT_ANDROID_ROOT`) — then
   configures/builds the `android-arm64-v8a-debug` preset.
-- **`ios-build`** (`macos-15`, ships Xcode already): installs a single
+- **`ios-build`** (`macos-26`, ships Xcode already): installs a single
   Qt-for-iOS kit, then configures/builds the `ios-debug` preset (unsigned,
   per that preset's `CODE_SIGNING_ALLOWED=NO` cache variables).
 
@@ -172,7 +185,8 @@ synchronously in `src/app`'s own scope instead of deferring to the root.
 resolve to either '0' or '1'`. Around 30 plugin targets (image format
 plugins, platform integration plugins, qmltooling debug/profiler plugins,
 and the Apple-only permission/TLS/reachability plugins) don't export
-`QT_DEFAULT_PLUGIN` at all on the Qt 6.8.3-for-iOS kit — Qt's own
+`QT_DEFAULT_PLUGIN` at all on the Qt 6.8.3-for-iOS kit (the workaround is kept until
+the iOS job shows Qt 6.12's kit does not need it) — Qt's own
 plugin-linkage genex reads that property unwrapped as a `$<AND>` operand,
 and an unset property is an empty string, not `0`/`1`. Confirmed identical
 on both CMake 4.3.3 and 4.0.3, ruling out a CMake-version-specific cause;
@@ -192,7 +206,7 @@ set — none was set at all before. Fixed by adding
 
 The repository's Actions cache quota is 10 GB, and GitHub evicts the least
 recently used entries once it is exceeded, regardless of what they cost to
-rebuild. The big entries here are the `jurplel/install-qt-action` installs
+rebuild. The big entries here are the Qt installs of `setup-qt`
 (`cache: true`): 295 MB on Linux, 324 MB on Windows, 1.2 GB on macOS and 3.4 GB
 for iOS. A cache entry is readable only from its own ref, a pull request's base
 and the default branch, so an install that `develop` has not stored is stored

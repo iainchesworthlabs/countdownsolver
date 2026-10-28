@@ -30,7 +30,7 @@ A dedicated `linux-gcc-coverage` preset builds everything with
 `--coverage` (gcov) instrumentation:
 
 ```console
-$ cmake --preset linux-gcc-coverage -DCMAKE_PREFIX_PATH=<qt>/6.8.3/gcc_64
+$ cmake --preset linux-gcc-coverage -DCMAKE_PREFIX_PATH=<qt>/6.12.0/gcc_64
 $ cmake --build --preset linux-gcc-coverage
 $ QT_QPA_PLATFORM=offscreen ctest --preset linux-gcc-coverage
 $ gcovr --root . --filter 'src/.*' --exclude 'src/app/main\.cpp' \
@@ -40,10 +40,10 @@ $ gcovr --root . --filter 'src/.*' --exclude 'src/app/main\.cpp' \
 ```
 
 If your default `gcov` doesn't match the compiler that built the coverage
-data (e.g. building with `g++-15` but `gcov` resolves to an older
+data (e.g. building with `g++-16` but `gcov` resolves to an older
 default), add `--gcov-executable gcov-<N>` — a version mismatch doesn't
 error, it just silently reports 0% coverage.
 
 CI runs this on every push/PR (`Coverage (Linux, GCC)` in `ci.yml`,
-pinning `--gcov-executable gcov-15` to match the `g++-15` it builds with)
+pinning `--gcov-executable gcov-16` to match the `g++-16` it builds with)
 and **fails the job below 80% line or branch coverage**.

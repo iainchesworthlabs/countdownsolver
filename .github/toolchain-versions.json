@@ -1,13 +1,16 @@
 {
-  "$comment": "The toolchain the CI legs are pinned to, in one place. tools/ci/check_toolchain_versions.py fails when a workflow or an install script carries a different value (docs/ci.md). msvc_toolset is what windows-2025 carries and has no other home. The vcpkg baseline stays in vcpkg.json. cmake is the newest version that lukka/get-cmake v4.3.4 has in its catalog, which is what its latest resolved to before the version was pinned.",
-  "qt": "6.8.3",
+  "$comment": "The toolchain the CI legs are pinned to, in one place. tools/ci/check_toolchain_versions.py fails when a workflow or an install script carries a different value (docs/ci.md). msvc_toolset is what windows-2025-vs2026 carries and has no other home. The vcpkg baseline stays in vcpkg.json. cmake is the newest version that lukka/get-cmake v4.3.4 has in its catalog, which is what its latest resolved to before the version was pinned. aqtsource is the aqtinstall commit the Windows leg installs Qt from: Qt 6.11 and later split the Windows repository per architecture, which the last PyPI release (3.3.0) cannot read; it is the commit the other repositories use. The NDK is the one Qt 6.12's Android kit is built with (r27c).",
+  "qt": "6.12.0",
+  "aqtsource": "git+https://github.com/miurahr/aqtinstall.git@076e1659807d0b362a3ed684d54c2e9c775eb9c7",
   "cmake": "4.3.4",
   "ninja": "1.13.2",
-  "gcc": "15",
-  "llvm": "21",
+  "gcc": "16",
+  "llvm": "23",
   "msvc_toolset": "14.51",
   "android": {
-    "ndk": "26.1.10909125",
+    "ndk": "27.2.12479018",
+    "platform": "android-36",
+    "build_tools": "36.0.0",
     "jdk": "17"
   }
 }

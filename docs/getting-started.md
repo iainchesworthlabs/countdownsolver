@@ -2,7 +2,7 @@
 
 ## What you'll need
 
-- A **C++23** compiler: GCC 14+, Clang 18+, or MSVC 19.40+ (VS 2022 17.10+ / VS 18).
+- A **C++23** compiler: GCC 16+, Clang 23+, MSVC toolset 14.51+ (Visual Studio 2026) or AppleClang 17+.
 - **CMake 4.0+** and **Ninja**.
 - **Git** and **vcpkg**. vcpkg provides [Catch2](https://github.com/catchorg/Catch2)
   for the test suite, pinned by `builtin-baseline` in `vcpkg.json`. The
@@ -11,7 +11,7 @@
   `ICL_VCPKG_STORE` to a directory shared by your checkouts and the first
   configure makes a checkout of that commit there (see
   [Choosing a vcpkg](#choosing-a-vcpkg)).
-- **Qt 6.8** — only needed if you want to build the GUI app (the default).
+- **Qt 6.12** — only needed if you want to build the GUI app (the default).
   Qt ships as an official prebuilt package rather than being built from
   source (a from-source Qt build is huge, and on Windows its build tree
   overruns `MAX_PATH`). Install it with
@@ -53,7 +53,7 @@ configure with `-DCOUNTDOWN_BUILD_TESTS=OFF` does not need vcpkg.
 # Every preset states its build type explicitly: <toolchain>-debug or
 # <toolchain>-release, e.g. windows-msvc-debug, linux-gcc-release,
 # linux-clang-debug, macos-clang-release, windows-clang-debug.
-cmake --preset windows-msvc-debug -DCMAKE_PREFIX_PATH=<qt>/6.8.3/<arch>
+cmake --preset windows-msvc-debug -DCMAKE_PREFIX_PATH=<qt>/6.12.0/<arch>
 cmake --build --preset windows-msvc-debug
 
 # Run the app.
