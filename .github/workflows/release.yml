@@ -1,83 +1,147 @@
 name: Release
 
-# Builds redistributable packages (via CPack) and publishes a GitHub Release
-# whenever a semver tag is pushed. Tags are expected on 'main', at the end of
-# a gitflow release/hotfix finish (see memory: countdown-build-env).
+# Builds the packages for each platform, signs what it can, and hands them to the shared
+# publish workflow, which checks the tag, signs the checksums with GPG, adds an SBOM and
+# build provenance, creates the GitHub Release and, for a final release, fast-forwards
+# `main`. The steps for the maintainer are in docs/releasing.md.
 #
-# workflow_dispatch lets the whole packaging pipeline - including the Qt
-# dependency check below - be run on demand from any branch, so packaging
-# changes can be validated before cutting a real version tag rather than
-# discovering a break only once a tag is pushed. Manual runs stop after the
-# package job (see the publish job's if:); they never create a GitHub
-# Release.
+# A tag `vMAJOR.MINOR.PATCH[-suffix]` on a commit of `develop` starts a release.
+# `workflow_dispatch` builds and uploads the packages from any branch without publishing,
+# to try the packaging (`gh workflow run release.yml --ref <branch>`). The version check
+# and the publish job run for tags only. The Android and iOS jobs run in the `release`
+# environment, so a run on a branch that would reach the signing secrets waits for approval.
+#
+# Repository variables (all start as false): SIGN_WINDOWS (false or test; production is
+# refused), SIGN_MACOS (false; production is refused), SIGN_IOS_UPLOAD (true builds the
+# iOS archive for TestFlight and has Apple validate it; a tag, or a manual run with
+# `upload_testflight`, uploads it).
 
 on:
   push:
     tags: ["v*.*.*"]
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: >-
+          Upload the iOS build to TestFlight (a tag always does). Without it a run on a branch only has
+          Apple validate the build. Needs SIGN_IOS_UPLOAD=true.
+        type: boolean
+        default: false
 
-# Minimal at workflow level; 'contents: write' is only granted to the
-# publish job below, which is the one that actually needs it.
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  # GitHub Actions doesn't allow the secrets context in a job-level if: at
-  # all ("Unrecognized named-value: 'secrets'", confirmed by a real
-  # workflow_dispatch attempt against this file - it's a parse error, not
-  # just a dispatch-specific restriction, so it would have broken every
-  # trigger including a real tag push). secrets IS readable in a step-level
-  # env:/run:, so resolve the gate here and expose it as a job output,
-  # which needs.<job>.outputs.<x> IS a valid job-level if: expression.
-  check-secrets:
-    name: Check release-signing secrets
+  # The names this run needs, listed before anything is built. The secrets are passed as
+  # "set or not": the script never sees a value.
+  preflight:
+    name: Release preflight
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       android: ${{ steps.check.outputs.android }}
     steps:
-      - name: Check that all the Android signing secrets are configured
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: List the missing names
         id: check
         env:
-          ANDROID_SECRETS_OK: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+          REF_TYPE: ${{ github.ref_type }}
+          SIGN_WINDOWS: ${{ vars.SIGN_WINDOWS }}
+          SIGN_MACOS: ${{ vars.SIGN_MACOS }}
+          SIGN_IOS_UPLOAD: ${{ vars.SIGN_IOS_UPLOAD }}
+          REPO_GPG_PRIVATE_KEY: ${{ secrets.REPO_GPG_PRIVATE_KEY != '' }}
+          REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE != '' }}
+          RELEASE_BOT_APP_ID: ${{ secrets.RELEASE_BOT_APP_ID != '' }}
+          RELEASE_BOT_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY != '' }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD != '' }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS != '' }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD != '' }}
+          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 != '' }}
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD != '' }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 != '' }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID != '' }}
+          APPSTORE_API_ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID != '' }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY != '' }}
+          WIN_TESTSIGN_PFX_BASE64: ${{ secrets.WIN_TESTSIGN_PFX_BASE64 != '' }}
+          WIN_TESTSIGN_PFX_PASSWORD: ${{ secrets.WIN_TESTSIGN_PFX_PASSWORD != '' }}
+        run: python3 tools/ci/release_preflight.py
+
+  version:
+    name: Check the version
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Compare the tag with the project version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: python3 tools/ci/check_release_version.py "$TAG"
+
+      - name: Work out the version
+        id: tag
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          echo "android=$ANDROID_SECRETS_OK" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          version="${TAG#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$version" == *-* ]]; then echo "prerelease=true" >> "$GITHUB_OUTPUT"; else echo "prerelease=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Check the release has notes
+        uses: iainchesworthlabs/icl-common-infra/actions/release-notes@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          version: ${{ steps.tag.outputs.version }}
+          prerelease: ${{ steps.tag.outputs.prerelease }}
+          output-file: ${{ runner.temp }}/notes.md
 
   package:
     name: Package (${{ matrix.name }})
+    needs: [preflight, version]
+    if: ${{ !cancelled() && needs.preflight.result == 'success' && (needs.version.result == 'success' || needs.version.result == 'skipped') }}
     runs-on: ${{ matrix.os }}
-    # Read-only plus 'attestations' and 'id-token' so attest-build-provenance
-    # can mint a Sigstore attestation -- this job never needs to write to the
-    # repo, unlike 'publish' below.
+    timeout-minutes: 90
     permissions:
       contents: read
-      attestations: write
-      id-token: write
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: Linux
+          - name: linux
             os: ubuntu-24.04
             preset: linux-gcc-release
             cxx: g++-16
-          - name: macOS
+          - name: macos
             os: macos-26
             preset: macos-clang-release
-          - name: Windows
+          - name: windows
             os: windows-2025-vs2026
             preset: windows-msvc-release
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       # Unlike ci.yml, this job doesn't use the vcpkg binary cache: this
       # workflow builds the artifacts that get attested and released, and a
       # populated-by-an-earlier-run cache is a cache-poisoning vector into a
-      # workflow that publishes trusted output. vcpkg builds Catch2 from
-      # source instead -- release builds are infrequent enough that the
-      # extra time isn't worth that tradeoff.
+      # workflow that publishes trusted output. The release configure builds
+      # no tests, so vcpkg has nothing to build.
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
         with:
@@ -128,16 +192,32 @@ jobs:
         env:
           CMAKE_PRESET: ${{ matrix.preset }}
           PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          BUILD_NUMBER: ${{ github.run_number }}
           EXTRA_CXX_COMPILER: ${{ matrix.cxx && format('-DCMAKE_CXX_COMPILER={0}', matrix.cxx) || '' }}
         run: >
           cmake --preset "$CMAKE_PRESET"
           -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
           -DCOUNTDOWN_BUILD_TESTS=OFF
           -DCOUNTDOWN_VERSION_PRERELEASE="$PRERELEASE"
+          -DCOUNTDOWN_BUILD_NUMBER="$BUILD_NUMBER"
           $EXTRA_CXX_COMPILER
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
+
+      # The program, signed before CPack copies it into the installer and the archive. With
+      # SIGN_WINDOWS=false nothing is signed and the step only reports the "-unsigned" name
+      # that the packages get.
+      - name: Sign the program (Windows)
+        id: sign_app
+        if: runner.os == 'Windows'
+        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          mode: ${{ vars.SIGN_WINDOWS || 'false' }}
+          files: build/${{ matrix.preset }}/bin/countdownsolver.exe
+          rename: "false"
+          pfx-base64: ${{ secrets.WIN_TESTSIGN_PFX_BASE64 }}
+          pfx-password: ${{ secrets.WIN_TESTSIGN_PFX_PASSWORD }}
 
       - name: Package (CPack)
         working-directory: build/${{ matrix.preset }}
@@ -194,89 +274,88 @@ jobs:
             exit 1
           fi
 
-      # Only these six extensions are ever produced (see cmake/Packaging.cmake):
-      # ZIP always, plus DragNDrop/.dmg, NSIS/.exe, TGZ/.tar.gz, DEB/.deb,
-      # RPM/.rpm depending on platform and which packaging tool was found.
-      # DEB/RPM use their own lower-cased package-name convention rather than
-      # CPACK_PACKAGE_FILE_NAME, so a single name-prefix glob won't catch
-      # them — list extensions explicitly and resolve the real file list once,
-      # so the later attestation step gets exact, already-verified paths
-      # instead of a glob that might silently match nothing on some platform.
-      - name: Generate checksums
-        id: checksums
-        working-directory: build/${{ matrix.preset }}
+      # The installer is signed (SIGN_WINDOWS=test) or renamed NAME-unsigned.exe, and the
+      # archive gets the same suffix, so a package says what it is.
+      - name: Find the installer (Windows)
+        id: installer
+        if: runner.os == 'Windows'
         shell: bash
         run: |
+          set -euo pipefail
+          installer="$(ls build/${{ matrix.preset }}/CountdownSolver-*-win64.exe | head -n 1)"
+          echo "path=$installer" >> "$GITHUB_OUTPUT"
+
+      - name: Sign the installer (Windows)
+        if: runner.os == 'Windows'
+        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          mode: ${{ vars.SIGN_WINDOWS || 'false' }}
+          files: ${{ steps.installer.outputs.path }}
+          pfx-base64: ${{ secrets.WIN_TESTSIGN_PFX_BASE64 }}
+          pfx-password: ${{ secrets.WIN_TESTSIGN_PFX_PASSWORD }}
+
+      - name: Name the archive (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          SUFFIX: ${{ steps.sign_app.outputs.suffix }}
+        run: |
+          set -euo pipefail
+          for f in build/${{ matrix.preset }}/CountdownSolver-*-win64.zip; do
+            mv "$f" "${f%.zip}${SUFFIX}.zip"
+          done
+
+      # No macOS signing is configured (SIGN_MACOS is false, and the preflight refuses
+      # production), so the packages say so.
+      - name: Name the packages (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in build/${{ matrix.preset }}/CountdownSolver-*-Darwin.dmg build/${{ matrix.preset }}/CountdownSolver-*-Darwin.zip; do
+            mv "$f" "${f%.*}-unsigned.${f##*.}"
+          done
+
+      # Only these extensions are ever produced (see cmake/Packaging.cmake and
+      # packaging/linux/Packaging.cmake). The shared publish workflow makes the
+      # checksums, signatures, SBOM and attestations from what this step uploads.
+      - name: Collect the packages
+        shell: bash
+        run: |
+          set -euo pipefail
           shopt -s nullglob
-          files=(*.zip *.tar.gz *.deb *.rpm *.exe *.dmg)
+          mkdir -p dist
+          files=(build/${{ matrix.preset }}/*.zip build/${{ matrix.preset }}/*.tar.gz build/${{ matrix.preset }}/*.deb build/${{ matrix.preset }}/*.rpm build/${{ matrix.preset }}/*.exe build/${{ matrix.preset }}/*.dmg)
           if [ ${#files[@]} -eq 0 ]; then
-            echo "::error::No package files found — did CPack run?" >&2
+            echo "::error::No package files found. Did CPack run?" >&2
             exit 1
           fi
-          sha256sum "${files[@]}" > SHA256SUMS
-          sha512sum "${files[@]}" > SHA512SUMS
-          {
-            echo "files<<SUBJECT_PATH_EOF"
-            printf 'build/${{ matrix.preset }}/%s\n' "${files[@]}"
-            echo "SUBJECT_PATH_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      # Keyless build provenance (Sigstore/SLSA) via GitHub's OIDC identity —
-      # no signing key to generate or store. Verify a downloaded package with:
-      #   gh attestation verify <file> -R iainchesworthlabs/countdownsolver
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
-        with:
-          subject-path: ${{ steps.checksums.outputs.files }}
+          cp "${files[@]}" dist/
+          ls -l dist
 
       - name: Upload package artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: countdown-${{ matrix.name }}
-          path: |
-            build/${{ matrix.preset }}/*.zip
-            build/${{ matrix.preset }}/*.tar.gz
-            build/${{ matrix.preset }}/*.deb
-            build/${{ matrix.preset }}/*.rpm
-            build/${{ matrix.preset }}/*.exe
-            build/${{ matrix.preset }}/*.dmg
-            build/${{ matrix.preset }}/SHA256SUMS
-            build/${{ matrix.preset }}/SHA512SUMS
+          name: release-${{ matrix.name }}
+          path: dist/*
           if-no-files-found: error
 
   android-release:
     name: Package (Android arm64-v8a, signed)
-    needs: check-secrets
+    needs: [preflight, version]
+    # Skipped, not failed, until the four ANDROID_* secrets exist (the preflight job says
+    # which are missing). The job runs in the release environment, so the maintainer
+    # approves it before it reaches the signing key.
+    if: ${{ !cancelled() && needs.preflight.result == 'success' && (needs.version.result == 'success' || needs.version.result == 'skipped') && needs.preflight.outputs.android == 'true' }}
     runs-on: ubuntu-24.04
-    # Cleanly skipped (not failed) until the four ANDROID_* secrets exist -
-    # see docs/ci.md and the check-secrets job above. The internal 'Verify
-    # signing secrets' step below is a redundant safety net (catches a
-    # partially-configured set), not the primary gate.
-    if: needs.check-secrets.outputs.android == 'true'
+    timeout-minutes: 90
+    environment: release
     permissions:
       contents: read
-      attestations: write
-      id-token: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-
-      # Fail fast with a clear message rather than silently falling back to
-      # an unsigned/debug-signed package if these haven't been set up yet
-      # (Settings -> Secrets and variables -> Actions in the repo).
-      - name: Verify signing secrets are configured
-        shell: bash
-        run: |
-          missing=()
-          [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ] && missing+=(ANDROID_KEYSTORE_BASE64)
-          [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] && missing+=(ANDROID_KEYSTORE_PASSWORD)
-          [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ] && missing+=(ANDROID_KEY_ALIAS)
-          [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ] && missing+=(ANDROID_KEY_PASSWORD)
-          if [ ${#missing[@]} -gt 0 ]; then
-            echo "::error::Missing required secrets for a signed Android release: ${missing[*]} (see docs/ci.md)" >&2
-            exit 1
-          fi
 
       - name: Install JDK 17
         uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
@@ -400,228 +479,176 @@ jobs:
         if: always()
         run: rm -f "${{ runner.temp }}/release.keystore"
 
-      - name: Generate checksums
-        id: checksums
-        working-directory: dist-android
-        shell: bash
-        run: |
-          shopt -s nullglob
-          files=(*.apk *.aab)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "::error::No Android package files found — did androiddeployqt run?" >&2
-            exit 1
-          fi
-          sha256sum "${files[@]}" > SHA256SUMS
-          sha512sum "${files[@]}" > SHA512SUMS
-          {
-            echo "files<<SUBJECT_PATH_EOF"
-            printf 'dist-android/%s\n' "${files[@]}"
-            echo "SUBJECT_PATH_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
-        with:
-          subject-path: ${{ steps.checksums.outputs.files }}
-
       - name: Upload package artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: countdown-Android
+          name: release-android
           path: |
             dist-android/*.apk
             dist-android/*.aab
-            dist-android/SHA256SUMS
-            dist-android/SHA512SUMS
           if-no-files-found: error
 
-  publish:
-    name: Publish GitHub Release
-    needs: [package, android-release]
-    # Manual (workflow_dispatch) runs are for validating the packaging
-    # pipeline only - e.g. that DEB/RPM still declare a Qt dependency, see
-    # cmake/Packaging.cmake - and must never create a draft GitHub Release.
-    #
-    # android-release is only *conditionally* skipped (missing signing
-    # secrets, see its own if: above) - a skipped needs: job would otherwise
-    # skip this one too by default, so always() plus explicit result checks
-    # are required: package must have actually succeeded, and the Android job
-    # may not have actually failed (skipped is fine).
-    if: |
-      always() &&
-      github.event_name == 'push' &&
-      needs.package.result == 'success' &&
-      needs.android-release.result != 'failure'
-    runs-on: ubuntu-24.04
-    # 'id-token' is only needed for cosign's keyless signing below (OIDC ->
-    # Sigstore Fulcio cert, no key material stored anywhere).
+  # The iOS archive for TestFlight. Off until SIGN_IOS_UPLOAD is true, which needs the
+  # Apple secrets and the App Store profile (docs/releasing.md). On a branch, Apple only
+  # validates the build; a tag, or a manual run with `upload_testflight`, uploads it.
+  # Testers install it from the TestFlight app. The job runs in the release environment.
+  ios:
+    name: Package (iOS)
+    needs: [preflight, version]
+    if: ${{ !cancelled() && needs.preflight.result == 'success' && (needs.version.result == 'success' || needs.version.result == 'skipped') && vars.SIGN_IOS_UPLOAD == 'true' }}
+    runs-on: macos-26
+    timeout-minutes: 120
+    environment: release
     permissions:
-      contents: write
-      id-token: write
+      contents: read
     steps:
-      # Only needed to read CHANGELOG.md below - the package job already
-      # checked out the tagged commit for the actual build. Must run BEFORE
-      # the artifact download: checkout's default clean: true runs `git
-      # clean -ffdx`, which deletes untracked files - including the whole
-      # dist/ directory the download step below populates, if it runs
-      # after. (That's exactly what broke this job the first time: the
-      # later `dist/**/*` glob matched nothing because checkout had already
-      # wiped dist/.)
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
-      - name: Download all packages
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      # The identifier is set once, in CMakeLists.txt.
+      - name: Read the application identifier
+        id: ident
+        shell: bash
+        run: |
+          set -euo pipefail
+          id="$(sed -n 's/^set(COUNTDOWN_APPLICATION_ID "\(.*\)")$/\1/p' CMakeLists.txt)"
+          [ -n "$id" ] || { echo "::error::CMakeLists.txt does not set COUNTDOWN_APPLICATION_ID"; exit 1; }
+          echo "bundle-id=$id" >> "$GITHUB_OUTPUT"
+
+      # The shared action names the secret that is missing, before a Qt download of several gigabytes.
+      - name: Import the certificate and the provisioning profile
+        id: signing
+        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
         with:
-          path: dist
+          certificate-base64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          certificate-password: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          profile-base64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          bundle-id: ${{ steps.ident.outputs.bundle-id }}
+          method: app-store
 
-      # Each platform's package job names its checksum manifest SHA256SUMS/
-      # SHA512SUMS identically (see the 'Generate checksums' step above), so
-      # downloading all three artifacts leaves three same-named files in
-      # separate dist/<artifact>/ subdirectories. Uploading them as release
-      # assets by basename then collides - the GitHub Releases API rejects a
-      # second asset with a name already taken, which is exactly what broke
-      # the very first tagged release (v0.1.0-beta.1) here. Concatenate them
-      # into one manifest per algorithm at the dist/ root instead - each
-      # entry already carries its own package filename with no path prefix,
-      # so combining is safe - and remove the per-platform originals so the
-      # later glob only picks up the combined ones.
-      - name: Combine per-platform checksums
-        run: |
-          cat dist/*/SHA256SUMS > dist/SHA256SUMS
-          cat dist/*/SHA512SUMS > dist/SHA512SUMS
-          rm dist/*/SHA256SUMS dist/*/SHA512SUMS
+      - name: Install CMake 4 + Ninja
+        uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
+        with:
+          cmakeVersion: "4.3.4"
+          ninjaVersion: "1.13.2"
 
-      # Append a working Android link to the release body rather than only
-      # documenting the URL shape. Built from whatever is actually in dist/
-      # (the Android signing secrets are optional - see check-secrets above), so
-      # a desktop-only release quietly gets no Install section instead of a
-      # dead link.
-      - name: Build install links
+      - name: Install Qt (iOS kit)
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          target: ios
+
+      # Signed for the application alone (src/app/CMakeLists.txt says why). CMake makes no
+      # Xcode scheme unless asked, and `xcodebuild archive` takes only a scheme.
+      - name: Configure (signed)
+        shell: bash
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
-          RELEASE_REPO: ${{ github.repository }}
-        run: |
-          apk=$(find dist -maxdepth 2 -name 'CountdownSolver-android-arm64-v8a.apk')
+          TEAM_ID: ${{ steps.signing.outputs.team-id }}
+          PROFILE_NAME: ${{ steps.signing.outputs.profile-name }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: >
+          cmake --preset ios-release
+          -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+          -DCMAKE_XCODE_GENERATE_SCHEME=ON
+          -DCOUNTDOWN_BUILD_NUMBER="$BUILD_NUMBER"
+          -DCOUNTDOWN_IOS_SIGNING_TEAM="$TEAM_ID"
+          -DCOUNTDOWN_IOS_SIGNING_PROFILE="$PROFILE_NAME"
 
-          : > /tmp/install-links.md
-          if [ -n "$apk" ]; then
-            {
-              echo "## Install"
-              echo
-              echo "- **Android**: [Download APK](https://github.com/$RELEASE_REPO/releases/download/$RELEASE_TAG/CountdownSolver-android-arm64-v8a.apk) — allow \"install unknown apps\" for your browser, then open the download. See [Installing](https://iainchesworthlabs.github.io/countdownsolver/installing/)."
-            } >> /tmp/install-links.md
-          fi
-
-      - name: Install cosign
-        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
-
-      # Keyless signature (Sigstore, via the same GitHub OIDC identity used
-      # by attest-build-provenance in the package job above) over the
-      # combined checksum manifests - not each package individually, since
-      # the manifests already bind every artifact's hash. Must run on the
-      # combined manifests, not the per-platform ones: signing before
-      # 'Combine per-platform checksums' would produce signatures that no
-      # longer validate against the concatenated file actually uploaded.
-      # The .sigstore.json bundle extension is what OpenSSF Scorecard's
-      # Signed-Releases check looks for in release assets.
-      - name: Sign checksum manifests (cosign, keyless)
-        run: |
-          cosign sign-blob --yes --bundle dist/SHA256SUMS.sigstore.json dist/SHA256SUMS
-          cosign sign-blob --yes --bundle dist/SHA512SUMS.sigstore.json dist/SHA512SUMS
-
-      # Release notes should be curated, not a raw PR/commit dump - pull the
-      # section matching this tag out of CHANGELOG.md (Keep a Changelog
-      # format: "## [x.y.z] - date" headings). Falls back to --generate-notes
-      # if the tag has no changelog entry yet, so a release is never blocked
-      # on this.
-      - name: Extract changelog section for this tag
-        id: notes
-        run: |
-          version="${GITHUB_REF_NAME#v}"
-          # Plain substring matching (index), not regex: a dynamic regex
-          # built from "\\[" + version + "\\]" silently mismatches under
-          # gawk's regex compilation (backslash-escaped brackets don't
-          # survive being embedded in a runtime string-to-regex, so
-          # "[0.1.0-beta.1]" gets compiled as a *character class* covering
-          # a wide ASCII range instead of a literal bracket) - confirmed by
-          # testing it swallows unrelated lines and fails to stop at the
-          # next version heading. index() sidesteps escaping entirely.
-          awk -v hdr="## [$version]" '
-            index($0, hdr) == 1 { found=1; next }
-            found && index($0, "## [") == 1 { exit }
-            found { print }
-          ' CHANGELOG.md > /tmp/release-notes.md
-          if [ -s /tmp/release-notes.md ]; then
-            echo "has_notes=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::No CHANGELOG.md section found for [${version}] - falling back to --generate-notes. Add one before tagging next time so the release gets curated notes instead of a PR dump."
-            echo "has_notes=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      # gh is preinstalled on GitHub-hosted runners, so a dedicated release
-      # action buys nothing here but another third-party dependency (flagged
-      # by zizmor's superfluous-actions check) - checkout above makes --repo
-      # inferrable, but it's passed explicitly anyway for clarity.
-      #
-      # Release creation and asset upload are deliberately separate steps.
-      # A combined `gh release create <tag> <files...>` silently uploaded
-      # only 4 of 9 files on the first real run here - exit 0, no error,
-      # just missing assets - so upload is split out and its result is
-      # verified explicitly rather than trusted.
-      - name: Create draft release
+      - name: Name the package
+        id: name
+        shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
-          RELEASE_REPO: ${{ github.repository }}
-          HAS_NOTES: ${{ steps.notes.outputs.has_notes }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          if [ "$HAS_NOTES" = "true" ]; then
-            cat /tmp/release-notes.md /tmp/install-links.md > /tmp/full-notes.md
-            gh release create "$RELEASE_TAG" \
-              --repo "$RELEASE_REPO" \
-              --draft \
-              --prerelease \
-              --notes-file /tmp/full-notes.md
-          else
-            gh release create "$RELEASE_TAG" \
-              --repo "$RELEASE_REPO" \
-              --draft \
-              --prerelease \
-              --generate-notes
-            # --generate-notes and --notes-file are mutually exclusive, so
-            # the install-links section has to be appended after the fact
-            # here rather than folded into the create call above.
-            if [ -s /tmp/install-links.md ]; then
-              body=$(gh release view "$RELEASE_TAG" --repo "$RELEASE_REPO" --json body -q .body)
-              { printf '%s\n\n' "$body"; cat /tmp/install-links.md; } > /tmp/full-notes.md
-              gh release edit "$RELEASE_TAG" --repo "$RELEASE_REPO" --notes-file /tmp/full-notes.md
+          set -euo pipefail
+          label=dry-run
+          if [ "$REF_TYPE" = tag ]; then label="$REF_NAME"; fi
+          project="$(find build/ios-release -maxdepth 1 -name '*.xcodeproj' | head -n 1)"
+          [ -n "$project" ] || { echo "::error::CMake made no .xcodeproj under build/ios-release"; exit 1; }
+          echo "project=$project" >> "$GITHUB_OUTPUT"
+          echo "ipa=dist-ios/CountdownSolver-$label-ios-appstore.ipa" >> "$GITHUB_OUTPUT"
+          echo "version=${label#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Archive and export the IPA
+        id: export
+        uses: iainchesworthlabs/icl-common-infra/actions/export-ios-ipa@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          project: ${{ steps.name.outputs.project }}
+          scheme: countdownsolver
+          bundle-id: ${{ steps.ident.outputs.bundle-id }}
+          team-id: ${{ steps.signing.outputs.team-id }}
+          profile-name: ${{ steps.signing.outputs.profile-name }}
+          method: app-store
+          output: ${{ steps.name.outputs.ipa }}
+
+      # The signed IPA, opened as a device would: identifier, version, the icon, no permission
+      # text, arm64, a valid signature and an App Store profile for this identifier.
+      - name: Check the IPA
+        shell: bash
+        env:
+          IPA: ${{ steps.export.outputs.ipa }}
+          VERSION: ${{ steps.name.outputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          set -euo pipefail
+          args=(--signed --store)
+          if [ "$REF_TYPE" = tag ]; then args+=(--version "${VERSION%%-*}"); fi
+          packaging/ios/verify_app.sh "$IPA" "${args[@]}"
+
+      # Apple's own check of the icon, the property list, the signature and the privacy
+      # declarations; and, for a tag or a manual run that asks, the upload to TestFlight.
+      - name: Validate with Apple, and upload to TestFlight
+        uses: iainchesworthlabs/icl-common-infra/actions/upload-testflight@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          ipa: ${{ steps.export.outputs.ipa }}
+          key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          issuer-id: ${{ secrets.APPSTORE_API_ISSUER_ID }}
+          private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          validate-only: ${{ github.ref_type != 'tag' && inputs.upload_testflight != true }}
+
+      - name: Remove the signing keychain and profile
+        if: always()
+        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        with:
+          remove: "true"
+
+      # Not named release-*: an IPA is for TestFlight, not for the release page.
+      - name: Upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ios-appstore
+          retention-days: 7
+          path: dist-ios/*
+          if-no-files-found: error
+
+      - name: Say what happened
+        shell: bash
+        env:
+          UPLOADED: ${{ github.ref_type == 'tag' || inputs.upload_testflight == true }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          {
+            echo "### iOS build for TestFlight"
+            if [ "$UPLOADED" = true ]; then
+              echo "Uploaded as build $BUILD_NUMBER. Apple processes it for a few minutes; then it is in the TestFlight app for the internal testers."
+            else
+              echo "Validated by Apple, not uploaded. Run the workflow with \`upload_testflight\` (or push a tag) to upload build $BUILD_NUMBER."
             fi
-          fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      # A dist/**/* glob (even with globstar) also matches the artifact
-      # directories themselves, not just their contents - `gh release
-      # upload` then tries to upload e.g. dist/countdown-Linux/ as a file
-      # and fails with "is a directory". find -type f only ever lists
-      # actual files, at any depth, with no such ambiguity.
-      - name: Upload release assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
-          RELEASE_REPO: ${{ github.repository }}
-        run: |
-          mapfile -t files < <(find dist -type f)
-          echo "Uploading ${#files[@]} file(s): ${files[*]}"
-          gh release upload "$RELEASE_TAG" "${files[@]}" \
-            --repo "$RELEASE_REPO" \
-            --clobber
-
-          # gh release create silently dropping assets with no error is
-          # exactly what happened above before this was split out - verify
-          # the count explicitly instead of trusting a clean exit code.
-          uploaded=$(gh release view "$RELEASE_TAG" --repo "$RELEASE_REPO" --json assets --jq '.assets | length')
-          if [ "$uploaded" -ne "${#files[@]}" ]; then
-            echo "::error::Expected ${#files[@]} release assets, found $uploaded - upload silently dropped some files."
-            exit 1
-          fi
+  publish:
+    name: Publish
+    needs: [package, android-release, ios]
+    if: ${{ !cancelled() && github.ref_type == 'tag' && needs.package.result == 'success' && (needs.android-release.result == 'success' || needs.android-release.result == 'skipped') && (needs.ios.result == 'success' || needs.ios.result == 'skipped') }}
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/release-publish.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    secrets:
+      REPO_GPG_PRIVATE_KEY: ${{ secrets.REPO_GPG_PRIVATE_KEY }}
+      REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
+      RELEASE_BOT_APP_ID: ${{ secrets.RELEASE_BOT_APP_ID }}
+      RELEASE_BOT_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}

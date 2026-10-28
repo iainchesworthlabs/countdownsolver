@@ -83,11 +83,12 @@ see [Building & packaging](building.md)):
 
 The [release workflow](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/release.yml)'s
 `android-release` job produces a real, signed, distributable package for
-Android (alongside the signed-by-checksum Windows/Linux/macOS packages, all with
-the same SHA256/512 + Sigstore attestation treatment). This needs the following
+Android. The shared publish workflow then signs, attests and publishes it with the
+other platforms' packages ([Releasing](releasing.md)). This needs the following
 **GitHub Secrets** (Settings → Secrets and variables → Actions), which the
 maintainer creates — the workflow never sees or stores the underlying key
-material beyond the lifetime of a single job run:
+material beyond the lifetime of a single job run. The job runs in the `release`
+environment, so the maintainer approves it before it reaches them:
 
 | Secret | Purpose |
 | --- | --- |
@@ -96,14 +97,14 @@ material beyond the lifetime of a single job run:
 | `ANDROID_KEY_ALIAS` | The signing key's alias inside the keystore |
 | `ANDROID_KEY_PASSWORD` | The signing key's own password |
 
-If any of these are unset, the Android release job is skipped.
+If none of these is set, the Android release job is skipped; if only some are, the
+`Release preflight` job fails and names the missing ones. See
+[Installing](installing.md) for the end-user install flow.
 
-`release.yml`'s `publish` job appends a direct APK link to the GitHub Release
-body. See [Installing](installing.md) for the end-user install flow.
-
-There is no iOS release job. The earlier ad-hoc IPA path (a provisioning profile
-that listed registered devices, a `manifest.plist` and an install page) has been
-withdrawn; iOS testing will go through TestFlight.
+The `ios` job builds the app for TestFlight and is off until the repository variable
+`SIGN_IOS_UPLOAD` is `true` ([Releasing](releasing.md) lists what it needs). The
+earlier ad-hoc IPA path (a provisioning profile that listed registered devices, a
+`manifest.plist` and an install page) has been withdrawn.
 
 **Current verification status** (no Android SDK/NDK, no Mac/Xcode
 available in this project's day-to-day dev environment — everything below

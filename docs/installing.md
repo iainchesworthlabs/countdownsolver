@@ -18,7 +18,7 @@ this page explains what that link does and the steps around it.
 3. Open the `.apk` again and confirm the install prompt.
 
 The signed APK comes from `release.yml`'s `android-release` job — see
-[CI & dependencies](ci.md#signed-mobile-release-packaging) for how it's
+[CI & dependencies](ci.md#signed-android-release-packaging) for how it's
 built and signed.
 
 ## iOS
@@ -28,13 +28,6 @@ and testing on devices will go through TestFlight to invited testers.
 
 ## Verifying a download
 
-Every release publishes `SHA256SUMS`/`SHA512SUMS` covering every asset
-each Sigstore-attested at build time and the
-combined manifests cosign-signed at publish time:
-
-```sh
-sha256sum -c SHA256SUMS
-gh attestation verify CountdownSolver-android-arm64-v8a.apk -R iainchesworthlabs/countdownsolver
-```
-
-See [Building & packaging → Packaging](building.md#packaging) for details.
+Every release lists checksums for its files, signs them with GPG, and carries build
+provenance attestations. [Security](SECURITY.md#verifying-a-release) says how to check a
+download.

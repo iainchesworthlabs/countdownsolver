@@ -44,6 +44,7 @@ will also find it a short list of what the checks expect; [CONTRIBUTING](docs/CO
 | A CMake option or preset | `docs/building.md` |
 | A toolchain version | `.github/toolchain-versions.json`, then `docs/ci.md`; the `Toolchain pins` job checks the workflows against it |
 | A workflow in `.github/workflows` | `docs/ci.md`; pin every `uses:` to a full SHA with a version comment |
+| `release.yml`, a signing variable or a secret name | `docs/releasing.md`, and `tools/ci/release_preflight.py` (the names a run needs) |
 | A dependency in `vcpkg.json` | Nothing else; the baseline check and Dependabot cover the fork |
 | Test labels, or coverage | `docs/testing.md`, and `tools/coverage-floors.json` (raise a floor when coverage rose) |
 | The Linux package files or their dependencies | `packaging/linux/Packaging.cmake`, and `docs/building.md` |

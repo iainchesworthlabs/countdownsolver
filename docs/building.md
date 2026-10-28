@@ -10,7 +10,7 @@ What's actually built and tested by CI — see
 | Windows | x64 | MSVC toolset 14.51+ (Visual Studio 2026), tested on Windows Server 2025 | `.zip` or NSIS installer; Qt runtime is bundled, nothing extra to install |
 | macOS | arm64 (Apple Silicon) | AppleClang, tested on macOS 26 | `.zip` or `.dmg`; Qt runtime is bundled. Intel Macs aren't covered by CI |
 | Linux | x64 | GCC 16 or Clang 23, tested on Ubuntu 26.04 | `.deb`, `.rpm`, `.tar.gz` or `.zip`; Qt runtime is bundled. Needs glibc 2.39 or newer: Ubuntu 24.04 and Debian 13 are the systems it is checked against |
-| Android | arm64-v8a | CI-verified via the `android-arm64-v8a-debug` preset (Qt's Android kit). Tablet and phone, portrait and landscape | Signed APK/AAB via `release.yml`'s `android-release` job (needs maintainer-supplied keystore secrets — see [CI & dependencies](ci.md#signed-mobile-release-packaging)); proven end-to-end against a real tagged release (`v0.2.0-beta.1`), installed and driven on a real emulator across all four form factors. See [Installing](installing.md#android) |
+| Android | arm64-v8a | CI-verified via the `android-arm64-v8a-debug` preset (Qt's Android kit). Tablet and phone, portrait and landscape | Signed APK/AAB via `release.yml`'s `android-release` job (needs maintainer-supplied keystore secrets — see [CI & dependencies](ci.md#signed-android-release-packaging)); proven end-to-end against a real tagged release (`v0.2.0-beta.1`), installed and driven on a real emulator across all four form factors. See [Installing](installing.md#android) |
 | iOS | device (arm64) | CI-verified via the `ios-debug` preset (Qt's iOS kit), unsigned. Targets iPhone and iPad, all orientations — same breadth as Android | Not published from a release; testing on devices will go through TestFlight. See [Installing](installing.md#ios) |
 
 `countdown::solver` itself (`-DCOUNTDOWN_BUILD_APP=OFF`) has no GUI or
@@ -28,7 +28,7 @@ platform plugin, so a Wayland session runs it through XWayland.
 **Android/iOS**: CPack packaging is skipped entirely for these targets
 ([`Packaging.cmake`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/cmake/Packaging.cmake)) —
 mobile distribution goes through `androiddeployqt` and an Xcode
-archive+export instead ([CI & dependencies](ci.md#signed-mobile-release-packaging)
+archive+export instead ([CI & dependencies](ci.md#signed-android-release-packaging)
 has the full signing setup). The debug builds CI runs on every push are
 build-only and unsigned, purely to catch breaks early; a real signed
 package only comes out of a tagged release (Android only, for now — see
@@ -149,15 +149,10 @@ package and fail the build if one needs a newer glibc or libstdc++ than Ubuntu
 24.04 and Debian 13 carry. The pull request builds run on Ubuntu 26.04 and do not
 package.
 
-Released packages (built via the [release workflow](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/release.yml))
-also ship a `SHA256SUMS`/`SHA512SUMS` per platform and a
-[build provenance attestation](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)
-for every package — verify a download with:
-
-```sh
-sha256sum -c SHA256SUMS
-gh attestation verify CountdownSolver-1.2.3-Linux.tar.gz -R iainchesworthlabs/countdownsolver
-```
+Released packages are built by the [release workflow](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/release.yml)
+and published with checksums, GPG signatures, an SBOM and build provenance
+attestations. [Releasing](releasing.md) describes the process, and
+[Security](SECURITY.md#verifying-a-release) says how to verify a download.
 
 ## Versioning
 

@@ -237,6 +237,10 @@ jobs:
       - name: Check toolchain versions
         run: python3 tools/ci/check_toolchain_versions.py
 
+      # The release preflight and the identifier check have tests of their own.
+      - name: Test the CI tools
+        run: python3 -I -m unittest discover -s tools/ci -p 'test_*.py'
+
   android-build:
     name: Android (arm64-v8a, build-only)
     needs: plan
