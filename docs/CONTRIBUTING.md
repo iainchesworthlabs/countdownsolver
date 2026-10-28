@@ -44,12 +44,25 @@ the required check.
 ## Code style
 
 - Formatting follows the repo's
-  [`.clang-format`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.clang-format) —
+  [`.clang-format`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.clang-format) —
   run `clang-format` before committing, or configure your editor to do it
   on save.
-- [`.clang-tidy`](https://github.com/iainchesworth/CountdownSolver/blob/develop/.clang-tidy)
+- [`.clang-tidy`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.clang-tidy)
   runs as part of the build; warnings are treated as errors, so fix them
   rather than silencing them where you reasonably can.
+- Names follow what the code already does, and `.clang-tidy` checks it
+  (`readability-identifier-naming`): types are `CamelCase`; functions, methods,
+  locals, parameters, namespaces and struct fields are `lower_case`; private and
+  protected members end in an underscore (`name_`); constants at namespace or
+  class scope are `kCamelCase`; macros are `UPPER_CASE`. The Qt-facing code under
+  `src/app` (properties, signals, slots and invokable functions that QML sees) and
+  the Qt tests under `tests/app` are `camelCase`, set by the `.clang-tidy` files in
+  those directories. Enumerators are not checked: follow the enum you are adding to.
+- [`.editorconfig`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.editorconfig)
+  carries the indent and line-ending rules for the files `clang-format` does not
+  read. A commit that only reformats goes in
+  [`.git-blame-ignore-revs`](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.git-blame-ignore-revs)
+  (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 - Modern C++23 is encouraged over older idioms — see
   [Architecture](architecture.md) for the patterns already in use
   (`std::expected`, ranges, deducing `this`, etc.) and follow their lead.

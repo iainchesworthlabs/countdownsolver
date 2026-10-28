@@ -1,0 +1,8 @@
+# The Qt tests (tests/app, tests/qml) are written in the camelCase of the Qt-facing
+# code they exercise, so a local, a local constant or a helper function is accepted
+# in either form. The rest keeps the root's lower_case.
+InheritParentConfig: true
+CheckOptions:
+  readability-identifier-naming.FunctionIgnoredRegexp: '^[a-z][a-z0-9]*([A-Z][a-z0-9]*)+$'
+  readability-identifier-naming.LocalVariableIgnoredRegexp: '^[a-z][a-z0-9]*([A-Z][a-z0-9]*)+$'
+  readability-identifier-naming.LocalConstantIgnoredRegexp: '^[a-z][a-z0-9]*([A-Z][a-z0-9]*)+$'

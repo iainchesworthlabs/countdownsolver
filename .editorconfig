@@ -1,0 +1,39 @@
+# Editor settings that follow .clang-format and the indents the repository uses.
+# https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# 4 spaces: C++, QML, CMake, Python and PowerShell.
+[*.{cpp,hpp,h,qml,cmake,py,ps1}]
+indent_size = 4
+
+[CMakeLists.txt]
+indent_size = 4
+
+# 2 spaces: YAML, JSON and Markdown.
+[*.{yml,yaml,json,md}]
+indent_size = 2
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+
+# The shell scripts mix 4 and 2; no indent is imposed.
+[*.sh]
+indent_size = unset
+
+# lupdate writes the translation catalogues, and the word lists are data: an editor
+# should leave their whitespace as it finds it.
+[{*.ts,src/app/resources/dictionary/*.txt,tests/data/*.txt}]
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = false
+
+[*.{bat,cmd}]
+end_of_line = crlf
