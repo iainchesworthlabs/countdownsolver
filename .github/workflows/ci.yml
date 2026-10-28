@@ -381,6 +381,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Check out the shared scripts
+        uses: iainchesworthlabs/icl-common-infra/actions/checkout-infra@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
       - name: Install gcovr
         run: pip install --quiet --require-hashes -r ci/requirements-gcovr.txt
 
@@ -398,19 +401,25 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: ctest --preset linux-gcc-coverage
 
-      # Line/branch coverage gate: fails the job (and so the PR check) below
-      # 80%. main.cpp is excluded as a thin, argv-parsing entry point with no
-      # own test main; the non-Linux platform implementations are simply
-      # never compiled on this runner, so they don't appear in the report.
-      - name: Coverage report + gate
+      # Line/branch coverage, measured per component (src/lib and src/app) and held to
+      # the floors in tools/coverage-floors.json by the shared gate. main.cpp is
+      # excluded as a thin, argv-parsing entry point with no own test main; the
+      # non-Linux platform implementations are simply never compiled on this runner,
+      # so they don't appear in the report.
+      - name: Coverage report
         run: >
           gcovr --root . --filter 'src/.*' --exclude 'src/app/main\.cpp'
           --gcov-executable gcov-16
           --exclude-throw-branches --exclude-unreachable-branches
           --gcov-ignore-errors=no_working_dir_found
           --object-directory build/linux-gcc-coverage
-          --print-summary --html-details build/coverage.html
-          --fail-under-line 80 --fail-under-branch 80
+          --print-summary --json coverage.json --html-details build/coverage.html
+
+      - name: Coverage gate
+        run: >
+          python3 .icl-infra/scripts/coverage_gate.py
+          --report coverage.json --floors tools/coverage-floors.json
+          --summary "$GITHUB_STEP_SUMMARY"
 
       - name: Upload coverage report
         if: always()

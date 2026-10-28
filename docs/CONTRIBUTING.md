@@ -66,9 +66,10 @@ To add a test, put it next to the others of its kind (unit tests in
 `tests/unit`, the Qt app's tests in `tests/app`, QML tests in `tests/qml`) and
 register it in that directory's `CMakeLists.txt`.
 
-CI enforces an **80% line and branch coverage** floor
-(`Coverage (Linux, GCC)`) — a PR that drops coverage below that will fail
-the required check.
+CI holds `src/lib` and `src/app` to the floors in `tools/coverage-floors.json`
+(`Coverage (Linux, GCC)`; the default is 90% of lines and 80% of branches) — a PR
+that drops a component below its floor fails the check. If your change raises
+coverage by more than a point, raise the floor with it.
 
 ## Translations
 

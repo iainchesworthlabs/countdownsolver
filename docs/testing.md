@@ -46,4 +46,10 @@ error, it just silently reports 0% coverage.
 
 CI runs this on every push/PR (`Coverage (Linux, GCC)` in `ci.yml`,
 pinning `--gcov-executable gcov-16` to match the `g++-16` it builds with)
-and **fails the job below 80% line or branch coverage**.
+and holds each component (`src/lib`, `src/app`) to the floors in
+`tools/coverage-floors.json` with the shared coverage gate. The default is
+**90% of lines and 80% of branches**, and a component's floor may be set lower
+or higher. A job fails when a component falls below its floor, or when a source
+file belongs to no listed component. The gate prints a hint when a component is
+more than a point above its floor: raise the floor in the same pull request
+that raised the coverage, so it only goes up.

@@ -7,7 +7,7 @@
                ".github/workflows/codeql.yml", ".github/workflows/dependabot-auto-merge.yml",
                "REUSE.toml", ".editorconfig", ".gitattributes", ".git-blame-ignore-revs", "LICENSES/**", "AGENTS.md"],
   "build": ["src/**", "tests/**", "CMakeLists.txt", "CMakePresets.json", "vcpkg.json", "cmake/**", "packaging/**", "ci/**",
-            ".clang-format", ".clang-tidy", "**/.clang-tidy", ".clusterfuzzlite/**"],
+            ".clang-format", ".clang-tidy", "**/.clang-tidy", ".clusterfuzzlite/**", "tools/coverage-floors.json"],
   "gui": [],
   "machinery": [".github/workflows/ci.yml", ".github/workflows/release.yml",
                 ".github/ci/**", ".github/toolchain-versions.json", "tools/ci/**"]

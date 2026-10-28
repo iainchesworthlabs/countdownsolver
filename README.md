@@ -69,7 +69,7 @@ ctest --preset linux-gcc-debug
 | [How to play](https://iainchesworthlabs.github.io/countdownsolver/how-to-play/) | Each round explained, and what the results mean |
 | [Getting started](https://iainchesworthlabs.github.io/countdownsolver/getting-started/) | Requirements, cloning, first build |
 | [Building & packaging](https://iainchesworthlabs.github.io/countdownsolver/building/) | Every preset, sanitizers, `cpack` |
-| [Testing & coverage](https://iainchesworthlabs.github.io/countdownsolver/testing/) | TDD, test layers, the 80% coverage gate |
+| [Testing & coverage](https://iainchesworthlabs.github.io/countdownsolver/testing/) | TDD, test layers, the coverage floors |
 | [Architecture](https://iainchesworthlabs.github.io/countdownsolver/architecture/) | C++23 highlights, source layout |
 | [Contributing](https://iainchesworthlabs.github.io/countdownsolver/CONTRIBUTING/) | Branching model, code style, PR process |
 
