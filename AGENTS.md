@@ -40,6 +40,7 @@ will also find it a short list of what the checks expect; [CONTRIBUTING](docs/CO
 
 | You change | Also update |
 |---|---|
+| A behaviour a person using the program would notice | A fragment in `changelog.d/` (`<slug>.<type>.md`; see its `README.md`) |
 | A public header in `src/lib/include` | The tests, and `docs/architecture.md` when the layout changes |
 | A CMake option or preset | `docs/building.md` |
 | A toolchain version | `.github/toolchain-versions.json`, then `docs/ci.md`; the `Toolchain pins` job checks the workflows against it |

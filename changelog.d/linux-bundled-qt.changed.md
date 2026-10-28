@@ -1,0 +1,1 @@
+**The Linux packages carry their own Qt.** The .deb, .rpm and .tar.gz no longer need a Qt installed on the system, so they install on Ubuntu 24.04 and Debian 13, not only on systems that ship a recent Qt. They add a launcher in the application menu with an icon, and software-centre metadata.

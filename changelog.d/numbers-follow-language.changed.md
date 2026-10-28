@@ -1,0 +1,1 @@
+**Numbers follow the app's language.** Numbers in the interface, such as the word count, use the display language's conventions instead of the operating system's: 122,160 in English, 122.160 in German, and Arabic-Indic digits in Arabic. The licences dialog is translated, and its title now reads "Third-party licences".

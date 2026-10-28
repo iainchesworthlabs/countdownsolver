@@ -1,0 +1,1 @@
+**Keyboard and screen-reader access.** Every control can be reached with Tab and pressed with Space or Enter, and the control that has keyboard focus shows a teal ring. Each control has a role and a name for screen readers, and empty tiles read as "Empty". Pressing Enter on a focused control now presses that control instead of committing the typed number or solving.

@@ -33,10 +33,6 @@ jobs:
       contents: read
       pull-requests: read
     uses: iainchesworthlabs/icl-common-infra/.github/workflows/policy.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
-    with:
-      # Until changelog.d exists (the release tooling change), a change that users see carries
-      # the no-changelog label instead of a fragment.
-      skip-changelog: "true"
 
   plan:
     name: Plan

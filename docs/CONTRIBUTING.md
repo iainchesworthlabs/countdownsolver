@@ -104,6 +104,14 @@ and translate the new entries; CI fails on an entry still marked unfinished.
   [Architecture](architecture.md) for the patterns already in use
   (`std::expected`, ranges, deducing `this`, etc.) and follow their lead.
 
+## Changelog
+
+A pull request that changes what a person using the program can see adds a
+fragment to `changelog.d/` (see its `README.md` for the format). Do not edit
+`CHANGELOG.md`: a pull request before each final release assembles the fragments
+into it. A pull request that changes only documentation, tests or tooling carries
+the `no-changelog` label instead.
+
 ## Opening a pull request
 
 1. Push your `feature/*` or `bugfix/*` branch and open a PR against

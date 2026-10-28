@@ -1,0 +1,1 @@
+**One application identifier.** Android, macOS and iOS builds now use com.iainchesworthlabs.countdownsolver. On Android a build with the new identifier installs beside an earlier one, as a different app, and starts with no saved settings. Settings on desktop are not affected.

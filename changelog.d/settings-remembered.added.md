@@ -1,0 +1,1 @@
+**Settings are remembered.** The theme, the minimum word length, the "flag when there is no exact answer" switch and the maximum-results slider are restored when the app starts. The choice between the default and a custom word list is not: it still starts on the default.
