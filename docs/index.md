@@ -42,8 +42,8 @@ results mean.
 
 The same app runs natively on Android too — tablet and phone, portrait
 and landscape — with a bottom tab bar in place of the desktop sidebar on
-those smaller/narrower screens. (iOS targets the same breadth but is
-unverified on real hardware — see
+those smaller/narrower screens. (iOS targets the same breadth but is not
+published from a release — see
 [Building & packaging](building.md#supported-platforms).)
 
 === "Tablet · landscape"

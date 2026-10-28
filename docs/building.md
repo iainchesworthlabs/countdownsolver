@@ -11,7 +11,7 @@ What's actually built and tested by CI — see
 | macOS | arm64 (Apple Silicon) | AppleClang, tested on macOS 26 | `.zip` or `.dmg`; Qt runtime is bundled. Intel Macs aren't covered by CI |
 | Linux | x64 | GCC 16 or Clang 23, tested on Ubuntu 26.04 | `.deb`, `.rpm`, `.tar.gz` or `.zip`; Qt runtime is bundled. Needs glibc 2.39 or newer: Ubuntu 24.04 and Debian 13 are the systems it is checked against |
 | Android | arm64-v8a | CI-verified via the `android-arm64-v8a-debug` preset (Qt's Android kit). Tablet and phone, portrait and landscape | Signed APK/AAB via `release.yml`'s `android-release` job (needs maintainer-supplied keystore secrets — see [CI & dependencies](ci.md#signed-mobile-release-packaging)); proven end-to-end against a real tagged release (`v0.2.0-beta.1`), installed and driven on a real emulator across all four form factors. See [Installing](installing.md#android) |
-| iOS | device (arm64) | CI-verified via the `ios-debug` preset (Qt's iOS kit), unsigned. Targets iPhone and iPad, all orientations — same breadth as Android, but unverified: no Mac available to run it on real hardware or a simulator | Ad-hoc signed IPA via `release.yml`'s `ios-release` job — installable only on devices pre-registered in the provisioning profile, not a public App Store build. Signing has never run for real yet (no Apple Developer secrets configured) and nothing has been verified on real hardware — no Mac available in day-to-day dev. See [Installing](installing.md#ios-ad-hoc-pre-registered-devices-only) |
+| iOS | device (arm64) | CI-verified via the `ios-debug` preset (Qt's iOS kit), unsigned. Targets iPhone and iPad, all orientations — same breadth as Android | Not published from a release; testing on devices will go through TestFlight. See [Installing](installing.md#ios) |
 
 `countdown::solver` itself (`-DCOUNTDOWN_BUILD_APP=OFF`) has no GUI or
 platform-specific code — see [Architecture](architecture.md) — so it isn't
@@ -79,10 +79,10 @@ cmake --build --preset ios-debug
 entirely for `ANDROID`/`IOS` configures. Real packaging is
 [Qt's `androiddeployqt`](https://doc.qt.io/qt-6/androiddeployqt.html)
 (APK/AAB) and Xcode archive + `xcodebuild -exportArchive` (IPA),
-respectively — see the `android-release`/`ios-release` jobs in the
-[release workflow](https://github.com/iainchesworth/CountdownSolver/blob/develop/.github/workflows/release.yml)
-for the full signed pipeline, and [CI & dependencies](ci.md) for the
-required signing secrets.
+respectively — see the `android-release` job in the
+[release workflow](https://github.com/iainchesworthlabs/countdownsolver/blob/develop/.github/workflows/release.yml)
+for the signed Android pipeline, and [CI & dependencies](ci.md) for the
+required signing secrets. There is no iOS release job yet.
 
 Library + tests only, no Qt:
 
