@@ -5,7 +5,7 @@
   "description": "A solver for the Countdown TV show numbers and letters games.",
   "homepage": "https://github.com/iainchesworthlabs/countdownsolver",
   "license": "GPL-3.0-or-later",
-  "builtin-baseline": "f87344cac03158cbf1467264565f1fd36b382a24",
+  "builtin-baseline": "9eec002df1cd109f8f104cd966a763daf9751489",
   "dependencies": [],
   "default-features": [],
   "features": {
