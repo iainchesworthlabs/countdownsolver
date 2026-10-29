@@ -323,6 +323,8 @@ qt_add_translations(countdownsolver_qml
         translations/countdown_ar.ts
         translations/countdown_he.ts
         translations/countdown_yi.ts
+        translations/countdown_ja.ts
+        translations/countdown_zh_CN.ts
     SOURCES
         qml/Main.qml
         qml/pages/NumbersPage.qml

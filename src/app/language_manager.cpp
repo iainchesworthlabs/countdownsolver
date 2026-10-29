@@ -24,7 +24,7 @@ struct LanguageInfo {
 // src/app/translations/). Names are UTF-8 literals in each language's own
 // script, not the current UI language, so a user can recognise their entry
 // regardless of what the UI currently shows.
-constexpr std::array<LanguageInfo, 7> kLanguages{{
+constexpr std::array<LanguageInfo, 9> kLanguages{{
     {"en", "English"},
     {"fr", "Français"},
     {"de", "Deutsch"},
@@ -32,6 +32,8 @@ constexpr std::array<LanguageInfo, 7> kLanguages{{
     {"ar", "العربية"},
     {"he", "עברית"},
     {"yi", "יידיש"},
+    {"ja", "日本語"},
+    {"zh_CN", "简体中文"},
 }};
 
 constexpr auto kSettingsKey = "language/code";
@@ -49,6 +51,12 @@ constexpr auto kSettingsKey = "language/code";
 // unrecognised system locale falls back to the untranslated UI rather than
 // failing to find any translator at all.
 [[nodiscard]] QString language_for_locale(const QLocale& locale) {
+    // Chinese is shipped in Simplified script only, so a Traditional-script system
+    // (zh_TW, zh_HK) gets the untranslated UI rather than the wrong script.
+    if (locale.language() == QLocale::Chinese) {
+        return locale.script() == QLocale::SimplifiedChineseScript ? QStringLiteral("zh_CN")
+                                                                   : QStringLiteral("en");
+    }
     const QString name = QLocale::languageToCode(locale.language());
     return is_supported(name) ? name : QStringLiteral("en");
 }

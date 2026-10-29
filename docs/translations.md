@@ -18,6 +18,12 @@ Translation source files live at `src/app/translations/countdown_<code>.ts`
 | `ar` | العربية | `countdown_ar.ts` |
 | `he` | עברית | `countdown_he.ts` |
 | `yi` | יידיש | `countdown_yi.ts` |
+| `ja` | 日本語 | `countdown_ja.ts` |
+| `zh_CN` | 简体中文 | `countdown_zh_CN.ts` |
+
+Japanese and Simplified Chinese have a single plural form, so each plural message holds one
+`<numerusform>`. They translate the interface only: the Letters and Conundrum rounds stay on the
+English dictionary and alphabet (see below). A native speaker has not yet reviewed either file.
 
 English has no `.ts` file — it's the literal `qsTr()`/`tr()` source text.
 `src/app/CMakeLists.txt`'s `qt_add_translations()` call wires these into
@@ -120,5 +126,6 @@ Spanish, Arabic, Hebrew, Yiddish — see
 `letters::Alphabet` mapping in `alphabet_for_language()` and a bundled
 dictionary resource in `dictionary_resource_for_language()` (both in
 `src/app/solver.cpp`), registered as a Qt resource in `CMakeLists.txt`.
-Don't assume a translated UI alone implies a playable round in that
+Japanese and Simplified Chinese are the two translated languages without one: they play the English
+rounds. Don't assume a translated UI alone implies a playable round in that
 language — check whether both of those are wired up too.
