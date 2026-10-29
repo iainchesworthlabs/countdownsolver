@@ -23,8 +23,8 @@ check them.
 
 ## One-time set-up by the maintainer
 
-1. Commit the public release key as `docs/signing-key.asc`. The shared workflow checks every signature against
-   it, and fails if the file is missing.
+1. The public release key is committed as `docs/signing-key.asc`. The shared workflow checks every signature against
+   it, and fails if the file is missing. Replace the file, and the fingerprint in `SECURITY.md`, when the key changes.
 2. The organisation secrets `REPO_GPG_PRIVATE_KEY`, `REPO_GPG_PASSPHRASE`, `RELEASE_BOT_APP_ID` and
    `RELEASE_BOT_PRIVATE_KEY` are open to this repository.
 3. For Android: the repository secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
