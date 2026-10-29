@@ -1,44 +1,35 @@
-# Branch protection for `main`
+# Branch protection and the merge queue
 
-GitHub branch/repo security settings can't be expressed as a workflow file —
-they're applied in **Settings → Branches** (or **Settings → Rules → Rulesets**)
-by someone with admin rights on the repo. Configure a protection rule (or
-ruleset) for `main` with:
+Branch and repository settings can't be expressed as a workflow file. They are rulesets, applied under
+**Settings → Rules → Rulesets** by someone with admin rights, from the definitions in
+`icl-common-infra` (`admin/apply.sh`) and `.github/repo-settings.json`. This page records what is set so it can be
+rebuilt or audited from the page alone.
 
-- **Require a pull request before merging**
-  - Require at least 1 approval
-  - Dismiss stale approvals when new commits are pushed
-- **Require status checks to pass before merging** (enable "Require branches
-  to be up to date" too), selecting:
-  - `Validate gitflow branch name` (from `branch-name-check.yml`)
-  - `Analyze (C++)` (from `codeql.yml`)
-  - the `build-and-test` matrix jobs (from `ci.yml`)
-  - `Coverage (Linux, GCC)` (from `ci.yml`) — fails below 80% line/branch
-    coverage (`gcovr --fail-under-line 80 --fail-under-branch 80`)
-  - `Scan dependency diff` (from `dependency-review.yml`) — fails on a
-    moderate-or-worse known vulnerability newly introduced by the PR
-    (`vcpkg.json` or an Actions dependency)
-- **Require conversation resolution before merging**
-- **Do not allow bypassing the above settings** (applies rules to admins too)
-- **Restrict who can push to matching branches** — only allow merges via PR;
-  block direct pushes
-- **Block force pushes**
-- **Restrict deletions**
+## The flow
 
-Since `main` only receives merges from `release/*`, `hotfix/*`, and
-`support/*` branches under this project's gitflow model, you may also want a
-rule restricting which branches can open PRs against `main` — GitHub
-rulesets support this directly (`main` ruleset → target branch pattern
-restrictions), whereas classic branch protection does not; the
-`branch-name-check.yml` workflow enforces the naming/pairing convention as a
-required status check either way.
+```text
+feature/* bugfix/* docs/* chore/* ──PR──▶ merge queue ──▶ develop ──tag──▶ main
+```
 
-`codeql.yml`, `dependency-review.yml`, and `osv-scanner.yml` also run against
-PRs targeting `develop` (where `feature/*`/`bugfix/*` work actually lands),
-not just `main`. If `develop` gets its own protection rule, consider adding
-`Scan dependency diff` as a required check there too — that's where most
-vulnerable dependencies would actually be introduced, well before a release
-PR ever reaches `main`.
+- A pull request targets `develop`. When it is ready and its required checks pass, it is put in the merge queue,
+  which builds it with the entries ahead of it and squash merges it. Nobody pushes to `develop` or merges by hand.
+- `main` only holds releases. The release workflow moves it to the tagged commit with the release bot's token; no
+  pull request is used.
+- A head branch is deleted when its pull request merges. The squash commit takes the pull request's title and body.
+
+## Rulesets
+
+| Ruleset | Applies to | Rules |
+|---|---|---|
+| `branch-names` | creating a branch | Only `develop`, `main`, `feature/**`, `bugfix/**`, `docs/**`, `chore/**`, `agent/**`, `release/**`, `dependabot/**`, `gh-readonly-queue/**` and `gh-pages` can be created. |
+| `develop-protection` | `develop` | No deletion or force push; linear history; a pull request is required (no approvals needed while there is one maintainer, stale approvals dismissed, conversations resolved, squash only); the checks `CI Status` and `Scan dependency diff` must pass. No bypass. |
+| `merge-queue-develop` | `develop` | Merge queue, squash, all entries green, up to four builds at once. |
+| `main-release-only` | `main` | Only the release bot can update it; no deletion or force push. |
+| `tags` | `v*` tags | Tags can't be deleted, moved or re-created; only the owner and the release bot can create one. |
+
+`CI Status` is the one job that stands for the whole build matrix, coverage gate, CodeQL and static checks
+(see `ci.md`), so the list of required checks does not change when a leg is added. `Scan dependency diff` fails on
+a moderate-or-worse known vulnerability a pull request adds in `vcpkg.json` or an Actions dependency.
 
 ## Other scanners (visible-only)
 

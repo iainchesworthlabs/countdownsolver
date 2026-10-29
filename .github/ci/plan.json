@@ -3,7 +3,7 @@
   "no_build": [".github/PULL_REQUEST_TEMPLATE*", ".github/ISSUE_TEMPLATE/**", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/repo-settings.json",
                ".github/workflows/docs.yml", ".github/workflows/cache-hygiene.yml", ".github/workflows/scorecard.yml",
                ".github/workflows/osv-scanner.yml", ".github/workflows/zizmor.yml", ".github/workflows/dependency-review.yml",
-               ".github/workflows/branch-name-check.yml", ".github/workflows/cflite_*.yml",
+               ".github/workflows/cflite_*.yml",
                ".github/workflows/codeql.yml", ".github/workflows/dependabot-auto-merge.yml",
                "REUSE.toml", ".editorconfig", ".gitattributes", ".git-blame-ignore-revs", "LICENSES/**", "AGENTS.md"],
   "build": ["src/**", "tests/**", "CMakeLists.txt", "CMakePresets.json", "vcpkg.json", "cmake/**", "packaging/**", "ci/**",

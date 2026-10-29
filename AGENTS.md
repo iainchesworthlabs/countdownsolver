@@ -5,8 +5,9 @@ will also find it a short list of what the checks expect; [CONTRIBUTING](docs/CO
 
 ## Working rules
 
-- Work on a branch named `feature/<slug>` or `bugfix/<slug>`, with a lower-case slug and hyphens. The `Validate gitflow
-  branch name` check enforces the prefix. Never commit to `develop` or `main` directly.
+- Work on a branch named `feature/<slug>`, `bugfix/<slug>`, `docs/<slug>`, `chore/<slug>` or `agent/<slug>`, with a
+  lower-case slug and hyphens. The `branch-names` ruleset enforces the prefix. Never commit to `develop` or `main`
+  directly.
 - Commit with `git commit -s`. Write the subject in the imperative, 72 characters or fewer, and the body as a plain
   description of what changed and why.
 - Before pushing, commit and run `python3 tools/ci/precheck.py`. It runs the static checks of the pull request gate on
