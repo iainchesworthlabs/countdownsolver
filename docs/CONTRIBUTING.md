@@ -13,17 +13,16 @@ us agree on the approach before you sink time into it.
 
 ## Branching model
 
-This project follows [gitflow](https://nvie.com/posts/a-successful-git-branching-model/):
+- **`develop`** is the trunk and the default branch. Target your PR here. Nothing is pushed to it
+  directly: a ready PR is put in the [merge queue](branch-protection.md), which squash merges it
+  once the required checks pass.
+- **`main`** holds releases only. The release workflow moves it to the tagged commit; day-to-day
+  work never targets it.
+- Branch names start with `feature/`, `bugfix/`, `docs/`, `chore/` or `agent/`, followed by a
+  lower-case slug. The `branch-names` ruleset refuses any other prefix when the branch is pushed.
 
-- **`develop`** is the integration branch — target your PR here.
-- **`main`** only receives tagged releases; day-to-day work never targets
-  it directly.
-- Branch names must start with `feature/`, `bugfix/`, `release/`,
-  `hotfix/`, or `support/` — a required CI check
-  (`Validate gitflow branch name`) enforces this on every PR.
-
-Pick the prefix that matches the work: `feature/` for new functionality,
-`bugfix/` for fixing broken or inefficient existing behaviour.
+Pick the prefix that matches the work: `feature/` for new functionality, `bugfix/` for fixing
+broken or inefficient existing behaviour, `docs/` for documentation only and `chore/` for tooling.
 
 ## Set up your build
 
@@ -114,10 +113,10 @@ the `no-changelog` label instead.
 
 ## Opening a pull request
 
-1. Push your `feature/*` or `bugfix/*` branch and open a PR against
+1. Push your branch (see the prefixes above) and open a PR against
    `develop`.
-2. Make sure CI is green: build matrix, coverage gate, CodeQL, and the
-   branch-name check all have to pass before a PR can merge.
+2. Make sure CI is green: `CI Status` (the build matrix, coverage gate and static checks) and
+   `Scan dependency diff` have to pass before the PR can enter the merge queue.
 3. Keep PRs focused — a bug fix doesn't need to carry an unrelated
    refactor along with it.
 

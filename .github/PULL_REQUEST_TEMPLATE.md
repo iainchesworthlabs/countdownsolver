@@ -8,6 +8,6 @@
 
 ---
 
-- [ ] Branch follows [gitflow naming](https://iainchesworthlabs.github.io/countdownsolver/CONTRIBUTING/#branching-model) (`feature/*`, `bugfix/*`, ...) and targets `develop`
+- [ ] Branch follows the [naming rules](https://iainchesworthlabs.github.io/countdownsolver/CONTRIBUTING/#branching-model) (`feature/*`, `bugfix/*`, `docs/*`, `chore/*`) and targets `develop`
 - [ ] New/changed behaviour has test coverage ([Testing & coverage](https://iainchesworthlabs.github.io/countdownsolver/testing/))
 - [ ] `clang-format`/`clang-tidy` clean

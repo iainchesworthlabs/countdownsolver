@@ -65,7 +65,7 @@ have, without showing any value, and fails early when one is missing.
 
 ## Making a final release
 
-1. In a pull request from a `release/<version>` branch, run
+1. In a pull request from a `chore/release-<version>` branch, run
    `python3 <icl-common-infra>/scripts/changelog_tool.py assemble --version X.Y.Z --date YYYY-MM-DD`. It moves
    the fragments into a new section of `CHANGELOG.md` and deletes them. This is the one pull request that may edit
    `CHANGELOG.md`.

@@ -12,7 +12,7 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [develop]
     types: [opened, synchronize, reopened, ready_for_review]
   merge_group:
   # Runs every leg on the chosen branch (`gh workflow run ci.yml --ref <branch>`).

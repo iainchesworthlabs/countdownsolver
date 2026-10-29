@@ -4,7 +4,7 @@ This page is the plan for moving Countdown Solver into the `iainchesworthlabs` o
 
 Countdown Solver is a working project, not a port. Its naming, code layout and design choices stay. The standard's branching, CI structure, release tooling, repository settings, licensing, identifiers and dependency handling apply.
 
-Status: most of the work has merged. The repository was transferred on 2026-10-28 and the organisation settings were applied in two parts; the second part (the D1 rulesets and the default branch) is waiting for the maintainer. The release workflow has had a dry run without a tag. The iOS TestFlight job is written and switched off until the Apple steps below are done. The last column of the table below says which pull requests have merged.
+Status: most of the work has merged. The repository was transferred on 2026-10-28 and the settings were applied in two parts, the second (the D1 rulesets and the default branch) on 2026-10-29. The release workflow has had a dry run without a tag. The iOS TestFlight job is written and switched off until the Apple steps below are done. The last column of the table below says which pull requests have merged.
 
 ## Values chosen
 
@@ -15,7 +15,7 @@ Status: most of the work has merged. The repository was transferred on 2026-10-2
 | App Store name | ICL Countdown Solver | Unique across the App Store. |
 | Bundle and application identifier | `com.iainchesworthlabs.countdownsolver` | The iOS bundle identifier, the Android application id and the macOS bundle identifier. It replaces `org.iainchesworth.countdownsolver`. |
 | Saved settings | Qt organisation `CountdownSolver`, application `Countdown Solver` | Unchanged, so saved settings carry over on desktop. |
-| Branch model | D1: `develop` is the default branch and the trunk; squash merge through the merge queue; `main` holds releases and is fast-forwarded by the release bot | Gitflow stays in force until the rulesets are applied. |
+| Branch model | D1: `develop` is the default branch and the trunk; squash merge through the merge queue; `main` holds releases and is fast-forwarded by the release bot | In force since 2026-10-29. |
 | Dependencies | vcpkg fork scheme (`iainchesworthlabs/vcpkg`, `IclVcpkgRoot`, `ICL_VCPKG_STORE`); the `deps/vcpkg` submodule is removed | |
 | Qt | 6.12.0 (the shared pin), read from `.github/toolchain-versions.json`, installed with the pinned `aqtinstall` commit | Replaces 6.8.3. Snake, Cubeulator and wordjewelssolver use the same pin. |
 | Runner images | CI on `ubuntu-26.04`, `macos-26` and `windows-2025-vs2026` | Replaces `ubuntu-24.04` and `macos-15`. |
@@ -35,11 +35,11 @@ Status: most of the work has merged. The repository was transferred on 2026-10-2
 
 ## Order of pull requests
 
-Pull requests target `develop` and are named `feature/` or `bugfix/` until the new rulesets replace the gitflow ones. Each pull request is checked green before the next starts.
+Pull requests target `develop`. Each pull request is checked green before the next starts. The D1 rulesets have been in force since 2026-10-29, so the later pull requests go through the merge queue.
 
 | # | Pull request | Depends on | State |
 |---|---|---|---|
-| 0 | Owner: transfer the repository; organisation settings (below) | | Transfer and part A of the settings done; part B (the rulesets) is the maintainer's |
+| 0 | Owner: transfer the repository; organisation settings (below) | | Transfer and both parts of the settings done |
 | 1 | This plan (`docs/migration.md`) | 0 | Merged (#115) |
 | 2 | Merge #110 (theme, accessibility and locale); close the Dependabot pull request #114 | 0 | Done |
 | 3 | Links and badges for the new owner and name; `.git` remote URLs | 0 | Merged (#123) |
@@ -52,7 +52,7 @@ Pull requests target `develop` and are named `feature/` or `bugfix/` until the n
 | 10 | SPDX headers, `REUSE.toml`, `LICENSES/` | 9 | Merged (#125) |
 | 11 | `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, issue forms, pull request template | 7 | Merged (#124) |
 | 12 | CI on the shared pieces: `CI Status`, policy, zizmor, docs, merge_group triggers, Dependabot (`pip`, `vcpkg`), auto-merge, CodeQL nightly, preprocessor and format checks | 6, 7, 9 | Merged (#126, #127, #128, #129, #130) |
-| 13 | Owner: apply the D1 rulesets and make `develop` the default branch (after 12) | 12 | Waiting for the maintainer |
+| 13 | Owner: apply the D1 rulesets and make `develop` the default branch (after 12) | 12 | Done on 2026-10-29: `develop` is the default branch and the five rulesets are active |
 | 14 | Identifier in one CMake variable; Android application id; Info.plist for TestFlight | 6 | Merged (#131) |
 | 15 | iOS release job on the shared signing actions, with `release-preflight` | 13, 14 | Merged with the release workflow (#133); off until `SIGN_IOS_UPLOAD` is `true` |
 | 16 | Release tooling: `changelog.d`, release workflow on `release-publish.yml`, SBOM, GPG, glibc floor check | 13 | Merged (#132, #133) |
@@ -66,13 +66,13 @@ Each is the maintainer's. The settings and the secrets stay with the maintainer.
 
 1. Done: transfer the repository: `gh api -X POST repos/iainchesworth/CountdownSolver/transfer -f new_owner=iainchesworthlabs -f new_name=countdownsolver`.
 2. Check that the fine-grained token behind the Dependabot secret `MERGE_QUEUE_TOKEN` covers the new repository.
-3. Apply repository settings, the `release` environment (required reviewer: the maintainer) and variables with `admin/apply.sh` (dry run first). The variables start as `false`. The `release` environment, the variables and the labels are done. Still to do: `--only settings,pages,rulesets`, which makes `develop` the default branch and puts the D1 rulesets in force, then deleting the old `main-protection` ruleset.
+3. Apply repository settings, the `release` environment (required reviewer: the maintainer) and variables with `admin/apply.sh` (dry run first). The variables start as `false`. The `release` environment, the variables and the labels are done. The second part (`--only settings,pages,rulesets`) was applied on 2026-10-29 and the old `main-protection` ruleset deleted.
 4. Done: open the organisation secrets `IOS_DIST_CERT_P12_BASE64`, `IOS_DIST_CERT_PASSWORD`, `APPSTORE_API_KEY_ID`, `APPSTORE_API_ISSUER_ID` and `APPSTORE_API_PRIVATE_KEY` to the repository, after the `release` environment exists.
 5. In the Apple developer portal: register the App ID `com.iainchesworthlabs.countdownsolver`; make an App Store Connect distribution profile for it with the organisation's Apple Distribution certificate; set it as the repository secret `IOS_PROVISIONING_PROFILE_BASE64`.
 6. In App Store Connect: create the app record "ICL Countdown Solver" for that identifier; create an internal TestFlight group.
 7. After the TestFlight build runs on the phone: revoke or let expire the ad-hoc provisioning profile, delete the old App ID `org.iainchesworth.countdownsolver` if nothing else uses it, and remove the old app from the phone.
 8. Delete the old repository secrets `IOS_DIST_CERTIFICATE_BASE64`, `IOS_DIST_CERTIFICATE_PASSWORD`, `APPLE_TEAM_ID` and `APPLE_PROVISIONING_PROFILE_NAME` once the new iOS job has passed.
-9. Commit the public release key as `docs/signing-key.asc`. The shared publish workflow checks every signature against it, and `SECURITY.md` quotes its fingerprint. The organisation secrets `REPO_GPG_*` and `RELEASE_BOT_*` have to be open to the repository.
+9. Done: the public release key is committed as `docs/signing-key.asc`, `SECURITY.md` quotes its fingerprint, and the organisation secrets `REPO_GPG_*` and `RELEASE_BOT_*` are open to the repository.
 10. Push the release tags and approve the `release` environment for each release.
 
 ## Done on the maintainer's approval
@@ -101,4 +101,4 @@ All done.
 
 ## Preserved features
 
-The documentation site and screenshots, `docs/branch-protection.md` (rewritten for the new rulesets), ClusterFuzzLite and `tests/fuzz`, the benchmark tests, the Scorecard and OSV workflows, the README badges, `src/app/DESIGN_SPEC.md`, the translations set-up, the Android install page, and the Actions cache hygiene work.
+The documentation site and screenshots, `docs/branch-protection.md`, ClusterFuzzLite and `tests/fuzz`, the benchmark tests, the Scorecard and OSV workflows, the README badges, `src/app/DESIGN_SPEC.md`, the translations set-up, the Android install page, and the Actions cache hygiene work.

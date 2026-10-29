@@ -77,10 +77,8 @@ ctest --preset linux-gcc-debug
 
 Contributions are welcome — see
 [CONTRIBUTING.md](https://iainchesworthlabs.github.io/countdownsolver/CONTRIBUTING/)
-for the branching model (this project follows
-[gitflow](https://nvie.com/posts/a-successful-git-branching-model/):
-`develop` for day-to-day work, `main` for tagged releases only) and how
-PRs get reviewed. Please also read the
+for the branching model (`develop` for day-to-day work, `main` for
+releases only) and how PRs get reviewed. Please also read the
 [Code of Conduct](https://iainchesworthlabs.github.io/countdownsolver/CODE_OF_CONDUCT/).
 
 ## License
