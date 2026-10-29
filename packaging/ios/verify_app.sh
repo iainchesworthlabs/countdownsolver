@@ -73,6 +73,7 @@ done
 [ -n "$(key UILaunchScreen)" ] || fail "Info.plist has no UILaunchScreen (iOS would run the program in a legacy window)"
 [ "$(key DTPlatformName)" = "iphoneos" ] || fail "DTPlatformName is '$(key DTPlatformName)'; this is not a device build"
 [ -n "$(key MinimumOSVersion)" ] || fail "Info.plist has no MinimumOSVersion"
+[ -n "$(key CFBundleShortVersionString)" ] || fail "Info.plist has no CFBundleShortVersionString (the version): App Store Connect refuses the build"
 if [ -n "$version" ]; then
   [ "$(key CFBundleShortVersionString)" = "$version" ] || fail "CFBundleShortVersionString is '$(key CFBundleShortVersionString)', expected $version"
 fi
