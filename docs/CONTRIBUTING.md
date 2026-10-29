@@ -68,7 +68,8 @@ register it in that directory's `CMakeLists.txt`.
 CI holds `src/lib` and `src/app` to the floors in `tools/coverage-floors.json`
 (`Coverage (Linux, GCC)`; the default is 90% of lines and 80% of branches) — a PR
 that drops a component below its floor fails the check. If your change raises
-coverage by more than a point, raise the floor with it.
+coverage by more than a point, raise the floor with it (see
+[Testing & coverage](testing.md)).
 
 ## Translations
 

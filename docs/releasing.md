@@ -69,9 +69,12 @@ have, without showing any value, and fails early when one is missing.
    `python3 <icl-common-infra>/scripts/changelog_tool.py assemble --version X.Y.Z --date YYYY-MM-DD`. It moves
    the fragments into a new section of `CHANGELOG.md` and deletes them. This is the one pull request that may edit
    `CHANGELOG.md`.
-2. Merge it, then tag and push as above with `vX.Y.Z`. The publish job fails a final release whose version has no
+2. In the same pull request, raise the coverage floors to what the latest `develop` run measured: download its
+   `coverage-report` artifact and run `coverage_gate.py --write-floors` as [Testing & coverage](testing.md) shows.
+   The floors only go up from one release to the next.
+3. Merge it, then tag and push as above with `vX.Y.Z`. The publish job fails a final release whose version has no
    section in `CHANGELOG.md`.
-3. After the release succeeds, `main` is at the tag.
+4. After the release succeeds, `main` is at the tag.
 
 ## Trying the packaging without a release
 

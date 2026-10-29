@@ -1,7 +1,16 @@
 {
-  "default": {"line": 90, "branch": 80},
+  "default": {
+    "line": 90,
+    "branch": 80
+  },
   "components": {
-    "src/lib": {"line": 90, "branch": 88},
-    "src/app": {"line": 92, "branch": 83}
+    "src/lib": {
+      "line": 91,
+      "branch": 89
+    },
+    "src/app": {
+      "line": 92,
+      "branch": 83
+    }
   }
 }
