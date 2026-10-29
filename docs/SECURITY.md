@@ -37,7 +37,13 @@ sha512sum -c SHA512SUMS
 gh attestation verify <file> -R iainchesworthlabs/countdownsolver
 ```
 
-`gpg --show-keys signing-key.asc` prints the key's fingerprint.
+`gpg --show-keys signing-key.asc` prints the key's fingerprint, which should be:
+
+```text
+FD13 CB8C AC83 1664 8CD9  74D0 8149 254C 4189 4DBE
+```
+
+The key expires on 2028-10-21.
 
 The releases up to `v0.3.0-beta.4` were built before this and were signed with Sigstore instead:
 they list `SHA256SUMS` and `SHA512SUMS` with a `.sigstore.json` bundle. They were built while the
