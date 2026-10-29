@@ -346,12 +346,14 @@ if(ANDROID)
         QT_ANDROID_TARGET_SDK_VERSION 34)
 endif()
 
-# The bundle identifier and the copyright line of the macOS and iOS bundles. The
-# identifier is COUNTDOWN_APPLICATION_ID, the same one Android and the Linux desktop
-# entry use.
+# The bundle identifier, the version and the copyright line of the macOS and iOS bundles.
+# The identifier is COUNTDOWN_APPLICATION_ID, the same one Android and the Linux desktop
+# entry use. CFBundleShortVersionString is the numeric project version; App Store Connect
+# refuses a build without it.
 if(APPLE)
     set_target_properties(countdownsolver PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER "${COUNTDOWN_APPLICATION_ID}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
         MACOSX_BUNDLE_COPYRIGHT "Copyright (C) 2026 Iain Chesworth")
     if(COUNTDOWN_BUILD_NUMBER)
         set_target_properties(countdownsolver PROPERTIES
