@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "language_manager.hpp"
 
+#include "language_codes.hpp"
 #include "logging/logging.hpp"
 
 #include <QLibraryInfo>
@@ -9,57 +10,10 @@
 #include <QSettings>
 #include <QVariantMap>
 
-#include <array>
-
 namespace countdown::app {
 namespace {
 
-struct LanguageInfo {
-    const char* code;
-    const char* nativeName;
-};
-
-// "en" first (no .qm - the untranslated source strings are already English),
-// then every language this app ships translations for (see
-// src/app/translations/). Names are UTF-8 literals in each language's own
-// script, not the current UI language, so a user can recognise their entry
-// regardless of what the UI currently shows.
-constexpr std::array<LanguageInfo, 9> kLanguages{{
-    {"en", "English"},
-    {"fr", "Français"},
-    {"de", "Deutsch"},
-    {"es", "Español"},
-    {"ar", "العربية"},
-    {"he", "עברית"},
-    {"yi", "יידיש"},
-    {"ja", "日本語"},
-    {"zh_CN", "简体中文"},
-}};
-
 constexpr auto kSettingsKey = "language/code";
-
-[[nodiscard]] bool is_supported(const QString& code) {
-    for (const LanguageInfo& info : kLanguages) {
-        if (code == QLatin1String(info.code)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// Maps a system locale to one of kLanguages, or "en" if unsupported - so an
-// unrecognised system locale falls back to the untranslated UI rather than
-// failing to find any translator at all.
-[[nodiscard]] QString language_for_locale(const QLocale& locale) {
-    // Chinese is shipped in Simplified script only, so a Traditional-script system
-    // (zh_TW, zh_HK) gets the untranslated UI rather than the wrong script.
-    if (locale.language() == QLocale::Chinese) {
-        return locale.script() == QLocale::SimplifiedChineseScript ? QStringLiteral("zh_CN")
-                                                                   : QStringLiteral("en");
-    }
-    const QString name = QLocale::languageToCode(locale.language());
-    return is_supported(name) ? name : QStringLiteral("en");
-}
 
 // The locale the app formats numbers (and anything else locale-aware, e.g.
 // QML's Qt.locale() / Number.toLocaleString()) in for UI language `code`.
@@ -91,8 +45,9 @@ void LanguageManager::applyInitialLanguage() {
 
 QVariantList LanguageManager::availableLanguages() const {
     QVariantList result;
-    result.reserve(static_cast<qsizetype>(kLanguages.size()));
-    for (const LanguageInfo& info : kLanguages) {
+    const auto languages = supported_languages();
+    result.reserve(static_cast<qsizetype>(languages.size()));
+    for (const LanguageInfo& info : languages) {
         QVariantMap entry;
         entry["code"] = QString::fromLatin1(info.code);
         entry["name"] = QString::fromUtf8(info.nativeName);

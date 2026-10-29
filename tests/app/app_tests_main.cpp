@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "solver.hpp"
 
+#include "language_codes_test.hpp"
 #include "preferences_test.hpp"
 #include "solver_conundrum_test.hpp"
 #include "solver_dictionary_test.hpp"
@@ -59,6 +60,10 @@ int main(int argc, char* argv[]) {
     }
     {
         PreferencesTest test;
+        status |= QTest::qExec(&test, argc, argv);
+    }
+    {
+        LanguageCodesTest test;
         status |= QTest::qExec(&test, argc, argv);
     }
 #ifdef Q_OS_LINUX

@@ -123,6 +123,8 @@ qt_add_library(countdownsolver_core STATIC
     solver.hpp
     preferences.cpp
     preferences.hpp
+    language_codes.cpp
+    language_codes.hpp
     platform/platform.hpp
     logging/logging.hpp
     logging/logging.cpp

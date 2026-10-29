@@ -108,7 +108,7 @@ things wired up before it's selectable at all:
    `update_translations` to generate the initial file and translate it as
    above.
 2. Add `{code, "Native name"}` to the `kLanguages` array in
-   `src/app/language_manager.cpp`. **This step is easy to miss** — without
+   `src/app/language_codes.cpp`. **This step is easy to miss** — without
    it, `LanguageManager::setLanguage()` rejects the code as unsupported
    and the language never appears in the Settings dropdown, even with a
    fully-translated `.ts`/`.qm`.
