@@ -1,6 +1,15 @@
 name: Docs
 
+# A pull request that changes the documentation builds the site with --strict, so a broken link
+# or nav entry fails there. A push to main builds it again and publishes it.
+
 on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
   push:
     branches: [main]
     paths:
@@ -19,7 +28,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    name: Build site
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    with:
+      requirements: docs/requirements.txt
+
   build:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -44,6 +63,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pages: write
