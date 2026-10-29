@@ -34,6 +34,12 @@ jobs:
       pull-requests: read
     uses: iainchesworthlabs/icl-common-infra/.github/workflows/policy.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
 
+  zizmor:
+    name: Workflow analysis
+    permissions:
+      contents: read
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/zizmor.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+
   plan:
     name: Plan
     runs-on: ubuntu-24.04
@@ -436,7 +442,7 @@ jobs:
   ci-status:
     name: CI Status
     if: always()
-    needs: [policy, plan, build-and-test, translations, toolchain-pins, android-build, ios-build, coverage]
+    needs: [policy, zizmor, plan, build-and-test, translations, toolchain-pins, android-build, ios-build, coverage]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:

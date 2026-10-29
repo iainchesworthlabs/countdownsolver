@@ -213,9 +213,11 @@ runs on pull requests, merge-queue entries and pushes to `develop` and `main`.
 
 - `Policy` is the shared `policy.yml`: branch name, commit and pull request text,
   committed-file text, action pinning, REUSE, and the rule that a vcpkg baseline
-  named in `vcpkg.json` exists in the organisation's fork. The changelog check is
-  switched off until `changelog.d` exists, so a change that users see carries the
+  named in `vcpkg.json` exists in the organisation's fork, and the changelog check:
+  a change that users see adds a fragment to `changelog.d`, and anything else carries the
   `no-changelog` label.
+- `Workflow analysis` is the shared `zizmor.yml`. It runs zizmor over the workflows and
+  fails on a finding of medium severity or higher.
 - `Plan` runs the shared planner over the changed paths with
   `.github/ci/plan.json`. A change to documentation, or to files no build reads,
   skips the build jobs; a path the file does not list builds everything. It also
@@ -229,7 +231,12 @@ runs on pull requests, merge-queue entries and pushes to `develop` and `main`.
 The required checks are `CI Status` and `Scan dependency diff`
 (`dependency-review.yml`, which also reports on merge-queue entries, where it
 passes without a scan because the pull request was scanned). Other workflows
-(CodeQL, OSV-Scanner, zizmor, Scorecard) report findings and do not block.
+(CodeQL, OSV-Scanner, the scheduled zizmor scan that fills the Security tab, Scorecard)
+report findings and do not block.
+
+A pull request that changes `docs/`, `mkdocs.yml` or `docs.yml` also runs the `Docs` workflow,
+which builds the site with `mkdocs build --strict`, so a broken link or navigation entry fails
+before the merge. The same workflow publishes the site when `main` moves.
 
 ## Checks before a push
 
