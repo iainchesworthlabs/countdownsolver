@@ -32,13 +32,13 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/policy.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/policy.yml@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
   zizmor:
     name: Workflow analysis
     permissions:
       contents: read
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/zizmor.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/zizmor.yml@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
   plan:
     name: Plan
@@ -56,7 +56,7 @@ jobs:
           persist-credentials: false
 
       - name: Check out the shared scripts
-        uses: iainchesworthlabs/icl-common-infra/actions/checkout-infra@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/checkout-infra@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       - name: Check the vendored CMake modules
         run: python3 tools/ci/sync_cmake.py --check --infra .icl-infra
@@ -114,13 +114,13 @@ jobs:
           persist-credentials: false
 
       - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       # Ahead of CMake: the Visual Studio environment puts its own tools on
       # PATH, and the CMake 4 below has to come after it.
       - name: Set up MSVC environment (Windows)
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       # The GitHub runners ship CMake 3.x; the project (and CMakePresets)
       # require CMake 4. get-cmake installs a matching CMake 4 and Ninja on
@@ -136,19 +136,19 @@ jobs:
       # makes it the compiler.
       - name: Install GCC 16 (Linux)
         if: runner.os == 'Linux'
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
         with:
           export-compiler: ${{ startsWith(matrix.cxx, 'g++') }}
 
       - name: Install Clang 23 (Linux Clang)
         if: startsWith(matrix.cxx, 'clang++')
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-llvm@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-llvm@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       # Prebuilt Qt (official binaries) so the GUI app builds without compiling
       # Qt from source. Sets QT_ROOT_DIR for find_package(Qt6). The version and
       # the Windows aqtinstall source come from .github/toolchain-versions.json.
       - name: Install Qt (prebuilt)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       # Builds the library, tests AND the Qt app (COUNTDOWN_BUILD_APP defaults
       # ON); vcpkg supplies only Catch2, Qt comes from the prebuilt install.
@@ -201,7 +201,7 @@ jobs:
       - name: Save the vcpkg caches
         if: always()
         continue-on-error: true
-        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
   translations:
     name: Translations complete
@@ -286,13 +286,13 @@ jobs:
       # silently clobber the first before both are needed below (host Qt for
       # QT_HOST_PATH/cross-build tools, Android Qt for QT_ANDROID_ROOT).
       - name: Install Qt (desktop host kit)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       - name: Capture host Qt path
         run: echo "COUNTDOWN_QT_HOST_ROOT=$QT_ROOT_DIR" >> "$GITHUB_ENV"
 
       - name: Install Qt (Android kit)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
         with:
           target: android
           arch: android_arm64_v8a
@@ -329,7 +329,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Qt (iOS kit)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
         with:
           target: ios
 
@@ -361,7 +361,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@f5b8fbb4d77cec1acc5a5f9f0df4beffaf5d98d9 # v4.3.4
@@ -370,14 +370,14 @@ jobs:
           ninjaVersion: "1.13.2"
 
       - name: Install GCC 16 (Linux)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       # Qt Quick's offscreen QPA plugin needs libxkbcommon at runtime.
       - name: Install offscreen QPA runtime dependencies
         run: sudo apt-get install -y libxkbcommon0
 
       - name: Install Qt (prebuilt)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       # The Qt install leaves the newest Python first on PATH, and the pinned
       # lxml has no wheel for it, so pip would build it from source. gcovr runs
@@ -388,7 +388,7 @@ jobs:
           python-version: "3.12"
 
       - name: Check out the shared scripts
-        uses: iainchesworthlabs/icl-common-infra/actions/checkout-infra@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/checkout-infra@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
       - name: Install gcovr
         run: pip install --quiet --require-hashes -r ci/requirements-gcovr.txt
@@ -439,7 +439,7 @@ jobs:
       - name: Save the vcpkg caches
         if: always()
         continue-on-error: true
-        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/save-vcpkg-cache@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
 
   ci-status:
     name: CI Status
@@ -451,7 +451,7 @@ jobs:
       contents: read
     steps:
       - name: Aggregate
-        uses: iainchesworthlabs/icl-common-infra/actions/ci-status@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+        uses: iainchesworthlabs/icl-common-infra/actions/ci-status@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
         with:
           needs: ${{ toJSON(needs) }}
           expected: >-

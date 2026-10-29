@@ -17,6 +17,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/dependabot-auto-merge.yml@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.17
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/dependabot-auto-merge.yml@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
     secrets:
       MERGE_QUEUE_TOKEN: ${{ secrets.MERGE_QUEUE_TOKEN }}
