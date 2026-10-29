@@ -52,4 +52,11 @@ and holds each component (`src/lib`, `src/app`) to the floors in
 or higher. A job fails when a component falls below its floor, or when a source
 file belongs to no listed component. The gate prints a hint when a component is
 more than a point above its floor: raise the floor in the same pull request
-that raised the coverage, so it only goes up.
+that raised the coverage, so it only goes up. The `coverage-report` artifact of a run
+holds `coverage.json`; to raise the floors to what that run measured, rounded down, run
+
+```sh
+python3 <icl-common-infra>/scripts/coverage_gate.py --report coverage.json --floors tools/coverage-floors.json --write-floors
+```
+
+and commit `tools/coverage-floors.json`. It never lowers a floor.
