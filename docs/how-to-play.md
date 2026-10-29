@@ -88,18 +88,24 @@ Everything in the app can be used without a mouse.
 ## Languages
 
 Settings also has a language picker: **English**, plus **French, German,
-Spanish, Arabic, Hebrew, and Yiddish** — including right-to-left layout
-for Arabic and Hebrew, shown here with the display language set to
-Arabic:
+Spanish, Arabic, Hebrew, Yiddish, Japanese, and Simplified Chinese** — including
+right-to-left layout for Arabic and Hebrew, shown here with the display language
+set to Arabic:
 
 ![Settings page in Arabic, showing the mirrored right-to-left layout](assets/screenshots/settings-arabic-rtl.png)
 
-Switching the display language changes both the UI chrome (menus, buttons,
-Settings itself) and gameplay: the Letters and Conundrum rounds solve
-against that language's own dictionary and alphabet rules (e.g. French
-draws a 10-letter rack instead of 9; German keeps *ä/ö/ü* distinct from
-*a/o/u*), not just the on-screen labels. The Numbers game is
-language-independent — it's arithmetic, not words.
+Switching the display language changes the UI chrome (menus, buttons,
+Settings itself). For French, German, Spanish, Arabic, Hebrew and Yiddish it
+also changes gameplay: the Letters and Conundrum rounds solve against that
+language's own dictionary and alphabet rules (e.g. French draws a 10-letter
+rack instead of 9; German keeps *ä/ö/ü* distinct from *a/o/u*), not just the
+on-screen labels. Japanese and Simplified Chinese translate the interface
+only, and their Letters and Conundrum rounds use the English word list. The
+Numbers game is language-independent — it's arithmetic, not words.
+
+The Japanese and Chinese text is drawn with a font from your system. Windows,
+macOS, Android and iOS have one; on Linux, install a CJK font (for example Noto
+Sans CJK) if the characters show as empty boxes.
 
 Numbers shown in the interface — the word count in the sidebar, for example —
 are formatted for the display language, not for your operating system's

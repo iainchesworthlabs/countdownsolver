@@ -123,6 +123,8 @@ qt_add_library(countdownsolver_core STATIC
     solver.hpp
     preferences.cpp
     preferences.hpp
+    language_codes.cpp
+    language_codes.hpp
     platform/platform.hpp
     logging/logging.hpp
     logging/logging.cpp
@@ -323,6 +325,8 @@ qt_add_translations(countdownsolver_qml
         translations/countdown_ar.ts
         translations/countdown_he.ts
         translations/countdown_yi.ts
+        translations/countdown_ja.ts
+        translations/countdown_zh_CN.ts
     SOURCES
         qml/Main.qml
         qml/pages/NumbersPage.qml

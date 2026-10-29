@@ -10,13 +10,15 @@ TestCase {
     id: testCase
     name: "LanguageManager"
 
-    function test_availableLanguagesListsAllSevenOptions() {
+    function test_availableLanguagesListsAllNineOptions() {
         const languages = languageManager.availableLanguages()
-        compare(languages.length, 7)
+        compare(languages.length, 9)
         compare(languages[0].code, "en")
         verify(languages.some(function (l) { return l.code === "ar" }))
         verify(languages.some(function (l) { return l.code === "he" }))
         verify(languages.some(function (l) { return l.code === "yi" }))
+        verify(languages.some(function (l) { return l.code === "ja" }))
+        verify(languages.some(function (l) { return l.code === "zh_CN" }))
     }
 
     function test_setLanguageSwitchesRejectsAndResets() {

@@ -1,0 +1,1 @@
+**Japanese and Simplified Chinese.** Settings offers both as display languages. They translate the interface only; the Letters and Conundrum rounds keep using the English word list. A native speaker has not yet reviewed the wording.

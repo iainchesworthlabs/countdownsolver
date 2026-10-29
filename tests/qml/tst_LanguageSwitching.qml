@@ -77,11 +77,13 @@ TestCase {
         "es": "1.234.567",
         "ar": "١٬٢٣٤٬٥٦٧",   // Arabic-Indic digits, Arabic thousands separator
         "he": "1,234,567",
-        "yi": "1,234,567"
+        "yi": "1,234,567",
+        "ja": "1,234,567",
+        "zh_CN": "1,234,567"
     })
 
     function test_defaultLocaleFollowsTheChosenLanguage() {
-        for (const code of ["fr", "de", "es", "ar", "he", "yi", "en", "de"]) {
+        for (const code of ["fr", "de", "es", "ar", "he", "yi", "ja", "zh_CN", "en", "de"]) {
             verify(languageManager.setLanguage(code))
 
             // The default locale (what Qt.locale() with no argument returns,
@@ -89,7 +91,7 @@ TestCase {
             // uses) is in the chosen language - whatever the machine running
             // this is set to. Before LanguageManager called QLocale::setDefault
             // this stayed the operating system's locale.
-            compare(Qt.locale().name.split("_")[0], code)
+            compare(Qt.locale().name.split("_")[0], code.split("_")[0])
 
             // And it formats numbers that language's way. Only compared when the
             // locale is the language's own default: a machine whose system

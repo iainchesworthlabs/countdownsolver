@@ -4,8 +4,10 @@ Quick answers, linking out to the full detail rather than repeating it.
 
 **I switched the language in Settings — does that change gameplay too, or
 just the menus?**
-Both. Letters and Conundrum solve against that language's own dictionary
-and alphabet rules, not just translated labels — see
+For French, German, Spanish, Arabic, Hebrew and Yiddish, both: Letters and
+Conundrum solve against that language's own dictionary and alphabet rules, not
+just translated labels. Japanese and Simplified Chinese change the labels only —
+see
 [How to play → Languages](how-to-play.md#languages). Numbers is
 language-independent (it's arithmetic).
 
