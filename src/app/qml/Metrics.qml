@@ -65,7 +65,10 @@ QtObject {
     readonly property var targetKey:     ({ size: [52, 38, 32], radius: [9, 7, 6], font: [18, 13, 12] })
     readonly property var actionButton:  ({ size: [56, 48, 42], radius: [11, 10, 9] })
     readonly property var solveButton:   ({ size: [56, 50, 42], radius: [11, 10, 9], font: [17, 16, 15] })
-    readonly property var qwertyKey:     ({ size: [60, 46, 42], maxWidth: [72, 34, 46], radius: [10, 8, 8], font: [20, 16, 16] })
+    // maxWidth is the widest a key grows; OnScreenKeyboard narrows the keys when the
+    // card is too narrow for the longest row at that width. gap is the space between
+    // keys, pad the keyboard card's inner padding.
+    readonly property var qwertyKey:     ({ size: [60, 46, 42], maxWidth: [72, 34, 46], radius: [10, 8, 8], font: [20, 16, 16], gap: [5, 4, 4], pad: [18, 10, 10] })
     readonly property var rackTile:      ({ size: [68, 50, 44], radius: [11, 10, 9], font: [28, 22, 18] })
     readonly property var conundrumTile: ({ w: [60, 52, 48], h: [70, 62, 56], radius: [11, 10, 9], font: [32, 28, 26] })
     readonly property var cardRadius:    ({ value: [14, 14, 12] })

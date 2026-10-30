@@ -1,0 +1,1 @@
+**The on-screen keyboard fits narrow screens.** In the Letters and Conundrum games the keys now narrow to fit the keyboard on a phone or a small tablet, so the right-hand keys (P, L and M, for example) are no longer cut off.
