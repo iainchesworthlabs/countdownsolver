@@ -9,6 +9,55 @@ TestCase {
     name: "LettersPage"
 
     Component { id: pageComponent; LettersPage {} }
+    Component { id: keyboardComponent; OnScreenKeyboard {} }
+
+    function cleanup() {
+        Metrics.formFactor = FormFactor.desktop
+    }
+
+    function keysOf(item, out) {
+        out = out || []
+        for (let i = 0; i < item.children.length; ++i) {
+            if (item.children[i].objectName === "key") out.push(item.children[i])
+            keysOf(item.children[i], out)
+        }
+        return out
+    }
+
+    // Widths are what the keyboard card gets: the window less the page's side
+    // margins. The longest row is ten keys, which at the widest key size
+    // wants far more than a phone or a small tablet has.
+    function test_keysStayInsideTheKeyboard_data() {
+        return [
+            { tag: "desktop",        form: FormFactor.desktop,        w: 456 },
+            { tag: "iPhone 17",      form: FormFactor.phonePortrait,  w: 366 },
+            { tag: "iPhone SE",      form: FormFactor.phonePortrait,  w: 339 },
+            { tag: "smallest phone", form: FormFactor.phonePortrait,  w: 284 },
+            { tag: "phone landscape", form: FormFactor.phoneLandscape, w: 420 },
+            { tag: "iPad mini",      form: FormFactor.tabletPortrait, w: 692 }
+        ]
+    }
+
+    function test_keysStayInsideTheKeyboard(data) {
+        Metrics.formFactor = data.form
+        const keyboard = createTemporaryObject(keyboardComponent, testCase, { width: data.w, height: 200 })
+        verify(keyboard !== null)
+
+        const keys = keysOf(keyboard)
+        verify(keys.length >= 20, "found " + keys.length + " keys")
+        for (const key of keys) {
+            const at = key.mapToItem(keyboard, 0, 0)
+            verify(at.x >= 0, key.text + " starts left of the keyboard")
+            verify(at.x + key.width <= keyboard.width, key.text + " runs past the right edge")
+        }
+
+        // A narrower keyboard shrinks every key alike, so the rows still line up.
+        verify(keys.every(function (key) { return key.width === keys[0].width }), "keys differ in width")
+
+        // Gone before cleanup() puts the metrics back.
+        keyboard.destroy()
+        wait(10)
+    }
 
     // Every letter in `word` occurs in `rack` at least as often - i.e. `word`
     // is genuinely spellable from `rack`'s letters. Used to check results

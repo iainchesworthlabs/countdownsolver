@@ -50,8 +50,18 @@ Item {
     readonly property var keyRows: (languageManager && keyRowsByLanguage[languageManager.currentLanguage])
                                     || ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
 
-    implicitWidth: kb.implicitWidth + (Metrics.compactIndex < 0 ? 36 : Metrics.cardPadding.value[Metrics.compactIndex] * 2)
-    implicitHeight: kb.implicitHeight + (Metrics.compactIndex < 0 ? 36 : Metrics.cardPadding.value[Metrics.compactIndex] * 2)
+    readonly property real padding: Metrics.pick(Metrics.qwertyKey.pad, 18)
+    readonly property real keyGap: Metrics.pick(Metrics.qwertyKey.gap, 5)
+    readonly property real keyWidthMax: Metrics.pick(Metrics.qwertyKey.maxWidth, 36)
+    readonly property int columns: keyRows.reduce(function (most, row) { return Math.max(most, row.length) }, 1)
+    // Every key is as wide as the longest row allows, so the rows line up and
+    // none runs past the card. Read from the card's width, not the keys', so the
+    // implicit width below stays the width the keys would like.
+    readonly property real keyWidth: Math.max(1, Math.min(keyWidthMax,
+        Math.floor((width - 2 * padding - (columns - 1) * keyGap) / columns)))
+
+    implicitWidth: columns * keyWidthMax + (columns - 1) * keyGap + 2 * padding
+    implicitHeight: kb.implicitHeight + 2 * padding
 
     Card {
         anchors.fill: parent
@@ -59,18 +69,19 @@ Item {
         ColumnLayout {
             id: kb
             anchors.fill: parent
-            anchors.margins: Metrics.compactIndex < 0 ? 18 : Metrics.cardPadding.value[Metrics.compactIndex]
+            anchors.margins: root.padding
             spacing: 6
             Repeater {
                 model: root.keyRows
                 delegate: RowLayout {
                     Layout.alignment: Qt.AlignHCenter
-                    spacing: 5
+                    spacing: root.keyGap
                     property string rowStr: modelData
                     Repeater {
                         model: rowStr.length
                         delegate: PadButton {
-                            implicitWidth: Metrics.compactIndex < 0 ? 36 : Metrics.qwertyKey.maxWidth[Metrics.compactIndex]
+                            objectName: "key"
+                            implicitWidth: root.keyWidth
                             implicitHeight: Metrics.compactIndex < 0 ? 44 : Metrics.touchSize(Metrics.qwertyKey.size[Metrics.compactIndex])
                             mono: false
                             fontSize: Metrics.compactIndex < 0 ? 15 : Metrics.qwertyKey.font[Metrics.compactIndex]
