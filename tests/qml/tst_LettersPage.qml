@@ -59,10 +59,6 @@ TestCase {
         wait(10)
     }
 
-    function cleanup() {
-        Metrics.formFactor = FormFactor.desktop
-    }
-
     // The page area left under the header, the Input/Results toggle and the
     // tab bar is short on a phone. Solve must stay inside it, with the cards
     // scrolling above it, rather than rolling off the bottom.
