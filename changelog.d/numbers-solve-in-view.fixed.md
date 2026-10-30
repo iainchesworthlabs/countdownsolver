@@ -1,0 +1,1 @@
+**Solve stays on screen in the Numbers game on a phone.** Held upright, the Numbers screen now keeps Random game, Backspace, Clear and Solve below the number and target cards, which scroll when the window is short, so Solve no longer rolls off the bottom. The cards sit closer together on a phone so that the whole screen fits on an iPhone 17.
