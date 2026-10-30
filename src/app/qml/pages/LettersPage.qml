@@ -121,6 +121,7 @@ Item {
             }
         }
         FlatButton {
+            objectName: "solveButton"
             Layout.fillWidth: true
             implicitHeight: Metrics.touchSize(Metrics.pick(Metrics.solveButton.size, 42))
             primary: true
@@ -296,36 +297,62 @@ Item {
     Component {
         id: portraitLayout
         Item {
-            Flickable {
+            // The cards scroll when they are taller than the window; the action
+            // buttons sit below them, not inside, so Solve stays on screen
+            // however short the window is. With room to spare they follow the
+            // cards.
+            ColumnLayout {
                 anchors.fill: parent
-                // Grown by the focus ring's outset on every side, with the
-                // content inset by the same amount below - so the ring on a
-                // button flush with the content's edge isn't clipped, and
-                // nothing moves.
-                anchors.margins: Metrics.headerPadding.side[Metrics.compactIndex] - Theme.focusRingOutset
+                spacing: 0
                 visible: root.view === "input"
-                clip: true
-                contentHeight: inputCol.implicitHeight + 2 * Theme.focusRingOutset
-                boundsBehavior: Flickable.StopAtBounds
-                ColumnLayout {
-                    id: inputCol
-                    x: Theme.focusRingOutset
-                    y: Theme.focusRingOutset
-                    width: parent.width - 2 * Theme.focusRingOutset
-                    spacing: 16
-                    RackTileCard {}
-                    OnScreenKeyboard {
-                        Layout.fillWidth: true
-                        onKeyPressed: ch => root.addLetter(ch)
+
+                Flickable {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 0
+                    Layout.preferredHeight: contentHeight
+                    Layout.maximumHeight: contentHeight
+                    // Grown by the focus ring's outset on every side, with the
+                    // content inset by the same amount below - so the ring on a
+                    // button flush with the content's edge isn't clipped, and
+                    // nothing moves. The Input/Results toggle above already
+                    // leaves its own gap, so there is none at the top.
+                    Layout.leftMargin: Metrics.headerPadding.side[Metrics.compactIndex] - Theme.focusRingOutset
+                    Layout.rightMargin: Metrics.headerPadding.side[Metrics.compactIndex] - Theme.focusRingOutset
+                    Layout.topMargin: -Theme.focusRingOutset
+                    Layout.bottomMargin: Metrics.headerPadding.bottom[Metrics.compactIndex] - Theme.focusRingOutset
+                    clip: true
+                    contentHeight: inputCol.implicitHeight + 2 * Theme.focusRingOutset
+                    boundsBehavior: Flickable.StopAtBounds
+                    ColumnLayout {
+                        id: inputCol
+                        x: Theme.focusRingOutset
+                        y: Theme.focusRingOutset
+                        width: parent.width - 2 * Theme.focusRingOutset
+                        spacing: Metrics.cardSpacing.outer[Metrics.compactIndex]
+                        RackTileCard {}
+                        OnScreenKeyboard {
+                            Layout.fillWidth: true
+                            onKeyPressed: ch => root.addLetter(ch)
+                        }
                     }
-                    ActionButtons { Layout.fillWidth: true }
-                    Item { Layout.preferredHeight: 4 }
                 }
+
+                ActionButtons {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: Metrics.headerPadding.side[Metrics.compactIndex]
+                    Layout.rightMargin: Metrics.headerPadding.side[Metrics.compactIndex]
+                    Layout.bottomMargin: Metrics.headerPadding.bottom[Metrics.compactIndex]
+                }
+
+                Item { Layout.fillHeight: true; Layout.minimumHeight: 0 }
             }
 
             Card {
                 anchors.fill: parent
                 anchors.margins: Metrics.headerPadding.side[Metrics.compactIndex]
+                anchors.topMargin: 0
+                anchors.bottomMargin: Metrics.headerPadding.bottom[Metrics.compactIndex]
                 cornerRadius: Metrics.cardRadius.value[Metrics.compactIndex]
                 visible: root.view === "results"
                 clip: true
