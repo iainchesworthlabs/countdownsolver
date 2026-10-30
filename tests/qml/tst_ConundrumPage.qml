@@ -10,6 +10,42 @@ TestCase {
 
     Component { id: pageComponent; ConundrumPage {} }
 
+    function cleanup() {
+        Metrics.formFactor = FormFactor.desktop
+    }
+
+    // The page area left under the header, the Input/Results toggle and the
+    // tab bar is short on a phone. Solve must stay inside it, with the cards
+    // scrolling above it, rather than rolling off the bottom.
+    function test_solveStaysInViewOnShortPortraitWindows_data() {
+        return [
+            { tag: "iPhone 17",      form: FormFactor.phonePortrait,  w: 402, h: 560 },
+            { tag: "iPhone SE",      form: FormFactor.phonePortrait,  w: 375, h: 440 },
+            { tag: "smallest phone", form: FormFactor.phonePortrait,  w: 320, h: 330 },
+            { tag: "iPad mini",      form: FormFactor.tabletPortrait, w: 744, h: 700 },
+            { tag: "short tablet",   form: FormFactor.tabletPortrait, w: 744, h: 400 }
+        ]
+    }
+
+    function test_solveStaysInViewOnShortPortraitWindows(data) {
+        Metrics.formFactor = data.form
+        const page = createTemporaryObject(pageComponent, testCase, { width: data.w, height: data.h })
+        verify(page !== null)
+
+        const solve = findChild(page, "solveButton")
+        verify(solve !== null)
+        const topLeft = solve.mapToItem(page, 0, 0)
+        verify(topLeft.x >= 0, "Solve starts left of the page")
+        verify(topLeft.y >= 0, "Solve starts above the page")
+        verify(topLeft.x + solve.width <= page.width, "Solve runs past the right edge")
+        verify(topLeft.y + solve.height <= page.height, "Solve runs past the bottom edge")
+
+        // Gone before cleanup() puts the metrics back, which would otherwise
+        // re-evaluate this layout's per-form-factor bindings with no form factor.
+        page.destroy()
+        wait(10)
+    }
+
     function test_solveFindsTheAnagram() {
         const page = createTemporaryObject(pageComponent, testCase)
         verify(page !== null)

@@ -1,0 +1,1 @@
+**Solve stays on screen in the Letters and Conundrum games on a phone.** Held upright, these screens now keep Random, Backspace, Clear and Solve below the letter tiles and the keyboard, which scroll when the window is short, so Solve no longer rolls off the bottom on a small phone. Switching between Input and Results no longer moves the card.
