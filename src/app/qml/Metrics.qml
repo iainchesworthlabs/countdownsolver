@@ -70,6 +70,10 @@ QtObject {
     readonly property var conundrumTile: ({ w: [60, 52, 48], h: [70, 62, 56], radius: [11, 10, 9], font: [32, 28, 26] })
     readonly property var cardRadius:    ({ value: [14, 14, 12] })
     readonly property var cardPadding:   ({ value: [18, 16, 14] })
+    // Vertical gaps on the input screens: between the controls inside a card,
+    // and between one card and the next. Tighter on a phone, where the cards
+    // and the action buttons have to share a window under 900px tall.
+    readonly property var cardSpacing:   ({ inner: [12, 10, 10], outer: [16, 12, 12] })
     readonly property var toggleSwitch:  ({ w: [52, 50, 48], h: [30, 28, 28], radius: [15, 14, 14], knob: [24, 22, 22] })
     readonly property var segChip:       ({ h: [36, 34, 32], radius: [7, 7, 6], font: [15, 14, 13] })
     readonly property var headerTitle:   ({ font: [30, 24, 19] })
