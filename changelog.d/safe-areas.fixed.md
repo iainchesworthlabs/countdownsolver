@@ -1,0 +1,1 @@
+**The app keeps clear of the status bar and the home indicator.** On an iPhone or iPad, and on an Android phone or tablet, the title is no longer drawn under the status bar or the notch, and the tab bar keeps its tabs above the home indicator while its background still reaches the bottom edge. A phone held sideways also keeps the content clear of the camera cut-out.

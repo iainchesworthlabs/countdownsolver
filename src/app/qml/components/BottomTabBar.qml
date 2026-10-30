@@ -11,16 +11,24 @@ Rectangle {
     id: root
     property var tabs: []
     property int currentIndex: 0
+    // The bar's own colour runs to the edge of the window; its tabs stay clear
+    // of the home indicator below and of a camera cut-out at either side.
+    property real safeLeft: 0
+    property real safeRight: 0
+    property real safeBottom: 0
     signal tabActivated(int index)
 
     // safeIndex, not compactIndex - see BottomTabButton.qml's comment.
-    implicitHeight: Metrics.tabBar.h[Metrics.safeIndex]
+    implicitHeight: Metrics.tabBar.h[Metrics.safeIndex] + safeBottom
     color: Theme.sidebar
 
     Rectangle { anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; height: 1; color: Theme.border }
 
     RowLayout {
         anchors.fill: parent
+        anchors.leftMargin: root.safeLeft
+        anchors.rightMargin: root.safeRight
+        anchors.bottomMargin: root.safeBottom
         spacing: 0
         Repeater {
             model: root.tabs

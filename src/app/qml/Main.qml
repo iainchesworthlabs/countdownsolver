@@ -73,6 +73,16 @@ ApplicationWindow {
         [qsTr("Numbers"), "12"], [qsTr("Letters"), "Aa"], [qsTr("Conundrum"), "?"], [qsTr("Settings"), "≡"]
     ]
 
+    // The insets of the screen's unsafe areas: the status bar and the notch or
+    // Dynamic Island, the home indicator, and a camera cut-out or rounded corner
+    // at the side of a landscape screen. Qt reports them as SafeArea.margins,
+    // read from the layout below, which fills the window whatever is inside it;
+    // desktop has none. Plain properties so that a test or a preview can set them.
+    property real safeTop: shell.SafeArea.margins.top
+    property real safeLeft: shell.SafeArea.margins.left
+    property real safeRight: shell.SafeArea.margins.right
+    property real safeBottom: shell.SafeArea.margins.bottom
+
     readonly property bool showBottomTabs: formFactor !== FormFactor.desktop && formFactor !== FormFactor.tabletLandscape
     // Games only - Settings (index 3) has no Input/Results split.
     readonly property bool showViewToggle: showBottomTabs && currentIndex !== 3
@@ -85,12 +95,19 @@ ApplicationWindow {
     }
 
     ColumnLayout {
+        id: shell
         anchors.fill: parent
         spacing: 0
 
         RowLayout {
+            objectName: "shellContent"
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.topMargin: win.safeTop
+            Layout.leftMargin: win.safeLeft
+            Layout.rightMargin: win.safeRight
+            // With the bottom tabs, the tab bar takes the inset itself.
+            Layout.bottomMargin: win.showBottomTabs ? 0 : win.safeBottom
             spacing: 0
 
             // ---------- sidebar ----------
@@ -243,6 +260,9 @@ ApplicationWindow {
         BottomTabBar {
             Layout.fillWidth: true
             visible: win.showBottomTabs
+            safeLeft: win.safeLeft
+            safeRight: win.safeRight
+            safeBottom: win.safeBottom
             tabs: win.navTabs
             currentIndex: win.currentIndex
             onTabActivated: index => win.activateTab(index)
