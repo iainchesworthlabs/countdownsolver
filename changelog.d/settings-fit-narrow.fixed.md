@@ -1,0 +1,1 @@
+**The Settings page fits narrow screens.** On a phone or a small tablet the setting names and their descriptions wrap instead of running off the card, the controls no longer cover their labels (held sideways on a phone, and on an iPad mini), and the page lines up with the heading above it.

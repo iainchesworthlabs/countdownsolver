@@ -8,6 +8,15 @@ import QtQuick.Layouts
 Item {
     id: root
 
+    // The page lines up with the header above it: the same side margins, and
+    // card padding that follows the other pages on a phone or a small tablet.
+    readonly property real sideMargin: Metrics.pick(Metrics.headerPadding.side, 24)
+    readonly property real cardPad: Metrics.pick(Metrics.cardPadding.value, 20)
+    // A setting's control goes under its label where the card is narrow: on a
+    // phone held upright, and in the half-width cards of a phone held sideways.
+    readonly property bool stackedRows: Metrics.formFactor === FormFactor.phonePortrait
+    readonly property bool stackedHalfRows: stackedRows || Metrics.formFactor === FormFactor.phoneLandscape
+
     // Popup/Dialog isn't a QQuickItem, so it never shows up in another
     // Item's `children` list - TestCase.findChild (a `.children` walk) can't
     // reach it. Expose it as a property alias instead, for
@@ -16,7 +25,8 @@ Item {
 
     Flickable {
         anchors.fill: parent
-        anchors.leftMargin: 24; anchors.rightMargin: 24; anchors.bottomMargin: 24
+        anchors.leftMargin: root.sideMargin; anchors.rightMargin: root.sideMargin
+        anchors.bottomMargin: Metrics.pick(Metrics.headerPadding.bottom, 24)
         contentHeight: col.implicitHeight
         clip: true
         boundsBehavior: Flickable.StopAtBounds
@@ -33,10 +43,10 @@ Item {
             // ---- Appearance ----
             Card {
                 Layout.fillWidth: true
-                implicitHeight: ap.implicitHeight + 40
+                implicitHeight: ap.implicitHeight + 2 * root.cardPad
                 ColumnLayout {
                     id: ap
-                    anchors.fill: parent; anchors.margins: 20
+                    anchors.fill: parent; anchors.margins: root.cardPad
                     spacing: 16
                     SectionLabel { text: qsTr("Appearance") }
                     Item {
@@ -49,18 +59,18 @@ Item {
                         GridLayout {
                             id: themeRow
                             anchors.fill: parent
-                            columns: Metrics.formFactor === FormFactor.phonePortrait ? 1 : 2
+                            columns: root.stackedHalfRows ? 1 : 2
                             rowSpacing: 8; columnSpacing: 16
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 2
-                                Text { id: themeLabel; Layout.fillWidth: true; text: qsTr("Theme"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
-                                Text { Layout.fillWidth: true; text: qsTr("Applies across the whole window."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
+                                Text { id: themeLabel; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Theme"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
+                                Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Applies across the whole window."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
                             }
                             SegControl {
                                 id: themeSeg
                                 objectName: "themeSeg"
                                 accessibleName: themeLabel.text
-                                Layout.fillWidth: Metrics.formFactor === FormFactor.phonePortrait
+                                Layout.fillWidth: root.stackedHalfRows
                                 options: [qsTr("Light"), qsTr("Dark"), qsTr("System")]
                                 currentIndex: Theme.mode === "dark" ? 1 : (Theme.mode === "system" ? 2 : 0)
                                 onActivated: Theme.mode = index === 0 ? "light" : (index === 1 ? "dark" : "system")
@@ -73,10 +83,10 @@ Item {
             // ---- Language ----
             Card {
                 Layout.fillWidth: true
-                implicitHeight: lang.implicitHeight + 40
+                implicitHeight: lang.implicitHeight + 2 * root.cardPad
                 ColumnLayout {
                     id: lang
-                    anchors.fill: parent; anchors.margins: 20
+                    anchors.fill: parent; anchors.margins: root.cardPad
                     spacing: 16
                     SectionLabel { text: qsTr("Language") }
                     Item {
@@ -85,12 +95,12 @@ Item {
                         GridLayout {
                             id: langRow
                             anchors.fill: parent
-                            columns: Metrics.formFactor === FormFactor.phonePortrait ? 1 : 2
+                            columns: root.stackedHalfRows ? 1 : 2
                             rowSpacing: 8; columnSpacing: 16
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 2
-                                Text { id: langLabel; Layout.fillWidth: true; text: qsTr("Display language"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
-                                Text { Layout.fillWidth: true; text: qsTr("Changes menus, labels and messages across the app."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
+                                Text { id: langLabel; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Display language"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
+                                Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Changes menus, labels and messages across the app."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
                             }
                             ComboBox {
                                 id: langCombo
@@ -251,10 +261,10 @@ Item {
             Card {
                 Layout.fillWidth: true
                 Layout.columnSpan: Metrics.formFactor === FormFactor.phoneLandscape ? 2 : 1
-                implicitHeight: so.implicitHeight + 40
+                implicitHeight: so.implicitHeight + 2 * root.cardPad
                 ColumnLayout {
                     id: so
-                    anchors.fill: parent; anchors.margins: 20
+                    anchors.fill: parent; anchors.margins: root.cardPad
                     spacing: 20
                     SectionLabel { text: qsTr("Solver") }
 
@@ -268,8 +278,8 @@ Item {
                             rowSpacing: 8; columnSpacing: 16
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 2
-                                Text { id: minLenLabel; Layout.fillWidth: true; text: qsTr("Minimum word length"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
-                                Text { Layout.fillWidth: true; text: qsTr("Shortest words shown in the letters game."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
+                                Text { id: minLenLabel; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Minimum word length"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
+                                Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Shortest words shown in the letters game."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
                             }
                             SegControl {
                                 objectName: "minLenSeg"
@@ -292,8 +302,8 @@ Item {
                             rowSpacing: 8; columnSpacing: 16
                             ColumnLayout {
                                 Layout.fillWidth: true; spacing: 2
-                                Text { id: flagLabel; Layout.fillWidth: true; text: qsTr("Flag when no exact answer"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
-                                Text { id: flagHint; Layout.fillWidth: true; text: qsTr("Highlight the closest result in the numbers game."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
+                                Text { id: flagLabel; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Flag when no exact answer"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
+                                Text { id: flagHint; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Highlight the closest result in the numbers game."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
                             }
                             Switch {
                                 id: flagSwitch
@@ -356,8 +366,8 @@ Item {
                                 rowSpacing: 8; columnSpacing: 16
                                 ColumnLayout {
                                     Layout.fillWidth: true; spacing: 2
-                                    Text { id: maxWordsLabel; Layout.fillWidth: true; text: qsTr("Max words shown"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
-                                    Text { Layout.fillWidth: true; text: qsTr("Cap the letters-game result list."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
+                                    Text { id: maxWordsLabel; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Max words shown"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
+                                    Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Cap the letters-game result list."); color: Theme.muted; font.family: Theme.sans; font.pixelSize: 13 }
                                 }
                                 Rectangle {
                                     radius: Theme.radiusControl
@@ -412,19 +422,19 @@ Item {
             // ---- Dictionary ----
             Card {
                 Layout.fillWidth: true
-                implicitHeight: di.implicitHeight + 40
+                implicitHeight: di.implicitHeight + 2 * root.cardPad
                 ColumnLayout {
                     id: di
-                    anchors.fill: parent; anchors.margins: 20
+                    anchors.fill: parent; anchors.margins: root.cardPad
                     spacing: 16
                     SectionLabel { text: qsTr("Dictionary") }
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: Metrics.formFactor === FormFactor.phonePortrait ? 1 : 2
+                        columns: root.stackedHalfRows ? 1 : 2
                         rowSpacing: 8; columnSpacing: 16
                         ColumnLayout {
                             Layout.fillWidth: true; spacing: 2
-                            Text { id: wordListLabel; Layout.fillWidth: true; text: qsTr("Word list"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
+                            Text { id: wordListLabel; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: qsTr("Word list"); color: Theme.ink; font.family: Theme.sans; font.pixelSize: 15; font.weight: Font.DemiBold }
                             Text {
                                 Layout.fillWidth: true
                                 wrapMode: Text.WordWrap
@@ -454,7 +464,7 @@ Item {
                             id: dictSeg
                             objectName: "dictSeg"
                             accessibleName: wordListLabel.text
-                            Layout.fillWidth: Metrics.formFactor === FormFactor.phonePortrait
+                            Layout.fillWidth: root.stackedHalfRows
                             options: [qsTr("Default"), qsTr("Custom")]
                             enabled: solver.dictionariesReady && solver.fullDictionaryAvailable()
                             opacity: enabled ? 1 : 0.5
@@ -475,10 +485,10 @@ Item {
             // ---- About ----
             Card {
                 Layout.fillWidth: true
-                implicitHeight: ab.implicitHeight + 40
+                implicitHeight: ab.implicitHeight + 2 * root.cardPad
                 ColumnLayout {
                     id: ab
-                    anchors.fill: parent; anchors.margins: 20
+                    anchors.fill: parent; anchors.margins: root.cardPad
                     spacing: 12
                     SectionLabel { text: qsTr("About") }
                     ColumnLayout {
@@ -492,6 +502,7 @@ Item {
                             text: aboutText.versionLines[0] || ""
                             color: Theme.ink; font.family: Theme.sans
                             font.pixelSize: 15; font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
                         }
                         Text {
                             Layout.fillWidth: true
@@ -499,7 +510,9 @@ Item {
                             text: aboutText.versionLines.slice(1).join("\n")
                             color: Theme.muted; font.family: Theme.mono
                             font.pixelSize: 12
-                            wrapMode: Text.WordWrap
+                            // A build name such as "v0.3.0-beta.4-44-g1edcc6d" has no
+                            // place to break, so it wraps wherever it must.
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         }
                     }
                     // Word count/version/dirty badge - the sidebar footer
