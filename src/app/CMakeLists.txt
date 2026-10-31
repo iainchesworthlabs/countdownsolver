@@ -347,7 +347,7 @@ if(ANDROID)
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/platform/android"
         QT_ANDROID_PACKAGE_NAME "${COUNTDOWN_APPLICATION_ID}"
         QT_ANDROID_MIN_SDK_VERSION 28
-        QT_ANDROID_TARGET_SDK_VERSION 34)
+        QT_ANDROID_TARGET_SDK_VERSION 36)
 endif()
 
 # The bundle identifier, the version and the copyright line of the macOS and iOS bundles.
