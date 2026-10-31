@@ -1,0 +1,1 @@
+**Android 16 target.** The Android app now targets API level 36, the level the CI build already compiles against and the one Google Play asks for on updates. From Android 15 on, an app that targets this level is drawn edge to edge, so the screen insets handled in the safe-area change now apply on Android too. The oldest supported version is still Android 9 (API 28).
