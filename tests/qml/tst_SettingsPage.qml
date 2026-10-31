@@ -114,6 +114,14 @@ TestCase {
         verify(about.versionLines[0].length > 0)
     }
 
+    // The link goes to the organisation's repository, not the old owner's name.
+    function test_repositoryLinkPointsAtTheOrganisationRepository() {
+        const page = createTemporaryObject(pageComponent, testCase)
+        verify(page !== null)
+        verify(findChild(page, "repoLink") !== null)
+        compare(page.repositoryUrl.toString(), "https://github.com/iainchesworthlabs/countdownsolver")
+    }
+
     function test_licensesLinkOpensDialog() {
         const page = createTemporaryObject(pageComponent, testCase)
         verify(page !== null)

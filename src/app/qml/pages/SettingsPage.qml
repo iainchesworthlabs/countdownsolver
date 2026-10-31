@@ -17,6 +17,10 @@ Item {
     readonly property bool stackedRows: Metrics.formFactor === FormFactor.phonePortrait
     readonly property bool stackedHalfRows: stackedRows || Metrics.formFactor === FormFactor.phoneLandscape
 
+    // Where "View on GitHub" goes: the repository's home since it moved to the
+    // iainchesworthlabs organisation.
+    readonly property url repositoryUrl: "https://github.com/iainchesworthlabs/countdownsolver"
+
     // Popup/Dialog isn't a QQuickItem, so it never shows up in another
     // Item's `children` list - TestCase.findChild (a `.children` walk) can't
     // reach it. Expose it as a property alias instead, for
@@ -554,9 +558,10 @@ Item {
                     }
                     LinkButton {
                         id: repoLink
+                        objectName: "repoLink"
                         Layout.topMargin: 4
                         text: qsTr("View on GitHub ↗")
-                        onClicked: Qt.openUrlExternally("https://github.com/iainchesworth/CountdownSolver")
+                        onClicked: Qt.openUrlExternally(root.repositoryUrl)
                     }
                     LinkButton {
                         id: licensesLink
