@@ -1,0 +1,1 @@
+**urllib3 2.8.0 for the Qt installer.** The pinned `urllib3` in the CI Qt installer requirements moves from 2.7.0 to 2.8.0, which fixes three advisories (CVE-2026-97687, CVE-2026-97688 and CVE-2026-97689). It is used only by the CI tooling that downloads Qt and does not ship in the app.
