@@ -102,7 +102,7 @@ jobs:
           if [[ "$version" == *-* ]]; then echo "prerelease=true" >> "$GITHUB_OUTPUT"; else echo "prerelease=false" >> "$GITHUB_OUTPUT"; fi
 
       - name: Check the release has notes
-        uses: iainchesworthlabs/icl-common-infra/actions/release-notes@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/release-notes@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           version: ${{ steps.tag.outputs.version }}
           prerelease: ${{ steps.tag.outputs.prerelease }}
@@ -142,7 +142,7 @@ jobs:
       # released, can end up in a cache the other workflows trust. The release
       # configure builds no tests, so vcpkg has little to build anyway.
       - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
 
       - name: Install CMake 4 + Ninja
         uses: lukka/get-cmake@a89e43e22a96abafcd7a62db652a65ecd33052c9 # v4.4.4
@@ -154,7 +154,7 @@ jobs:
       # image's glibc as their floor; GCC 16 comes from the toolchain PPA there.
       - name: Install GCC 16 (Linux)
         if: runner.os == 'Linux'
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-gcc@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
 
       # rpmbuild isn't preinstalled on the Ubuntu runner; without it CPack
       # silently skips the RPM generator (see packaging/linux/Packaging.cmake)
@@ -182,10 +182,10 @@ jobs:
 
       - name: Set up MSVC environment (Windows)
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
 
       - name: Install Qt (prebuilt)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
 
       # What follows the dash in the tag (v0.3.0-beta.5 gives beta.5), empty for
       # a final release or a run that is not on a tag. The Linux packages use it
@@ -229,7 +229,7 @@ jobs:
       - name: Sign the program (Windows)
         id: sign_app
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           mode: ${{ vars.SIGN_WINDOWS || 'false' }}
           files: build/${{ matrix.preset }}/bin/countdownsolver.exe
@@ -267,7 +267,7 @@ jobs:
 
       - name: Check the glibc the package needs (Linux)
         if: runner.os == 'Linux'
-        uses: iainchesworthlabs/icl-common-infra/actions/check-glibc-floor@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/check-glibc-floor@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           folder: ${{ runner.temp }}/deb
 
@@ -305,7 +305,7 @@ jobs:
 
       - name: Sign the installer (Windows)
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           mode: ${{ vars.SIGN_WINDOWS || 'false' }}
           files: ${{ steps.installer.outputs.path }}
@@ -390,13 +390,13 @@ jobs:
           echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
 
       - name: Install Qt (desktop host kit)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
 
       - name: Capture host Qt path
         run: echo "COUNTDOWN_QT_HOST_ROOT=$QT_ROOT_DIR" >> "$GITHUB_ENV"
 
       - name: Install Qt (Android kit)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           target: android
           arch: android_arm64_v8a
@@ -538,7 +538,7 @@ jobs:
       # The shared action names the secret that is missing, before a Qt download of several gigabytes.
       - name: Import the certificate and the provisioning profile
         id: signing
-        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           certificate-base64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
           certificate-password: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
@@ -553,7 +553,7 @@ jobs:
           ninjaVersion: "1.13.2"
 
       - name: Install Qt (iOS kit)
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-qt@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           target: ios
 
@@ -591,7 +591,7 @@ jobs:
 
       - name: Archive and export the IPA
         id: export
-        uses: iainchesworthlabs/icl-common-infra/actions/export-ios-ipa@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/export-ios-ipa@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           project: ${{ steps.name.outputs.project }}
           scheme: countdownsolver
@@ -618,7 +618,7 @@ jobs:
       # Apple's own check of the icon, the property list, the signature and the privacy
       # declarations; and, for a tag or a manual run that asks, the upload to TestFlight.
       - name: Validate with Apple, and upload to TestFlight
-        uses: iainchesworthlabs/icl-common-infra/actions/upload-testflight@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/upload-testflight@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           ipa: ${{ steps.export.outputs.ipa }}
           key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
@@ -628,7 +628,7 @@ jobs:
 
       - name: Remove the signing keychain and profile
         if: always()
-        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@c412e6a542644c2316d21db351ef4218fa3e185d # v0.1.19
         with:
           remove: "true"
 
