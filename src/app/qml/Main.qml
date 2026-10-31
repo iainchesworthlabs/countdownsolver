@@ -41,6 +41,13 @@ ApplicationWindow {
     Binding { target: win; property: "height"; value: 740;  when: !win.isMobile }
     visibility: isMobile ? ApplicationWindow.FullScreen : ApplicationWindow.Windowed
 
+    // Since Qt 6.9 a phone window is kept inside the safe area unless it asks
+    // otherwise, which left the tab bar stopping above the home indicator with
+    // a bare strip beneath it, and SafeArea.margins reading zero. The hint
+    // lets the window run under the status bar and the home indicator; the
+    // layout below keeps its content clear of them with those margins.
+    flags: isMobile ? (Qt.Window | Qt.ExpandedClientAreaHint) : Qt.Window
+
     // Bindings that only apply when !isMobile - a ternary can't "leave a
     // property unset", but an inactive Binding never assigns at all, leaving
     // these at Qt's own default (0 / effectively unbounded) on mobile.

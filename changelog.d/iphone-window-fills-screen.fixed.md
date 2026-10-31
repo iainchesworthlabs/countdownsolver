@@ -1,0 +1,1 @@
+**The app fills the iPhone screen.** The tab bar now runs to the bottom of the screen instead of stopping above the home indicator, and the content runs under the status bar while staying clear of it. Android gets the same, which its newer target level draws edge to edge anyway.
