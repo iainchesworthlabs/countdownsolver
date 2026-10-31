@@ -1,0 +1,1 @@
+**Word lengths in other languages.** In French, German, Spanish, Arabic, Hebrew and Yiddish, the Letters screen counted every accented or non-Latin letter as two when it grouped words by length and picked the longest. A four-letter Arabic word was listed as an eight-letter one. Lengths now count letters, the same way the solver does.

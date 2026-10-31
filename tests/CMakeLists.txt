@@ -131,6 +131,8 @@ if(COUNTDOWN_BUILD_APP)
         app/preferences_test.hpp
         app/language_codes_test.cpp
         app/language_codes_test.hpp
+        app/solver_languages_test.cpp
+        app/solver_languages_test.hpp
         app/solver_test_utils.hpp)
 
     target_link_libraries(countdownsolver_tests
