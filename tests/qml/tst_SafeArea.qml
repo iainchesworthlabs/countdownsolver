@@ -59,6 +59,20 @@ TestCase {
         wait(10)
     }
 
+    // A phone window asks to run under the status bar and the home indicator,
+    // which is what makes Qt report the insets at all; a desktop window does
+    // not. The hint's value is checked too, since a misspelt enum name would
+    // quietly be undefined and leave the flags broken on a phone only.
+    function test_onlyAPhoneWindowRunsUnderTheSystemBars() {
+        compare(Qt.ExpandedClientAreaHint, 0x00400000)
+        const win = mainComponent.createObject(null)
+        verify(win !== null)
+        compare(win.isMobile, false)
+        compare(win.flags & Qt.ExpandedClientAreaHint, 0)
+        win.destroy()
+        wait(50)
+    }
+
     function test_shellContentStaysInsideTheInsets() {
         const win = mainComponent.createObject(null)
         verify(win !== null)
