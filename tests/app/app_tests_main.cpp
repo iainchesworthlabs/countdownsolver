@@ -6,6 +6,7 @@
 #include "preferences_test.hpp"
 #include "solver_conundrum_test.hpp"
 #include "solver_dictionary_test.hpp"
+#include "solver_languages_test.hpp"
 #include "solver_letters_test.hpp"
 #include "solver_logging_test.hpp"
 #include "solver_numbers_test.hpp"
@@ -64,6 +65,10 @@ int main(int argc, char* argv[]) {
     }
     {
         LanguageCodesTest test;
+        status |= QTest::qExec(&test, argc, argv);
+    }
+    {
+        LanguageRoundTest test;
         status |= QTest::qExec(&test, argc, argv);
     }
 #ifdef Q_OS_LINUX

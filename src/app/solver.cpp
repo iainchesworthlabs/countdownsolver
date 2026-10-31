@@ -60,6 +60,14 @@ private:
     QElapsedTimer timer_;
 };
 
+// The play length of a dictionary word, which is what the library sorts and filters by: the
+// folded letter count, where a ligature such as œ is two letters. std::string::size() counts
+// bytes instead, and a letter such as é or ب takes two.
+[[nodiscard]] std::size_t letter_length(const std::string& word,
+                                        const letters::Alphabet& alphabet) {
+    return static_cast<std::size_t>(letters::letter_count(letters::frequencies_of(word, alphabet)));
+}
+
 // Maps a LanguageManager language code to the Alphabet Solver's game logic
 // should use. Kept here (app layer), not in the library - the library has
 // no business knowing about ISO-ish language codes.
@@ -298,11 +306,12 @@ QVariantMap Solver::solveLetters(const QString& rack, int minLen, int maxResults
         return result;
     }
     const std::vector<std::string>& all = *matches;  // longest first, alpha within
+    const letters::Alphabet& alphabet = active_dictionary().alphabet();
 
-    const std::size_t max_len = all.front().size();
+    const std::size_t max_len = letter_length(all.front(), alphabet);
     QStringList longest;
     for (const std::string& word : all) {
-        if (word.size() != max_len) {
+        if (letter_length(word, alphabet) != max_len) {
             break;
         }
         longest << QString::fromStdString(word);
@@ -316,7 +325,7 @@ QVariantMap Solver::solveLetters(const QString& rack, int minLen, int maxResults
     // reflect only however many happened to fit before the cap ran out.
     std::unordered_map<int, int> length_counts;
     for (const std::string& word : all) {
-        ++length_counts[static_cast<int>(word.size())];
+        ++length_counts[static_cast<int>(letter_length(word, alphabet))];
     }
 
     // Group the shown words by length (descending, already sorted that way).
@@ -333,7 +342,7 @@ QVariantMap Solver::solveLetters(const QString& rack, int minLen, int maxResults
         }
     };
     for (std::size_t i = 0; i < shown; ++i) {
-        const int len = static_cast<int>(all[i].size());
+        const int len = static_cast<int>(letter_length(all[i], alphabet));
         if (len != group_len) {
             flush();
             group_len = len;
