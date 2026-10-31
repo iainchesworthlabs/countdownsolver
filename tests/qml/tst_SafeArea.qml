@@ -70,23 +70,29 @@ TestCase {
 
         const content = findChild(win.contentItem, "shellContent")
         verify(content !== null)
-        const at = content.mapToItem(win.contentItem, 0, 0)
-        verify(at.y >= 60, "content starts under the status bar")
-        verify(at.x >= 20, "content starts under the left inset")
-        verify(at.x + content.width <= win.width - 24, "content runs under the right inset")
-        verify(at.y + content.height <= win.height - 34, "content runs under the home indicator")
+        // The layout settles after the insets change, which takes longer on a
+        // busy machine than any fixed wait, so poll for it.
+        tryVerify(function() { return content.mapToItem(win.contentItem, 0, 0).y >= 60 },
+                  5000, "content starts under the status bar")
+        tryVerify(function() { return content.mapToItem(win.contentItem, 0, 0).x >= 20 },
+                  5000, "content starts under the left inset")
+        tryVerify(function() {
+            return content.mapToItem(win.contentItem, 0, 0).x + content.width <= win.width - 24
+        }, 5000, "content runs under the right inset")
+        tryVerify(function() {
+            return content.mapToItem(win.contentItem, 0, 0).y + content.height <= win.height - 34
+        }, 5000, "content runs under the home indicator")
 
         // And with no insets it fills the window, as it always has.
         win.safeTop = 0
         win.safeBottom = 0
         win.safeLeft = 0
         win.safeRight = 0
-        wait(50)
-        const whole = content.mapToItem(win.contentItem, 0, 0)
-        compare(whole.x, 0)
-        compare(whole.y, 0)
-        compare(content.width, win.width)
-        compare(content.height, win.height)
+        tryVerify(function() {
+            const whole = content.mapToItem(win.contentItem, 0, 0)
+            return whole.x === 0 && whole.y === 0
+                && content.width === win.width && content.height === win.height
+        }, 5000, "content fills the window once the insets are gone")
 
         win.destroy()
         wait(50)
